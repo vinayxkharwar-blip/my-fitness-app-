@@ -30,7 +30,8 @@ const ScanMeal = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const mlApiUrl = import.meta.env.VITE_ML_API_URL || "http://localhost:5001";
+      const mlApiUrl =
+        import.meta.env.VITE_ML_API_URL || "http://localhost:5001";
 
       const response = await fetch(`${mlApiUrl}/meal-detect`, {
         method: "POST",
@@ -42,7 +43,6 @@ const ScanMeal = () => {
       const data = await response.json();
       setNutrition(data.nutrition);
       setViewState("result");
-
     } catch (error) {
       console.error("Analysis failed:", error);
       toast({
@@ -81,39 +81,46 @@ const ScanMeal = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-background pb-24">
-        
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+      {/* MAIN BACKGROUND */}
+      <div
+        className="min-h-screen pb-24"
+        style={{ backgroundColor: "#12492f" }}
+      >
+        {/* HEADER */}
+        <header
+          className="sticky top-0 z-30 backdrop-blur-sm border-b border-white/10"
+          style={{ backgroundColor: "#12492f" }}
+        >
           <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
-
-            {/* FIXED → Back goes to HOME */}
+            {/* Back → HOME */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/home")}
               aria-label="Go back"
+              className="text-white"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
 
-            <h1 className="text-subtitle text-foreground font-display">
+            <h1 className="text-white font-semibold text-lg">
               Scan Meal
             </h1>
 
-            {/* FIXED → Close also goes to HOME */}
+            {/* Close → HOME */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate("/home")}
               aria-label="Close"
+              className="text-white"
             >
               <X className="w-5 h-5" />
             </Button>
-
           </div>
         </header>
 
+        {/* CONTENT */}
         <main className="max-w-lg mx-auto px-4 pt-6">
           {viewState === "upload" && (
             <UploadArea

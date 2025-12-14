@@ -1,52 +1,57 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useNavigate, Link } from "react-router-dom";
 
 export default function Index() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex flex-col items-center text-center px-6 pt-20">
+    <div
+      className="min-h-screen flex flex-col items-center pt-20 pb-10 px-4"
+      style={{ backgroundColor: "#12492f" }}
+    >
 
-      {/* App Icon */}
-      <div className="mb-6">
+      {/* Logo */}
+      <div className="mb-8">
         <img
           src="/logo.png"
+          className="w-16 h-16"
           alt="App Logo"
-          className="w-20 h-20 drop-shadow-md"
         />
       </div>
 
-      {/* Title */}
-      <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+      {/* Heading */}
+      <h1 className="text-4xl font-bold text-center mb-4 leading-tight text-white">
         Your AI-Powered <br /> Fitness Companion
       </h1>
 
-      <p className="text-gray-600 max-w-md mt-4">
-        Snap photos of your meals, get instant nutrition insights,  
+      {/* Subtitle */}
+      <p className="text-white/80 text-center max-w-md mb-8">
+        Snap photos of your meals, get instant nutrition insights,
         and receive personalized workout plans.
       </p>
 
       {/* Feature Pills */}
-      <div className="flex flex-wrap justify-center gap-3 mt-6">
-        <div className="px-4 py-2 bg-white rounded-full shadow text-sm">📸 AI Meal Analysis</div>
-        <div className="px-4 py-2 bg-white rounded-full shadow text-sm">💡 Smart Nutrition</div>
-        <div className="px-4 py-2 bg-white rounded-full shadow text-sm">⚡ Custom Workouts</div>
+      <div className="flex gap-3 mb-10 flex-wrap justify-center">
+        <span className="px-4 py-2 bg-white shadow rounded-full text-sm flex items-center gap-1 text-[#12492f]">
+          🥗 AI Meal Analysis
+        </span>
+        <span className="px-4 py-2 bg-white shadow rounded-full text-sm flex items-center gap-1 text-[#12492f]">
+          💡 Smart Nutrition
+        </span>
+        <span className="px-4 py-2 bg-white shadow rounded-full text-sm flex items-center gap-1 text-[#12492f]">
+          🏋️ Custom Workouts
+        </span>
       </div>
 
       {/* Get Started Button */}
       <Button
-        className="mt-10 bg-green-600 hover:bg-green-700 w-60 h-12 text-lg"
         onClick={() => navigate("/signup")}
+        className="px-10 py-4 text-lg rounded-xl shadow-md
+                   bg-white text-[#12492f] hover:opacity-90"
       >
         Get Started Free
       </Button>
 
-      {/* Sign-in link */}
-      <div className="mt-6">
-        <Link to="/login" className="text-gray-600 underline">
-          Sign In
-        </Link>
-      </div>
     </div>
   );
 }

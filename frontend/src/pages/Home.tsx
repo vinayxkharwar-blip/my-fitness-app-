@@ -1,96 +1,116 @@
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#F5FAFC] pb-32 flex justify-center">
-      
-      {/* CENTERED CONTENT WRAPPER */}
-      <div className="w-full max-w-2xl px-6 mt-10">
+    <div
+      className="min-h-screen pb-32 flex justify-center"
+      style={{ backgroundColor: "#12492f" }} // ✅ UPDATED BACKGROUND
+    >
+      {/* CENTER WRAPPER */}
+      <div className="w-full max-w-md px-5 pt-10">
 
         {/* HEADER */}
         <div className="mb-6">
-          <h1 className="text-4xl font-extrabold flex items-center gap-2">
-            🌱 Good Evening
+          <h1 className="text-3xl font-extrabold text-white leading-tight">
+            Good Afternoon,
           </h1>
-          <p className="text-gray-500 text-sm">
-            Small steps today = big results tomorrow
+          <p className="text-white/70 text-sm">
+            Ready to crush your goals today?
           </p>
         </div>
 
-        {/* TODAY’S FOCUS CARD */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 mb-8 border border-gray-100">
-          <p className="text-xs font-bold text-[#00A884] mb-1">
-            TODAY'S FOCUS
-          </p>
-          <p className="text-gray-700 text-sm">
-            Stay hydrated and hit your protein goal today! 💪
-          </p>
+        {/* TODAY'S FOCUS */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            🏆
+          </div>
+          <div>
+            <p className="text-xs font-bold text-green-600">TODAY&apos;S FOCUS</p>
+            <p className="text-sm text-gray-700">
+              Hit your protein goal! 💪
+            </p>
+          </div>
         </div>
 
         {/* CALORIES CARD */}
-        <div className="bg-white rounded-3xl shadow-md p-6 mb-8 border border-gray-100">
-
-          {/* Header Row */}
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="font-semibold text-lg">Calories</p>
-              <p className="text-gray-400 text-xs">Daily intake</p>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold">1420</p>
-              <p className="text-gray-400 text-xs">/ 2000 kcal</p>
-            </div>
-          </div>
+        <div className="bg-white rounded-3xl shadow-md p-6 mb-6">
+          <p className="text-sm text-gray-500 mb-1">Calories Remaining</p>
+          <h2 className="text-4xl font-bold text-gray-900">
+            580 <span className="text-base font-medium text-gray-500">kcal</span>
+          </h2>
 
           {/* Progress Bar */}
-          <div className="w-full h-2 bg-gray-200 rounded-full mt-5 mb-6">
-            <div
-              className="h-2 bg-blue-500 rounded-full"
-              style={{ width: "72%" }}
-            ></div>
+          <div className="w-full h-2 bg-gray-200 rounded-full mt-4 mb-6 overflow-hidden">
+            <div className="h-full bg-orange-500 w-[72%]" />
           </div>
 
           {/* Macros */}
-          <div className="flex justify-between text-center">
-
+          <div className="grid grid-cols-3 text-center">
             <div>
-              <p className="font-bold text-lg">65g</p>
-              <p className="text-gray-500 text-sm">Protein</p>
+              <p className="font-bold text-gray-900">65g</p>
+              <p className="text-xs text-gray-500">Protein</p>
+              <div className="h-1 bg-blue-500 rounded-full mt-2 mx-4" />
             </div>
-
             <div>
-              <p className="font-bold text-lg">180g</p>
-              <p className="text-gray-500 text-sm">Carbs</p>
+              <p className="font-bold text-gray-900">180g</p>
+              <p className="text-xs text-gray-500">Carbs</p>
+              <div className="h-1 bg-green-500 rounded-full mt-2 mx-4" />
             </div>
-
             <div>
-              <p className="font-bold text-lg">45g</p>
-              <p className="text-gray-500 text-sm">Fats</p>
+              <p className="font-bold text-gray-900">45g</p>
+              <p className="text-xs text-gray-500">Fats</p>
+              <div className="h-1 bg-yellow-400 rounded-full mt-2 mx-4" />
             </div>
-
           </div>
         </div>
 
-        {/* HYDRATION CARD */}
-        <div className="bg-white rounded-3xl shadow-md p-6 border border-gray-100">
-
-          {/* Row */}
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-lg">Hydration</p>
-              <p className="text-gray-500 text-xs">1200 / 2500 ml</p>
+        {/* QUICK ACTIONS */}
+        <p className="text-xs font-bold text-white/70 mb-3">
+          QUICK ACTIONS
+        </p>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {[
+            { label: "Scan Meal", icon: "📷" },
+            { label: "Body Check", icon: "👤" },
+            { label: "Log Food", icon: "➕" },
+            { label: "Workout", icon: "🏋️" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="bg-white rounded-2xl p-5 shadow-sm flex flex-col items-center gap-2"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                {item.icon}
+              </div>
+              <p className="text-sm font-medium text-gray-800">
+                {item.label}
+              </p>
             </div>
-            <p className="text-blue-600 font-semibold text-lg">48%</p>
+          ))}
+        </div>
+
+        {/* HYDRATION */}
+        <div className="bg-white rounded-3xl shadow-md p-6">
+          <div className="flex justify-between items-center mb-3">
+            <div>
+              <p className="font-semibold text-gray-900">Hydration</p>
+              <p className="text-xs text-gray-500">1200 / 2500 ml</p>
+            </div>
+            <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-sm font-semibold">
+              48%
+            </div>
+          </div>
+
+          {/* Progress */}
+          <div className="w-full h-2 bg-gray-200 rounded-full mb-5">
+            <div className="h-full w-[48%] bg-blue-500 rounded-full" />
           </div>
 
           {/* Buttons */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <button className="border border-gray-300 py-2 rounded-full text-sm shadow-sm bg-white">
-              +200 ml
+          <div className="grid grid-cols-2 gap-4">
+            <button className="py-2 rounded-xl border text-sm text-blue-600">
+              +200ml
             </button>
-            <button className="border border-gray-300 py-2 rounded-full text-sm shadow-sm bg-white">
-              +300 ml
-            </button>
-            <button className="border border-gray-300 py-2 rounded-full text-sm shadow-sm bg-white">
-              +500 ml
+            <button className="py-2 rounded-xl border text-sm text-blue-600">
+              +500ml
             </button>
           </div>
         </div>

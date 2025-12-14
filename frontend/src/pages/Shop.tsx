@@ -70,35 +70,48 @@ const Shop = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-background pb-24">
-
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+      {/* MAIN BACKGROUND */}
+      <div
+        className="min-h-screen pb-24"
+        style={{ backgroundColor: "#12492f" }}
+      >
+        {/* HEADER */}
+        <header
+          className="sticky top-0 z-30 backdrop-blur-sm border-b border-white/10"
+          style={{ backgroundColor: "#12492f" }}
+        >
           <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
-            
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate("/home")}
                 aria-label="Go back"
+                className="text-white"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
 
               <div>
-                <h1 className="text-subtitle text-foreground font-display">Shop</h1>
-                <p className="text-small text-muted-foreground">Recommended for your goals</p>
+                <h1 className="text-white font-semibold text-lg">Shop</h1>
+                <p className="text-white/70 text-sm">
+                  Recommended for your goals
+                </p>
               </div>
             </div>
 
-            <Button variant="outline" size="icon" aria-label="View cart">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="View cart"
+              className="border-white/30 text-white hover:bg-white/10"
+            >
               <ShoppingCart className="w-5 h-5" />
             </Button>
           </div>
         </header>
 
-        {/* Product List */}
+        {/* PRODUCT LIST */}
         <main className="max-w-lg mx-auto px-4 pt-6">
           <div className="grid grid-cols-2 gap-4">
             {products.map((product, index) => (

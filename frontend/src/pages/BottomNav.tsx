@@ -1,11 +1,21 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Home, Camera, BarChart2, Users, ShoppingBag } from "lucide-react";
 
 export const BottomNav = () => {
+  const location = useLocation();
+
+  // ❌ Landing, Login, Signup par BottomNav hide
+  if (
+    location.pathname === "/" ||
+    location.pathname === "/login" ||
+    location.pathname === "/signup"
+  ) {
+    return null;
+  }
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-md border-t flex justify-around py-3 z-50">
       
-      {/* HOME BUTTON → redirects to your new Home.tsx */}
       <NavLink to="/home" className="flex flex-col items-center text-gray-600">
         <Home size={22} />
         <span className="text-xs">Home</span>

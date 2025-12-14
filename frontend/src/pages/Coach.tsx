@@ -77,12 +77,22 @@ const Coach = () => {
     <>
       <Helmet>
         <title>Find a Coach - FitSnap AI</title>
-        <meta name="description" content="Connect with certified fitness coaches and nutritionists. Book consultations, chat, or call for personalized guidance." />
+        <meta
+          name="description"
+          content="Connect with certified fitness coaches and nutritionists. Book consultations, chat, or call for personalized guidance."
+        />
       </Helmet>
-      
-      <div className="min-h-screen bg-background pb-24">
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+
+      {/* MAIN BACKGROUND */}
+      <div
+        className="min-h-screen pb-24"
+        style={{ backgroundColor: "#12492f" }}
+      >
+        {/* HEADER */}
+        <header
+          className="sticky top-0 z-30 backdrop-blur-sm border-b"
+          style={{ backgroundColor: "#12492f" }}
+        >
           <div className="max-w-lg mx-auto px-4 py-4">
             <div className="flex items-center gap-4 mb-4">
               <Button
@@ -90,34 +100,37 @@ const Coach = () => {
                 size="icon"
                 onClick={() => navigate("/home")}
                 aria-label="Go back"
+                className="text-white"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-subtitle text-foreground font-display">Find a Coach</h1>
-                <p className="text-small text-muted-foreground">Expert guidance for your goals</p>
+                <h1 className="text-white font-semibold text-lg">
+                  Find a Coach
+                </h1>
+                <p className="text-white/70 text-sm">
+                  Expert guidance for your goals
+                </p>
               </div>
             </div>
-            
-            {/* Search */}
+
+            {/* SEARCH */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
               <input
                 type="text"
                 placeholder="Search by specialty..."
-                className="w-full h-11 pl-10 pr-4 rounded-xl bg-muted border border-border text-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
                 aria-label="Search coaches"
               />
             </div>
           </div>
         </header>
 
+        {/* CONTENT */}
         <main className="max-w-lg mx-auto px-4 pt-6 space-y-4">
           {trainers.map((trainer, index) => (
-            <div 
-              key={trainer.id}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
+            <div key={trainer.id} style={{ animationDelay: `${index * 100}ms` }}>
               <TrainerCard
                 {...trainer}
                 onBook={handleBook}
