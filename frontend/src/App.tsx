@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -20,13 +21,16 @@ import { BottomNav } from "./pages/BottomNav";
 function AppContent() {
   const location = useLocation();
 
-  // ❌ Landing page par BottomNav nahi chahiye
-  //const hideBottomNav = location.pathname === "/";
-  const hideBottomNav =
-  location.pathname === "/" ||
-  location.pathname === "/login" ||
-  location.pathname === "/signup";
+  const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname);
 
+  useEffect(() => {
+    if (isAuthOrLanding) {
+      document.body.classList.remove("dark-theme");
+      // Optional: Add specific class if needed, but :root is default
+    } else {
+      document.body.classList.add("dark-theme");
+    }
+  }, [location.pathname, isAuthOrLanding]);
 
   return (
     <>
@@ -46,7 +50,7 @@ function AppContent() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {!hideBottomNav && <BottomNav />}
+      {!isAuthOrLanding && <BottomNav />}
     </>
   );
 }

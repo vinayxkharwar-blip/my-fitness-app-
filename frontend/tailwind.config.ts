@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'Inter', 'sans-serif'],
+        heading: ['Outfit', 'sans-serif'],
       },
       fontSize: {
         'hero': ['2rem', { lineHeight: '1.2', fontWeight: '700' }],
@@ -78,6 +79,11 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        fitness: {
+          purple: "hsl(var(--fitness-purple))",
+          indigo: "hsl(var(--fitness-indigo))",
+          blue: "hsl(var(--fitness-blue))",
         },
       },
       borderRadius: {

@@ -1,150 +1,29 @@
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TrainerCard } from "@/components/fit/TrainerCard";
-import { BottomNav } from "@/components/fit/BottomNav";
-import { useToast } from "@/hooks/use-toast";
-import { Helmet } from "react-helmet-async";
+import { MessageSquare, Video, Calendar } from "lucide-react";
 
-const trainers = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    specialty: "Weight Loss & Nutrition",
-    rating: 4.9,
-    reviewCount: 234,
-    pricePerSession: 45,
-    available: true,
-  },
-  {
-    id: "2",
-    name: "Mike Chen",
-    specialty: "Strength Training",
-    rating: 4.8,
-    reviewCount: 189,
-    pricePerSession: 55,
-    available: true,
-  },
-  {
-    id: "3",
-    name: "Emily Davis",
-    specialty: "HIIT & Cardio",
-    rating: 4.7,
-    reviewCount: 156,
-    pricePerSession: 40,
-    available: false,
-  },
-  {
-    id: "4",
-    name: "Alex Rivera",
-    specialty: "Yoga & Flexibility",
-    rating: 5.0,
-    reviewCount: 98,
-    pricePerSession: 50,
-    available: true,
-  },
-];
+export default function Coach() {
+    return (
+        <div className="min-h-screen w-full bg-background pb-24 text-foreground animate-fade-in p-6">
+            <h1 className="text-2xl font-bold font-heading mb-6">Your Coach</h1>
 
-const Coach = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleBook = (id: string) => {
-    const trainer = trainers.find(t => t.id === id);
-    toast({
-      title: "Booking session...",
-      description: `Opening booking for ${trainer?.name}`,
-    });
-  };
-
-  const handleChat = (id: string) => {
-    const trainer = trainers.find(t => t.id === id);
-    toast({
-      title: "Opening chat...",
-      description: `Starting conversation with ${trainer?.name}`,
-    });
-  };
-
-  const handleCall = (id: string) => {
-    const trainer = trainers.find(t => t.id === id);
-    toast({
-      title: "Calling...",
-      description: `Connecting you with ${trainer?.name}`,
-    });
-  };
-
-  return (
-    <>
-      <Helmet>
-        <title>Find a Coach - FitSnap AI</title>
-        <meta
-          name="description"
-          content="Connect with certified fitness coaches and nutritionists. Book consultations, chat, or call for personalized guidance."
-        />
-      </Helmet>
-
-      {/* MAIN BACKGROUND */}
-      <div
-        className="min-h-screen pb-24"
-        style={{ backgroundColor: "#12492f" }}
-      >
-        {/* HEADER */}
-        <header
-          className="sticky top-0 z-30 backdrop-blur-sm border-b"
-          style={{ backgroundColor: "#12492f" }}
-        >
-          <div className="max-w-lg mx-auto px-4 py-4">
-            <div className="flex items-center gap-4 mb-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/home")}
-                aria-label="Go back"
-                className="text-white"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-white font-semibold text-lg">
-                  Find a Coach
-                </h1>
-                <p className="text-white/70 text-sm">
-                  Expert guidance for your goals
+            <div className="bg-card rounded-3xl p-8 border border-white/5 flex flex-col items-center text-center space-y-4 shadow-premium">
+                <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center text-4xl mb-2">
+                    🤖
+                </div>
+                <h2 className="text-xl font-bold text-white">AI Coach is Ready</h2>
+                <p className="text-muted-foreground">
+                    Your personalized AI fitness coach is analyzing your data. Start a chat or schedule a session.
                 </p>
-              </div>
+
+                <div className="w-full grid gap-3 pt-4">
+                    <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
+                        <MessageSquare size={18} /> Chat with Coach
+                    </Button>
+                    <Button variant="outline" className="w-full h-12 rounded-xl border-white/10 hover:bg-white/5 gap-2">
+                        <Video size={18} /> Video Session
+                    </Button>
+                </div>
             </div>
-
-            {/* SEARCH */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
-              <input
-                type="text"
-                placeholder="Search by specialty..."
-                className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
-                aria-label="Search coaches"
-              />
-            </div>
-          </div>
-        </header>
-
-        {/* CONTENT */}
-        <main className="max-w-lg mx-auto px-4 pt-6 space-y-4">
-          {trainers.map((trainer, index) => (
-            <div key={trainer.id} style={{ animationDelay: `${index * 100}ms` }}>
-              <TrainerCard
-                {...trainer}
-                onBook={handleBook}
-                onChat={handleChat}
-                onCall={handleCall}
-              />
-            </div>
-          ))}
-        </main>
-
-        <BottomNav />
-      </div>
-    </>
-  );
-};
-
-export default Coach;
+        </div>
+    );
+}
