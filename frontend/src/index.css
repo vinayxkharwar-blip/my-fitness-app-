@@ -62,9 +62,9 @@
      Now uses the global Premium Plum theme defined in :root.
      Legacy class kept for structure but variables removed to avoid override.
   */
-  .dashboard-theme {
-    /* Inherits from :root */
-  }
+  /* .dashboard-theme {
+    Inherits from :root
+  } */
 
   .dark {
     /* If dark mode is toggled, maybe go full deep plum background */
