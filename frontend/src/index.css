@@ -57,7 +57,7 @@
   }
 
   /* 
-     Keep a legacy dark mode or specific overrides if needed,  /* 
+     Keep a legacy dark mode or specific overrides if needed.
      DASHBOARD THEME 
      Now uses the global Premium Plum theme defined in :root.
      Legacy class kept for structure but variables removed to avoid override.
