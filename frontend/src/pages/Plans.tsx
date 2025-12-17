@@ -46,7 +46,7 @@ const Plans = () => {
         <title>My Plans - FitSnap AI</title>
         <meta name="description" content="Your personalized diet and workout plans. Follow meal suggestions and exercise routines tailored to your goals." />
       </Helmet>
-      
+
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -54,7 +54,7 @@ const Plans = () => {
             <Button
               variant="ghost"
               size="icon"
-                onClick={() => navigate("/home", { replace: true })}
+              onClick={() => navigate(-1)}
               aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -68,7 +68,7 @@ const Plans = () => {
 
         <main className="max-w-lg mx-auto px-4 pt-6 space-y-6">
           {/* Daily Summary */}
-          <div className="fit-card-elevated">
+          <div className="bg-card rounded-2xl p-6 shadow-premium border border-border/20 text-card-foreground">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-accent/20">
@@ -82,15 +82,15 @@ const Plans = () => {
               </div>
             </div>
             <div className="flex gap-4 text-center">
-              <div className="flex-1 p-2 rounded-lg bg-muted/50">
+              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
                 <p className="text-subtitle text-foreground">120g</p>
                 <p className="text-tiny text-muted-foreground">Protein</p>
               </div>
-              <div className="flex-1 p-2 rounded-lg bg-muted/50">
+              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
                 <p className="text-subtitle text-foreground">200g</p>
                 <p className="text-tiny text-muted-foreground">Carbs</p>
               </div>
-              <div className="flex-1 p-2 rounded-lg bg-muted/50">
+              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
                 <p className="text-subtitle text-foreground">65g</p>
                 <p className="text-tiny text-muted-foreground">Fats</p>
               </div>
@@ -103,29 +103,30 @@ const Plans = () => {
               <Utensils className="w-5 h-5 text-primary" />
               Meal Plan
             </h2>
-            
+
             {meals.map((meal, index) => (
-              <div 
+              <div
                 key={meal.id}
-                className="fit-card animate-slide-up"
+                className="bg-card rounded-xl p-4 border border-border/20 animate-slide-up text-card-foreground shadow-sm"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-body-medium text-foreground">{meal.name}</span>
+                      <span className="text-body-medium text-foreground font-semibold">{meal.name}</span>
                       <span className="text-tiny text-muted-foreground">• {meal.time}</span>
                     </div>
-                    <p className="text-small text-muted-foreground">{meal.suggestion}</p>
-                    <p className="text-tiny text-primary mt-1">{meal.calories} kcal</p>
+                    <p className="text-small text-muted-foreground/80">{meal.suggestion}</p>
+                    <p className="text-tiny text-primary mt-1 font-medium">{meal.calories} kcal</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => handleSwapMeal(meal.id)}
                     aria-label={`Swap ${meal.name}`}
+                    className="hover:bg-secondary"
                   >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </div>
               </div>
@@ -135,15 +136,15 @@ const Plans = () => {
           {/* Workout Card */}
           <div className="space-y-3">
             <h2 className="text-subtitle text-foreground font-display flex items-center gap-2">
-              <Dumbbell className="w-5 h-5 text-secondary" />
+              <Dumbbell className="w-5 h-5 text-secondary-foreground" />
               Today's Workout
             </h2>
-            
-            <div className="fit-card-elevated space-y-3">
+
+            <div className="bg-card rounded-2xl p-6 shadow-premium border border-border/20 space-y-3 text-card-foreground">
               {exercises.map((exercise) => (
-                <div 
+                <div
                   key={exercise.id}
-                  className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                  className="flex items-center justify-between py-2 border-b border-border/10 last:border-0"
                 >
                   <span className="text-body text-foreground">{exercise.name}</span>
                   <span className="text-small text-muted-foreground">
@@ -151,22 +152,20 @@ const Plans = () => {
                   </span>
                 </div>
               ))}
-              
+
               <Button
-                variant="primary-pill"
+                variant="default"
                 size="lg"
                 onClick={handleCompleteWorkout}
-                className="w-full mt-4"
+                className="w-full mt-4 bg-primary text-white hover:bg-primary/90 rounded-full"
                 aria-label="Mark workout as completed"
               >
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 mr-2" />
                 Mark Completed
               </Button>
             </div>
           </div>
         </main>
-
-        <BottomNav />
       </div>
     </>
   );

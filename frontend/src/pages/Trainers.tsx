@@ -51,7 +51,7 @@ const Trainers = () => {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                                 Ready to help you achieve your fitness goals with expert guidance in {trainer.speciality}.
                             </p>
                         </CardContent>

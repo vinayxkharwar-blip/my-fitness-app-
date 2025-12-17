@@ -84,6 +84,12 @@ export default {
           purple: "hsl(var(--fitness-purple))",
           indigo: "hsl(var(--fitness-indigo))",
           blue: "hsl(var(--fitness-blue))",
+          protein: "hsl(var(--fitness-protein))",
+          carbs: "hsl(var(--fitness-carbs))",
+          fats: "hsl(var(--fitness-fats))",
+          water: "hsl(var(--fitness-water))",
+          "fire-from": "hsl(var(--fitness-fire-from))",
+          "fire-to": "hsl(var(--fitness-fire-to))",
         },
       },
       borderRadius: {

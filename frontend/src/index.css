@@ -6,101 +6,82 @@
 
 @layer base {
   :root {
-    /* 
-      AUTH THEME (Safe, Trustworthy, Calm) 
-      Used for Login & Signup
-    */
-    --background: 36 33% 97%;
-    /* Warm off-white / soft beige #FDFBF7 */
-    --foreground: 260 10% 20%;
-    /* Soft dark gray for text */
+    /* Clean Light Premium Theme */
+    --background: 210 20% 98%;
+    /* Soft Cool White */
+    --foreground: 222 47% 11%;
+    /* Deep Navy/Black */
 
     --card: 0 0% 100%;
-    /* Pure white */
-    --card-foreground: 260 10% 20%;
+    /* Pure White */
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 260 10% 20%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Soft Muted Purple Primary */
-    --primary: 265 60% 60%;
-    /* Soft Purple */
-    --primary-foreground: 0 0% 100%;
+    --primary: 262 83% 58%;
+    /* Vivid Purple */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 36 20% 94%;
-    /* Slightly darker beige for secondary elements */
-    --secondary-foreground: 260 10% 20%;
+    --secondary: 210 40% 96%;
+    /* Very Light Blue/Gray */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 36 20% 90%;
-    --muted-foreground: 260 5% 50%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Soft Gray Text */
 
-    --accent: 265 60% 95%;
-    /* Very light purple accent for backgrounds */
-    --accent-foreground: 265 60% 40%;
+    --accent: 262 83% 58%;
+    /* Purple Accent */
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 260 10% 90%;
-    --input: 260 10% 95%;
-    --ring: 265 60% 60%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262 83% 58%;
 
     --radius: 1rem;
-    /* Rounded feel */
 
-    /* Custom Gradients/Effects for Light Theme */
-    --fit-gradient: none;
-    /* No gradients for Auth */
+    /* Custom App Colors */
+    --fit-plum: 262 83% 58%;
+    /* Unified with Primary */
+    --fit-lavender: 265 60% 95%;
+    /* Light Purple Backgrounds */
+    --fit-soft-white: 210 20% 98%;
+    --fit-card-bg: 0 0% 100%;
+
+    /* Soft Premium Shadow */
     --fit-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
   }
 
   /* 
-     DASHBOARD THEME (Modern, Premium, Fitness-Tech)
-     Used for everything else (Index, Home, etc.)
+     Keep a legacy dark mode or specific overrides if needed,  /* 
+     DASHBOARD THEME 
+     Now uses the global Premium Plum theme defined in :root.
+     Legacy class kept for structure but variables removed to avoid override.
   */
-  .dark-theme {
-    --background: 222 47% 6%;
-    /* Deep Dark Blue/Black #080C14 */
-    --foreground: 210 40% 98%;
+  .dashboard-theme {
+    /* Inherits from :root */
+  }
 
-    --card: 222 47% 11%;
-    /* Dark Slate #0F1623 */
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Vivid Purple -> Indigo */
-    --primary: 265 80% 65%;
-    /* Vivid Purple */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 33% 17%;
-    /* Muted Blue-Grey */
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217 33% 12%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 250 80% 65%;
-    /* Indigo Accent */
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217 33% 20%;
-    --input: 217 33% 15%;
-    --ring: 265 80% 65%;
-
-    /* Specific Dashboard Colors */
-    --fitness-purple: 265 80% 65%;
-    --fitness-indigo: 250 80% 65%;
-    --fitness-blue: 210 90% 60%;
-
-    --fit-gradient-primary: linear-gradient(135deg, hsl(265 80% 65%) 0%, hsl(250 80% 65%) 100%);
-    --fit-gradient-card: linear-gradient(180deg, hsl(222 47% 12%) 0%, hsl(222 47% 10%) 100%);
-    --fit-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  .dark {
+    /* If dark mode is toggled, maybe go full deep plum background */
+    --background: 315 40% 10%;
+    --foreground: 0 0% 98%;
+    --card: 315 40% 15%;
+    --card-foreground: 0 0% 100%;
+    --primary: 315 60% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 315 30% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 315 30% 20%;
+    --muted-foreground: 315 10% 65%;
+    --accent: 315 50% 25%;
+    --accent-foreground: 0 0% 98%;
+    --border: 315 30% 20%;
+    --input: 315 30% 20%;
   }
 }
 
@@ -134,6 +115,14 @@
 
   .shadow-premium {
     box-shadow: var(--fit-shadow);
+  }
+
+  .bg-gradient-purple {
+    @apply bg-gradient-to-r from-purple-600 to-indigo-600;
+  }
+
+  .shadow-glow-purple {
+    box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.4);
   }
 
   .glass-panel {

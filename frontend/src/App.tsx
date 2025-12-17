@@ -13,6 +13,7 @@ import Shop from "./pages/Shop";
 import Habits from "./pages/Habits";
 import BodyAnalysis from "./pages/BodyAnalysis";
 import Plans from "./pages/Plans";
+import Profile from "./pages/Profile";
 import Trainers from "./pages/Trainers";
 import NotFound from "./pages/NotFound";
 
@@ -25,10 +26,10 @@ function AppContent() {
 
   useEffect(() => {
     if (isAuthOrLanding) {
-      document.body.classList.remove("dark-theme");
+      document.body.classList.remove("dashboard-theme");
       // Optional: Add specific class if needed, but :root is default
     } else {
-      document.body.classList.add("dark-theme");
+      document.body.classList.add("dashboard-theme");
     }
   }, [location.pathname, isAuthOrLanding]);
 
@@ -44,6 +45,7 @@ function AppContent() {
         <Route path="/scan" element={<ScanMeal />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/habits" element={<Habits />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/body" element={<BodyAnalysis />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/trainers" element={<Trainers />} />

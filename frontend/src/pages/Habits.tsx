@@ -21,7 +21,7 @@ const Habits = () => {
   const [habits, setHabits] = useState(initialHabits);
 
   const handleToggle = (id: string, completed: boolean) => {
-    setHabits(prev => prev.map(h => 
+    setHabits(prev => prev.map(h =>
       h.id === id ? { ...h, completed, streak: completed ? h.streak + 1 : h.streak } : h
     ));
 
@@ -41,7 +41,7 @@ const Habits = () => {
         <title>Daily Habits - FitSnap AI</title>
         <meta name="description" content="Build healthy habits one day at a time. Track your daily routines and maintain your streaks." />
       </Helmet>
-      
+
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -63,16 +63,16 @@ const Habits = () => {
 
         <main className="max-w-lg mx-auto px-4 pt-6 space-y-3">
           {/* Progress indicator */}
-          <div className="fit-card bg-gradient-to-r from-primary/5 to-accent/5">
+          <div className="bg-card rounded-2xl p-4 shadow-premium border border-white/5 text-card-foreground">
             <div className="flex items-center justify-between mb-3">
               <span className="text-body-medium text-foreground">Today's Progress</span>
               <span className="text-subtitle text-primary font-display">
                 {Math.round((completedCount / habits.length) * 100)}%
               </span>
             </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div 
-                className="h-full rounded-full fit-gradient-primary transition-all duration-500"
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${(completedCount / habits.length) * 100}%` }}
               />
             </div>
@@ -80,8 +80,8 @@ const Habits = () => {
 
           {/* Habit list */}
           {habits.map((habit, index) => (
-            <div 
-              key={habit.id} 
+            <div
+              key={habit.id}
               className="animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -94,11 +94,11 @@ const Habits = () => {
 
           {/* Encouragement */}
           {completedCount === habits.length && (
-            <div className="fit-card bg-success/10 border-success/20 text-center py-6 animate-scale-up">
-              <p className="text-title text-foreground font-display mb-2">
+            <div className="bg-card/10 border border-success/20 text-center py-6 animate-scale-up rounded-2xl">
+              <p className="text-title text-success font-display mb-2">
                 Amazing! All habits complete! 🎉
               </p>
-              <p className="text-body text-muted-foreground">
+              <p className="text-body text-success/80">
                 You're crushing it today. See you tomorrow!
               </p>
             </div>

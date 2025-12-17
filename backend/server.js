@@ -5,7 +5,7 @@ const app = express();
 
 // ✅ CORS (Only once)
 app.use(cors({
-    origin: "http://localhost:8080",
+    origin: "http://localhost:5173",
     credentials: true,
     methods: "GET, POST, PUT, DELETE"
 }));
@@ -33,6 +33,7 @@ app.use("/bookings", require("./routes/bookingRoutes"));
 app.use("/chat", require("./routes/chatRoutes"));
 app.use("/products", require("./routes/productRoutes"));
 app.use("/cart", require("./routes/cartRoutes"));
+app.use("/api/nutrition", require("./routes/nutritionRoutes"));
 
 // ------------------------------------------------------
 // ⭐ NEW AI ANALYZE ROUTE (Mock AI Nutrition Analysis)

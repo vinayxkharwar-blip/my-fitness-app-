@@ -17,8 +17,8 @@ export const BottomNav = () => {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-slate-100 pb-safe">
-            <nav className="flex justify-between items-center px-6 py-3 max-w-md mx-auto">
+        <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none">
+            <nav className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-black/5 shadow-2xl shadow-black/10 rounded-full px-6 py-3 flex items-center justify-between gap-6 w-[90%] max-w-sm">
                 {navItems.map(({ to, icon: Icon, label }) => {
                     const isActive = location.pathname === to;
                     const isScan = label === "Scan";
@@ -28,13 +28,12 @@ export const BottomNav = () => {
                             key={to}
                             to={to}
                             className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative group
-                                ${isActive ? "text-primary" : "text-slate-400 hover:text-slate-600"}
-                                ${isScan ? "px-4" : ""}
+                                ${isActive ? "text-primary scale-105" : "text-muted-foreground hover:text-primary/70"}
                             `}
                         >
                             <div className={`
-                                flex items-center justify-center rounded-2xl transition-all duration-300
-                                ${isScan ? (isActive ? "bg-primary/10 text-primary p-3" : "bg-slate-50 text-slate-500 p-3") : "p-1"}
+                                flex items-center justify-center rounded-full transition-all duration-300
+                                ${isScan ? (isActive ? "bg-primary text-white p-3 shadow-glow-purple" : "bg-primary text-white p-3 shadow-md") : "p-1"}
                             `}>
                                 <Icon
                                     size={isScan ? 24 : 22}
@@ -43,10 +42,12 @@ export const BottomNav = () => {
                                 />
                             </div>
 
-                            {/* Label - visible mostly for context or strictly minimal? User said "Calm, clean". Let's keep labels small. */}
-                            <span className={`text-[10px] font-medium transition-colors ${isActive ? "text-slate-900" : "text-slate-400"}`}>
-                                {label}
-                            </span>
+                            {/* Label - minimal */}
+                            {!isScan && (
+                                <span className={`text-[9px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                                    {label}
+                                </span>
+                            )}
                         </NavLink>
                     );
                 })}
