@@ -54,7 +54,7 @@ const Plans = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(-1)}
+                onClick={() => navigate("/home", { replace: true })}
               aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
