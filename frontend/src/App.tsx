@@ -16,6 +16,8 @@ import Plans from "./pages/Plans";
 import Profile from "./pages/Profile";
 import Trainers from "./pages/Trainers";
 import NotFound from "./pages/NotFound";
+import GoalSelection from "./pages/GoalSelection";
+import BodyMeasurements from "./pages/BodyMeasurements";
 
 import { BottomNav } from "./pages/BottomNav";
 
@@ -25,7 +27,7 @@ function AppContent() {
   const location = useLocation();
   const [showSplash, setShowSplash] = useState(true);
 
-  const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname);
+  const isAuthOrLanding = ["/", "/login", "/signup", "/onboarding/goal", "/onboarding/measurements"].includes(location.pathname);
 
   useEffect(() => {
     if (isAuthOrLanding) {
@@ -45,6 +47,8 @@ function AppContent() {
         <Route path="/" element={<Index />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/onboarding/goal" element={<GoalSelection />} />
+        <Route path="/onboarding/measurements" element={<BodyMeasurements />} />
         <Route path="/home" element={<Home />} />
         <Route path="/coach" element={<Coach />} />
         <Route path="/progress" element={<Progress />} />

@@ -43,7 +43,7 @@ const Plans = () => {
   return (
     <>
       <Helmet>
-        <title>My Plans - FitSnap AI</title>
+        <title>My Plans - FitSnapAI</title>
         <meta name="description" content="Your personalized diet and workout plans. Follow meal suggestions and exercise routines tailored to your goals." />
       </Helmet>
 

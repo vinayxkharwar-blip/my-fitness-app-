@@ -17,7 +17,7 @@ export default function Index() {
             <div className="relative z-10 w-full max-w-lg flex flex-col items-center">
                 {/* Logo - Smaller */}
                 <div className="mb-6 animate-fade-in">
-                    <img src="/logo.png" alt="FitSnap Logo" className="h-24 w-auto object-contain drop-shadow-lg" />
+                    <img src="/logo.png" alt="FitSnapAI Logo" className="h-24 w-auto object-contain drop-shadow-lg" />
                 </div>
 
                 {/* Heading - Tighter */}

@@ -41,7 +41,7 @@ export default function Signup() {
         // Simulate API call
         setTimeout(() => {
             setIsLoading(false);
-            navigate("/home"); // Redirect to Dashboard
+            navigate("/onboarding/goal"); // Redirect to Onboarding
         }, 1500);
     };
 
@@ -53,7 +53,7 @@ export default function Signup() {
         >
             <div className="text-center mb-8 space-y-3">
                 <h1 className="text-3xl font-bold font-heading text-foreground">
-                    Join FitLife
+                    Join FitSnapAI
                 </h1>
                 <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
                     Start your biological potential journey today.
@@ -71,14 +71,14 @@ export default function Signup() {
                     <div className="grid grid-cols-2 gap-3">
                         <Button
                             variant="outline"
-                            className="h-14 rounded-full border-border bg-secondary/30 text-foreground hover:bg-secondary/50 font-medium"
+                            className="h-14 rounded-full border-2 border-gray-200 bg-transparent hover:bg-gray-50 text-gray-700 font-medium"
                             onClick={() => { }}
                         >
                             <span className="mr-2 text-lg">G</span> Google
                         </Button>
                         <Button
                             variant="outline"
-                            className="h-14 rounded-full border-border bg-secondary/30 text-foreground hover:bg-secondary/50 font-medium"
+                            className="h-14 rounded-full border-2 border-gray-200 bg-transparent hover:bg-gray-50 text-gray-700 font-medium"
                             onClick={() => setShowEmailForm(true)}
                         >
                             <Mail className="mr-2 h-5 w-5" /> Email
@@ -160,7 +160,7 @@ export default function Signup() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full h-14 rounded-full text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
                         >
                             {isLoading ? (
                                 <>

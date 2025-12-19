@@ -38,7 +38,7 @@ const Habits = () => {
   return (
     <>
       <Helmet>
-        <title>Daily Habits - FitSnap AI</title>
+        <title>Daily Habits - FitSnapAI</title>
         <meta name="description" content="Build healthy habits one day at a time. Track your daily routines and maintain your streaks." />
       </Helmet>
 
