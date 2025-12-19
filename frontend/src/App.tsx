@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -19,19 +19,25 @@ import NotFound from "./pages/NotFound";
 
 import { BottomNav } from "./pages/BottomNav";
 
+import Splash from "./pages/Splash";
+
 function AppContent() {
   const location = useLocation();
+  const [showSplash, setShowSplash] = useState(true);
 
   const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname);
 
   useEffect(() => {
     if (isAuthOrLanding) {
       document.body.classList.remove("dashboard-theme");
-      // Optional: Add specific class if needed, but :root is default
     } else {
       document.body.classList.add("dashboard-theme");
     }
   }, [location.pathname, isAuthOrLanding]);
+
+  if (showSplash) {
+    return <Splash onFinish={() => setShowSplash(false)} />;
+  }
 
   return (
     <>

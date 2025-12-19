@@ -14,6 +14,7 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="text-center max-w-md animate-fade-in">
         <div className="mb-6">
+          <img src="/logo.png" alt="FitSnap Logo" className="h-24 w-auto object-contain mx-auto mb-4" />
           <span className="text-7xl font-display text-primary">404</span>
         </div>
         <h1 className="text-title text-foreground font-display mb-3">Page not found</h1>

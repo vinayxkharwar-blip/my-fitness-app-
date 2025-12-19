@@ -24,6 +24,7 @@ export default function Home() {
             {/* HEADER SECTION */}
             <header className="px-6 pt-12 pb-6 flex justify-between items-end bg-background/50 backdrop-blur-sm sticky top-0 z-10 border-b border-border/40">
                 <div className="space-y-1">
+                    <img src="/logo.png" alt="FitSnap Logo" className="h-8 w-auto object-contain mb-2" />
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Today, Dec 17</p>
                     <h1 className="text-2xl font-bold font-heading tracking-tight text-foreground">
                         Time to crush it, <span className="text-primary truncate">Alex</span>
