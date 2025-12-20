@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useRef } from "react";
 
 export default function Profile() {
     const navigate = useNavigate();
+    const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/300?img=5");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleLogout = () => {
         // Clear potential auth items
@@ -15,8 +18,30 @@ export default function Profile() {
         navigate("/login");
     };
 
+    const handleEditClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="min-h-screen w-full bg-background pb-32 animate-fade-in relative font-sans">
+            <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+            />
 
             {/* HEADER - Clean White Minimal */}
             <div className="bg-card m-6 mb-0 rounded-[2.5rem] p-8 shadow-premium text-center relative overflow-hidden border border-border/20">
@@ -33,12 +58,15 @@ export default function Profile() {
                     <div className="relative inline-block mb-4 mt-8">
                         <div className="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-1 shadow-lg shadow-purple-500/20">
                             <img
-                                src="https://i.pravatar.cc/300?img=5"
+                                src={profileImage}
                                 alt="Profile"
                                 className="h-full w-full rounded-full object-cover border-4 border-white"
                             />
                         </div>
-                        <button className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-primary hover:scale-110 transition-transform">
+                        <button
+                            className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-primary hover:scale-110 transition-transform"
+                            onClick={handleEditClick}
+                        >
                             <Edit2 size={14} />
                         </button>
                     </div>

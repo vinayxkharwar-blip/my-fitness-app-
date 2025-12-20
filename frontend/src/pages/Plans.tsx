@@ -47,7 +47,7 @@ const Plans = () => {
         <meta name="description" content="Your personalized diet and workout plans. Follow meal suggestions and exercise routines tailored to your goals." />
       </Helmet>
 
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-screen bg-background pb-40">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-4">

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export default function Progress() {
     return (
-        <div className="min-h-screen w-full bg-background pb-32 text-foreground p-6 animate-fade-in font-sans">
+        <div className="min-h-screen w-full bg-background pb-40 text-foreground p-6 animate-fade-in font-sans">
             <header className="mb-8">
                 <h1 className="text-3xl font-bold font-heading text-slate-900">Your Progress</h1>
                 <p className="text-muted-foreground">Track your journey and milestones.</p>
