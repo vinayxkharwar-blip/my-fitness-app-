@@ -1,18 +1,56 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+interface UserProfile {
+    full_name: string;
+    email: string;
+    height_cm: number | null;
+    weight_kg: number | null;
+    activity_level: string | null;
+    goal: string | null;
+    profile_image?: string;
+}
 
 export default function Profile() {
     const navigate = useNavigate();
     const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/300?img=5");
+    const [profileData, setProfileData] = useState<UserProfile | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const storedUser = localStorage.getItem("user");
+                if (!storedUser) return;
+
+                const user = JSON.parse(storedUser);
+                const userId = user.id || user.user_id;
+
+                if (!userId) return;
+
+                const response = await fetch(`http://localhost:5000/profile/${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfileData(data);
+                    // Use saved image if available
+                    if (data.profile_image) {
+                        setProfileImage(data.profile_image);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
     const handleLogout = () => {
-        // Clear potential auth items
+        // Clear auth items
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        localStorage.removeItem("authToken");
 
         // Navigate to login
         navigate("/login");
@@ -26,12 +64,38 @@ export default function Profile() {
         const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileImage(reader.result as string);
+            reader.onloadend = async () => {
+                const base64Image = reader.result as string;
+                setProfileImage(base64Image); // Instant UI update
+
+                // Persist to backend
+                try {
+                    const storedUser = localStorage.getItem("user");
+                    if (storedUser) {
+                        const user = JSON.parse(storedUser);
+                        const userId = user.id || user.user_id;
+
+                        await fetch("http://localhost:5000/profile/update", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                user_id: userId,
+                                profile_image: base64Image
+                            })
+                        });
+                    }
+                } catch (err) {
+                    console.error("Failed to save profile image", err);
+                }
             };
             reader.readAsDataURL(file);
         }
     };
+
+    // Calculate BMI
+    const bmi = profileData?.weight_kg && profileData?.height_cm
+        ? (profileData.weight_kg / ((profileData.height_cm / 100) ** 2)).toFixed(1)
+        : "--";
 
     return (
         <div className="min-h-screen w-full bg-background pb-32 animate-fade-in relative font-sans">
@@ -70,8 +134,12 @@ export default function Profile() {
                             <Edit2 size={14} />
                         </button>
                     </div>
-                    <h1 className="text-2xl font-bold font-heading text-foreground mb-1">Sarah Jenkins</h1>
-                    <p className="text-muted-foreground font-medium text-sm bg-secondary/50 px-3 py-1 rounded-full inline-block">Marathon Training</p>
+                    <h1 className="text-2xl font-bold font-heading text-foreground mb-1">
+                        {profileData?.full_name || "Loading..."}
+                    </h1>
+                    <p className="text-muted-foreground font-medium text-sm bg-secondary/50 px-3 py-1 rounded-full inline-block">
+                        {profileData?.goal || "Goal not set"}
+                    </p>
                 </div>
             </div>
 
@@ -79,15 +147,21 @@ export default function Profile() {
             <div className="grid grid-cols-3 gap-3 px-6 -mt-6 relative z-10 mb-8">
                 <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "100ms" }}>
                     <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">Weight</span>
-                    <span className="text-lg font-bold text-foreground">62<span className="text-xs font-normal text-muted-foreground ml-0.5">kg</span></span>
+                    <span className="text-lg font-bold text-foreground">
+                        {profileData?.weight_kg || "--"}
+                        <span className="text-xs font-normal text-muted-foreground ml-0.5">kg</span>
+                    </span>
                 </div>
                 <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "200ms" }}>
                     <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">Height</span>
-                    <span className="text-lg font-bold text-foreground">170<span className="text-xs font-normal text-muted-foreground ml-0.5">cm</span></span>
+                    <span className="text-lg font-bold text-foreground">
+                        {profileData?.height_cm || "--"}
+                        <span className="text-xs font-normal text-muted-foreground ml-0.5">cm</span>
+                    </span>
                 </div>
                 <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "300ms" }}>
                     <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">BMI</span>
-                    <span className="text-lg font-bold text-primary">21.5</span>
+                    <span className="text-lg font-bold text-primary">{bmi}</span>
                 </div>
             </div>
 

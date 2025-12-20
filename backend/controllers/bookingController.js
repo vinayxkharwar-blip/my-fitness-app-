@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../database/sqlite_db");
 
 // CREATE BOOKING
 exports.createBooking = (req, res) => {

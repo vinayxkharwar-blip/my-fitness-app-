@@ -1,9 +1,10 @@
 import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Flame, Droplets, Trophy, ArrowRight, Zap, Plus, Sparkles, Dumbbell } from "lucide-react";
 import { ProgressRing } from "../components/ProgressRing";
 
-// Mock Data
+// Mock Data (Stats for now)
 const DAILY_STATS = {
     calories: { current: 1250, target: 2200 },
     protein: { current: 95, target: 160 },
@@ -14,6 +15,40 @@ const DAILY_STATS = {
 
 export default function Home() {
     const navigate = useNavigate();
+    const [userName, setUserName] = useState("Alex");
+    const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/300?img=5");
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const storedUser = localStorage.getItem("user");
+                if (storedUser) {
+                    const user = JSON.parse(storedUser);
+                    // Set initial name from local storage if available
+                    if (user.full_name) {
+                        setUserName(user.full_name.split(" ")[0]); // First name only
+                    }
+
+                    const userId = user.id || user.user_id;
+                    if (userId) {
+                        const response = await fetch(`http://localhost:5000/profile/${userId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.full_name) {
+                                setUserName(data.full_name.split(" ")[0]);
+                            }
+                            if (data.profile_image) {
+                                setProfileImage(data.profile_image);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch user data for Home", err);
+            }
+        };
+        fetchUserData();
+    }, []);
 
     // Calculate percentage for the ring
     const caloriesProgress = Math.min((DAILY_STATS.calories.current / DAILY_STATS.calories.target) * 100, 100);
@@ -33,11 +68,11 @@ export default function Home() {
                     </div>
                     <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Today, Dec 17</p>
                     <h1 className="text-2xl font-bold font-heading tracking-tight text-white">
-                        Time to crush it, <span className="text-blue-400 truncate">Alex</span>
+                        Time to crush it, <span className="text-blue-400 max-w-[150px] inline-block truncate align-bottom">{userName}</span>
                     </h1>
                 </div>
                 <Link to="/profile" className="h-12 w-12 bg-slate-700 rounded-full flex items-center justify-center border-2 border-slate-600 shadow-md cursor-pointer hover:scale-105 transition-transform overflow-hidden">
-                    <img src="https://i.pravatar.cc/300?img=5" alt="Profile" className="h-full w-full object-cover" />
+                    <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                 </Link>
             </header>
 

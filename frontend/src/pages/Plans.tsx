@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Utensils, RefreshCw, Check, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BottomNav } from "@/components/fit/BottomNav";
+
 import { useToast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet-async";
 

@@ -21,7 +21,7 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
         return () => {
             stopCamera();
         };
-    }, [facingMode]);
+    }, [facingMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const startCamera = async () => {
         setLoading(true);

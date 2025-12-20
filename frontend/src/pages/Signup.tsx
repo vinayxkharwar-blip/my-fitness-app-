@@ -35,14 +35,36 @@ export default function Signup() {
 
     const onSubmit = async (data: SignupFormValues) => {
         setIsLoading(true);
-        // TODO: Integrate actual auth logic
-        console.log("Signup submitted:", data);
+        try {
+            const response = await fetch("http://localhost:5000/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    full_name: data.fullName, // Map to backend expected field
+                    email: data.email,
+                    password: data.password,
+                }),
+            });
 
-        // Simulate API call
-        setTimeout(() => {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.msg || "Registration failed");
+            }
+
+            // Redirect to login on success
+            navigate("/login");
+        } catch (error) {
+            console.error("Signup error:", error);
+            const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+            form.setError("root", {
+                message: errorMessage,
+            });
+        } finally {
             setIsLoading(false);
-            navigate("/onboarding/goal"); // Redirect to Onboarding
-        }, 1500);
+        }
     };
 
     return (

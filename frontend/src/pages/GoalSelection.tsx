@@ -37,8 +37,26 @@ export default function GoalSelection() {
     const navigate = useNavigate();
     const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (selectedGoal) {
+            try {
+                const storedUser = localStorage.getItem("user");
+                if (storedUser) {
+                    const user = JSON.parse(storedUser);
+                    const userId = user.id || user.user_id;
+
+                    await fetch("http://localhost:5000/profile/update", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            goal: selectedGoal
+                        })
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to save goal", err);
+            }
             navigate("/onboarding/measurements");
         }
     };

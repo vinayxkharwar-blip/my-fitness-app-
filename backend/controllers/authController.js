@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../database/sqlite_db");
 const bcrypt = require("bcryptjs");
 
 exports.registerUser = (req, res) => {
@@ -11,6 +11,7 @@ exports.registerUser = (req, res) => {
     const hashedPass = bcrypt.hashSync(password, 10);
 
     const sql = "INSERT INTO users (full_name, email, password_hash) VALUES (?, ?, ?)";
+    console.log("DB Object in Controller:", db);
 
     db.query(sql, [full_name, email, hashedPass], (err, result) => {
         if (err) return res.status(500).json(err);
@@ -25,7 +26,12 @@ exports.loginUser = (req, res) => {
         return res.status(400).json({ msg: "Email & Password required" });
     }
 
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = `
+        SELECT u.*, p.goal, p.height_cm, p.weight_kg 
+        FROM users u 
+        LEFT JOIN user_profiles p ON u.user_id = p.user_id 
+        WHERE u.email = ?
+    `;
 
     db.query(sql, [email], (err, result) => {
         if (err) return res.status(500).json(err);
@@ -42,12 +48,16 @@ exports.loginUser = (req, res) => {
             return res.status(401).json({ msg: "Invalid credentials" });
         }
 
+        // Check if profile setup is complete (has goal and height/weight)
+        const isProfileComplete = !!(user.goal && user.height_cm && user.weight_kg);
+
         res.status(200).json({
             msg: "Login successful!",
             user: {
                 id: user.user_id,
                 full_name: user.full_name,
-                email: user.email
+                email: user.email,
+                is_profile_complete: isProfileComplete
             }
         });
     });

@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../database/sqlite_db");
 
 // ADD TO CART
 exports.addToCart = (req, res) => {

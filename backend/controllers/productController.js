@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../database/sqlite_db");
 
 // GET ALL PRODUCTS
 exports.getProducts = (req, res) => {

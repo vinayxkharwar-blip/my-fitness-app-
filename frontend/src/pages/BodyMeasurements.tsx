@@ -25,8 +25,27 @@ export default function BodyMeasurements() {
     const [age, setAge] = useState<number>(25);
     const [gender, setGender] = useState<"male" | "female" | "other">("male");
 
-    const handleContinue = () => {
-        // Save data logic here
+    const handleContinue = async () => {
+        try {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                const userId = user.id || user.user_id;
+
+                await fetch("http://localhost:5000/profile/update", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        height_cm: heightCm, // Note: backend expects metric, ensure conversion if unit is imperial or send as is if logic handles it. Assuming logic handles sending CM.
+                        weight_kg: weight,   // Assuming logic handles sending KG.
+                        activity_level: "moderate" // Defaulting for now as page doesn't ask
+                    })
+                });
+            }
+        } catch (err) {
+            console.error("Failed to save measurements", err);
+        }
         navigate("/home");
     };
 

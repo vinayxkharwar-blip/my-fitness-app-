@@ -12,9 +12,20 @@ export function UploadArea({ type, onUpload, onCamera }: UploadAreaProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const instructions = type === "meal" 
+  const instructions = type === "meal"
     ? "Take a photo of your meal for instant nutrition analysis"
     : "Upload one clear front photo. This is an estimate only 😊";
+
+  const handleFile = useCallback((file: File) => {
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      onUpload?.(file);
+    }
+  }, [onUpload]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -35,18 +46,9 @@ export function UploadArea({ type, onUpload, onCamera }: UploadAreaProps) {
     if (files?.[0]) {
       handleFile(files[0]);
     }
-  }, []);
+  }, [handleFile]);
 
-  const handleFile = (file: File) => {
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      onUpload?.(file);
-    }
-  };
+
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,16 +70,15 @@ export function UploadArea({ type, onUpload, onCamera }: UploadAreaProps) {
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-3xl p-8 transition-all duration-300 ${
-          isDragging 
-            ? 'border-primary bg-primary/5 scale-[1.02]' 
-            : 'border-border hover:border-primary/50 bg-muted/30'
-        }`}
+        className={`relative border-2 border-dashed rounded-3xl p-8 transition-all duration-300 ${isDragging
+          ? 'border-primary bg-primary/5 scale-[1.02]'
+          : 'border-border hover:border-primary/50 bg-muted/30'
+          }`}
       >
         {preview ? (
           <div className="relative">
-            <img 
-              src={preview} 
+            <img
+              src={preview}
               alt="Preview of uploaded image"
               className="w-full h-48 object-cover rounded-2xl"
             />

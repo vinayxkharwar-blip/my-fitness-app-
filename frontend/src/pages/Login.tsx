@@ -33,14 +33,40 @@ export default function Login() {
 
     const onSubmit = async (data: LoginFormValues) => {
         setIsLoading(true);
-        // TODO: Integrate actual auth logic here
-        console.log("Login submitted:", data);
+        try {
+            const response = await fetch("http://localhost:5000/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
 
-        // Simulate delay for UI testing
-        setTimeout(() => {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Login failed");
+            }
+
+            // Store auth data
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify(result.user));
+
+            // Redirect based on profile completion
+            if (result.user.is_profile_complete) {
+                navigate("/home");
+            } else {
+                navigate("/onboarding/goal");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+            form.setError("root", {
+                message: errorMessage
+            });
+        } finally {
             setIsLoading(false);
-            navigate("/onboarding/goal"); // Redirect to Onboarding
-        }, 1500);
+        }
     };
 
     return (
