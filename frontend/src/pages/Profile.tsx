@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 export default function Profile() {
     const navigate = useNavigate();
 
+    const handleLogout = () => {
+        // Clear potential auth items
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
+
+        // Navigate to login
+        navigate("/login");
+    };
+
     return (
         <div className="min-h-screen w-full bg-background pb-32 animate-fade-in relative font-sans">
 
@@ -88,7 +98,10 @@ export default function Profile() {
                             </div>
                             <ChevronRight size={16} className="text-muted-foreground/50 group-hover:text-primary transition-colors" />
                         </div>
-                        <div className="group flex items-center justify-between p-4 hover:bg-red-50 transition-colors cursor-pointer">
+                        <div
+                            onClick={handleLogout}
+                            className="group flex items-center justify-between p-4 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
                             <div className="flex items-center gap-4">
                                 <div className="p-2 rounded-xl bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
                                     <LogOut size={18} />
