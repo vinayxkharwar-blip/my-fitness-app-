@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, ScanLine, BarChart2, Users, Dumbbell } from "lucide-react";
+import { Home, ScanLine, BarChart2, Users, Dumbbell, Moon } from "lucide-react";
 
 export const BottomNav = () => {
     const location = useLocation();
@@ -12,7 +12,7 @@ export const BottomNav = () => {
         { to: "/home", icon: Home, label: "Home" },
         { to: "/plans", icon: Dumbbell, label: "Plans" },
         { to: "/scan", icon: ScanLine, label: "Scan" },
-        { to: "/progress", icon: BarChart2, label: "Stats" },
+        { to: "/sleep", icon: Moon, label: "Sleep" },
         { to: "/coach", icon: Users, label: "Coach" },
     ];
 

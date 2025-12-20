@@ -18,6 +18,7 @@ import Trainers from "./pages/Trainers";
 import NotFound from "./pages/NotFound";
 import GoalSelection from "./pages/GoalSelection";
 import BodyMeasurements from "./pages/BodyMeasurements";
+import SleepTracker from "./pages/SleepTracker";
 
 import { BottomNav } from "./pages/BottomNav";
 
@@ -51,7 +52,7 @@ function AppContent() {
         <Route path="/onboarding/measurements" element={<BodyMeasurements />} />
         <Route path="/home" element={<Home />} />
         <Route path="/coach" element={<Coach />} />
-        <Route path="/progress" element={<Progress />} />
+        <Route path="/sleep" element={<SleepTracker />} />
         <Route path="/scan" element={<ScanMeal />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/habits" element={<Habits />} />
