@@ -24,25 +24,34 @@ export default function Splash({ onFinish }: { onFinish: () => void }) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 transition-opacity duration-1000 ease-in-out"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0F1020] transition-opacity duration-1000 ease-in-out"
             style={{ opacity }}
         >
             <div className="flex flex-col items-center animate-pulse-gentle">
                 <div className="relative mb-6">
-                    <img src="/logo.png" alt="FitSnapAI Logo" className="w-24 h-24 object-contain drop-shadow-md" />
+                    <img
+                        src="/logo.png"
+                        alt="FitSnapAI Logo"
+                        className="w-32 h-32 object-cover rounded-3xl shadow-[0_0_40px_rgba(79,70,229,0.3)]"
+                    />
 
                     {/* Optional small decoration */}
-                    <div className="absolute -top-2 -right-2 bg-white rounded-full p-1.5 shadow-sm border border-slate-100">
-                        <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <div className="absolute -top-2 -right-2 bg-[#1A1B3A] rounded-full p-2 shadow-lg border border-indigo-500/30">
+                        <Sparkles className="w-5 h-5 text-indigo-400" />
                     </div>
                 </div>
 
-                <h1 className="text-3xl font-bold font-heading text-slate-800 tracking-tight">
+                <h1 className="text-4xl font-bold font-heading text-white tracking-tight mb-2">
                     FitSnapAI
                 </h1>
-                <p className="text-slate-500 text-sm font-medium mt-2 tracking-widest uppercase">
+                <p className="text-indigo-300 text-sm font-medium tracking-[0.2em] uppercase">
                     Your Personal Coach
                 </p>
+            </div>
+
+            {/* Loading spinner at bottom */}
+            <div className="absolute bottom-12">
+                <div className="w-8 h-8 border-4 border-indigo-900 border-t-indigo-500 rounded-full animate-spin"></div>
             </div>
         </div>
     );

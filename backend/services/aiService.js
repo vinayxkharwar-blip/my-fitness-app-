@@ -59,7 +59,48 @@ class AIService {
     }
 
     /**
+     * Generate context-aware chat response
+     * @param {string} userMessage 
+     * @param {object} userContext (optional)
+     */
+    static async chatWithCoach(userMessage, userContext = {}) {
+        const msg = userMessage.toLowerCase();
+        let response = {
+            text: "I'm not sure specifically, but staying consistent is key! How else can I help?",
+            sender: "ai",
+            suggestions: []
+        };
+
+        // Keyword Matching Logic
+        if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
+            response.text = "Hello! I'm your AI Coach. Ready to crush your goals today?";
+            response.suggestions = ["I need a workout", "Give me a diet tip"];
+        }
+        else if (msg.includes("diet") || msg.includes("meal") || msg.includes("food") || msg.includes("eat")) {
+            response.text = "Nutrition is 80% of the battle! Here's a quick tip:\n\n• Prioritize protein at every meal.\n• Eat colorful vegetables.\n• Stay hydrated (3L+ daily).\n\nWould you like a specific meal plan?";
+            response.suggestions = ["Breakfast ideas", "High protein snacks"];
+        }
+        else if (msg.includes("workout") || msg.includes("exercise") || msg.includes("train") || msg.includes("gym")) {
+            response.text = "Let's get moving! For a balanced routine:\n\n1. Warm up (5 mins)\n2. Strength Training (30-45 mins)\n3. Cardio/Cool down (15 mins)\n\nDo you want a home or gym workout?";
+            response.suggestions = ["Home workout", "Gym routine"];
+        }
+        else if (msg.includes("sleep") || msg.includes("tired") || msg.includes("rest")) {
+            response.text = "Recovery is where the growth happens. Aim for 7-9 hours of quality sleep.\n\nTip: Avoid screens 1 hour before bed and keep your room cool.";
+        }
+        else if (msg.includes("motivation") || msg.includes("hard") || msg.includes("quit")) {
+            response.text = "Remember why you started! progress is non-linear. You're doing better than everyone who is still on the couch. Keep going! 💪";
+        }
+        else if (msg.includes("injury") || msg.includes("hurt") || msg.includes("pain")) {
+            response.text = "If you're in pain, please stop immediately and rest. If it persists, consult a medical professional. Don't push through bad pain.";
+            response.mood = "caution";
+        }
+
+        return response;
+    }
+
+    /**
      * Mock analysis of a meal image
+
      * @param {Buffer} imageBuffer 
      */
     static async analyzeMeal(imageBuffer) {

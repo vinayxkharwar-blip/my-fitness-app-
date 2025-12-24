@@ -15,4 +15,20 @@ router.post("/analyze", (req, res) => {
   res.json({ protein, carbs, fats, calories });
 });
 
+router.post("/chat", async (req, res) => {
+  const { message, user_id } = req.body;
+
+  if (!message) return res.status(400).json({ error: "No message provided" });
+
+  try {
+    const AIService = require("../services/aiService");
+    // In a real app, we would fetch userContext from DB here
+    const aiResponse = await AIService.chatWithCoach(message);
+    res.json(aiResponse);
+  } catch (error) {
+    console.error("Chat Error:", error);
+    res.status(500).json({ error: "Failed to generate response" });
+  }
+});
+
 module.exports = router;

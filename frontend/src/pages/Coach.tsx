@@ -11,6 +11,20 @@ interface Message {
 
 export default function Coach() {
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [userRole, setUserRole] = useState<'user' | 'trainer'>('user');
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            try {
+                const parsed = JSON.parse(storedUser);
+                setUserRole(parsed.role || 'user');
+            } catch (e) {
+                console.error("Failed to parse user", e);
+            }
+        }
+    }, []);
+
     const [messages, setMessages] = useState<Message[]>([
         { id: 1, text: "Hello! I'm your AI fitness coach. How can I help you today?", sender: 'ai' }
     ]);
@@ -25,7 +39,7 @@ export default function Coach() {
         scrollToBottom();
     }, [messages, isChatOpen]);
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (!inputValue.trim()) return;
 
         const newUserMessage: Message = {
@@ -37,32 +51,35 @@ export default function Coach() {
         setMessages(prev => [...prev, newUserMessage]);
         setInputValue("");
 
-        // Mock AI Response
-        setTimeout(() => {
-            const lowerInput = inputValue.toLowerCase();
-            let aiText = "";
+        // Call Backend AI
+        try {
+            const response = await fetch("http://localhost:5000/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: inputValue })
+            });
 
-            if (lowerInput.includes("diet") || lowerInput.includes("meal") || lowerInput.includes("food")) {
-                aiText = "Here is a simple balanced diet plan for you:\n\n• Breakfast: Oatmeal with berries & nuts\n• Lunch: Grilled chicken breast with quinoa & veggies\n• Snack: Greek yogurt or a piece of fruit\n• Dinner: Baked salmon with sweet potato & asparagus\n\nRemember to drink plenty of water!";
-            } else {
-                const aiResponses = [
-                    "That's a great goal! Let's work on that.",
-                    "Make sure to stay hydrated today.",
-                    "Consistency is key. You're doing great!",
-                    "Try increasing your protein intake for better recovery.",
-                    "How did your last workout feel?",
-                    "Don't forget to stretch after your exercises."
-                ];
-                aiText = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-            }
+            const data = await response.json();
+
+            if (!response.ok) throw new Error("Failed to get response");
 
             const newAiMessage: Message = {
                 id: Date.now() + 1,
-                text: aiText,
+                text: data.text || "Sorry, I'm having trouble thinking right now.",
                 sender: 'ai'
             };
             setMessages(prev => [...prev, newAiMessage]);
-        }, 1000);
+
+        } catch (error) {
+            console.error("Chat error:", error);
+            // Fallback error message (optional)
+            const errorMessage: Message = {
+                id: Date.now() + 1,
+                text: "I'm having trouble connecting to the server. Please try again later.",
+                sender: 'ai'
+            };
+            setMessages(prev => [...prev, errorMessage]);
+        }
     };
 
     if (isChatOpen) {
@@ -152,10 +169,21 @@ export default function Coach() {
                         className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
                         onClick={() => setIsChatOpen(true)}
                     >
-                        <MessageSquare size={18} /> Chat with Coach
+                        <MessageSquare size={18} /> {userRole === 'trainer' ? 'Chat with Clients' : 'Chat with Coach'}
                     </Button>
-                    <Button variant="outline" className="w-full h-12 rounded-xl border-white/10 hover:bg-white/5 gap-2 text-slate-700">
-                        <Video size={18} /> Video Session
+                    <Button
+                        variant="outline"
+                        className="w-full h-12 rounded-xl border-white/10 hover:bg-white/5 gap-2 text-slate-700"
+                        onClick={() => {
+                            if (userRole === 'trainer') {
+                                alert("Starting Video Session Host Mode...");
+                                window.open("https://meet.google.com/new", "_blank");
+                            } else {
+                                alert("Requesting Video Session with a Trainer...");
+                            }
+                        }}
+                    >
+                        <Video size={18} /> {userRole === 'trainer' ? 'Start Live Session' : 'Request Video Session'}
                     </Button>
                 </div>
             </div>

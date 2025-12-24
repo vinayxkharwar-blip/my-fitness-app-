@@ -29,8 +29,15 @@ export function AuthLayout({ children, showBack = true, noHeader = false }: Auth
 
             {/* Main Content Card */}
             <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-500/10 p-8 md:p-10 z-20 animate-scale-in mx-auto">
-                <div className="flex justify-center mb-6">
-                    <img src="/logo.png" alt="FitSnapAI Logo" className="h-16 w-auto object-contain" />
+                <div className="flex justify-center mb-8">
+                    <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                        <img
+                            src="/logo.png"
+                            alt="FitSnapAI Logo"
+                            className="relative h-24 w-24 object-cover rounded-[1.8rem] shadow-xl"
+                        />
+                    </div>
                 </div>
                 {children}
             </div>

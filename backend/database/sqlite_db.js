@@ -19,6 +19,7 @@ function initDb() {
             full_name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
+            role TEXT DEFAULT 'user',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `;
@@ -40,6 +41,17 @@ function initDb() {
             console.error("Error ensuring users table exists:", err.message);
         } else {
             console.log("Users table verified.");
+
+            // MIGRATION: Ensure role column exists
+            const addRoleCol = "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'";
+            dbConnection.run(addRoleCol, (err) => {
+                if (err && !err.message.includes("duplicate column")) {
+                    console.log("Column role might already exist, skipping.");
+                } else {
+                    console.log("Ensured role column exists in users table.");
+                }
+            });
+
             // Create profiles table after users
             dbConnection.run(createProfilesTable, (err) => {
                 if (err) {
