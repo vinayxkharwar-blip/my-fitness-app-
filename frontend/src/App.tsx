@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect, ReactNode } from "react";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { useAuth } from "./context/AuthContext";
 
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
@@ -22,15 +23,46 @@ import SleepTracker from "./pages/SleepTracker";
 
 import { BottomNav } from "./pages/BottomNav";
 
-import Splash from "./pages/Splash";
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background text-indigo-600">Loading App...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Public Only Route (for login/signup)
+const PublicRoute = ({ children }: { children: ReactNode }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background text-indigo-600">Loading...</div>;
+  }
+
+  if (user) {
+    // Redirect to home if already logged in
+    return <Navigate to="/home" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 function AppContent() {
   const location = useLocation();
-  const [showSplash, setShowSplash] = useState(true);
+  const { user } = useAuth();
 
   const isAuthOrLanding = ["/", "/login", "/signup", "/onboarding/goal", "/onboarding/measurements"].includes(location.pathname);
 
   useEffect(() => {
+    console.log("AppContent mounted/updated", location.pathname);
     if (isAuthOrLanding) {
       document.body.classList.remove("dashboard-theme");
     } else {
@@ -38,32 +70,35 @@ function AppContent() {
     }
   }, [location.pathname, isAuthOrLanding]);
 
-  if (showSplash) {
-    return <Splash onFinish={() => setShowSplash(false)} />;
-  }
-
   return (
     <>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+
+        {/* Custom Auth Routes */}
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+
         <Route path="/onboarding/goal" element={<GoalSelection />} />
         <Route path="/onboarding/measurements" element={<BodyMeasurements />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/coach" element={<Coach />} />
-        <Route path="/sleep" element={<SleepTracker />} />
-        <Route path="/scan" element={<ScanMeal />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/habits" element={<Habits />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/body" element={<BodyAnalysis />} />
-        <Route path="/plans" element={<Plans />} />
-        <Route path="/trainers" element={<Trainers />} />
+
+        {/* Protected Dashboard Routes */}
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
+        <Route path="/sleep" element={<ProtectedRoute><SleepTracker /></ProtectedRoute>} />
+        <Route path="/scan" element={<ProtectedRoute><ScanMeal /></ProtectedRoute>} />
+        <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
+        <Route path="/habits" element={<ProtectedRoute><Habits /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/body" element={<ProtectedRoute><BodyAnalysis /></ProtectedRoute>} />
+        <Route path="/plans" element={<ProtectedRoute><Plans /></ProtectedRoute>} />
+        <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {!isAuthOrLanding && <BottomNav />}
+      {/* Show BottomNav only when Signed In and not on landing pages */}
+      {user && !isAuthOrLanding && <BottomNav />}
     </>
   );
 }

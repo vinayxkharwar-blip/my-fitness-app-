@@ -7,7 +7,7 @@ const app = express();
 // ✅ CORS (Only once)
 // ✅ CORS (Only once)
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:8080"],
+    origin: ["http://localhost:5173", "http://localhost:8080", "http://10.26.96.172:5173", "http://10.26.96.172:8080"],
     credentials: true,
     methods: "GET, POST, PUT, DELETE"
 }));

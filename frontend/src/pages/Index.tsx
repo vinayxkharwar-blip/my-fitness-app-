@@ -1,9 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Activity, Utensils } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Index() {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const isSignedIn = !!user;
+
+    const handleGetStarted = () => {
+        if (isSignedIn) {
+            navigate("/home");
+        } else {
+            navigate("/signup");
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center py-12 px-6 bg-[#0F1020] relative overflow-hidden text-white font-sans selection:bg-purple-500/30">
@@ -50,7 +61,7 @@ export default function Index() {
                 {/* CTA Buttons - Compact */}
                 <div className="flex flex-col gap-3 w-full animate-scale-in" style={{ animationDelay: "300ms" }}>
                     <Button
-                        onClick={() => navigate("/signup")}
+                        onClick={handleGetStarted}
                         className="w-full h-12 text-base font-semibold rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-glow-purple transition-all hover:scale-[1.02] active:scale-[0.98] border-none"
                     >
                         Get Started Free <ArrowRight className="ml-2 h-4 w-4" />

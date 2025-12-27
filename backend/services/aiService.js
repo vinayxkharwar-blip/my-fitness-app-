@@ -1,130 +1,164 @@
-/**
- * AI Service Stub
- * Designed to integrate with OpenAI/Gemini/TensorFlow later.
- */
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
 
 class AIService {
-    /**
-     * Generate context-aware coach feedback
-     * Simulates an LLM response based on heuristics.
-     */
-    static generateCoachFeedback(userProfile, dailyStats) {
-        const { name, goal } = userProfile;
-        const { calories, protein, carbs, fat } = dailyStats;
-
-        let feedback = {
-            heading: "",
-            body: "",
-            suggestion: {},
-            mood: "neutral"
-        };
-
-        // 1. Analyze Protein (Crucial for most goals)
-        const proteinProgress = protein.current / protein.target;
-
-        if (proteinProgress < 0.5) {
-            feedback.heading = `Let's pump up the protein, ${name}! 🥩`;
-            feedback.body = `You're at ${Math.round(proteinProgress * 100)}% of your protein goal. Protein keeps you full and builds muscle.`;
-            feedback.suggestion = {
-                title: "Quick Fix",
-                desc: "How about a Greek Yogurt or a Scoop of Whey?",
-                action: "log_food"
-            };
-            feedback.mood = "urgent"; // Could trigger a yellow/orange UI
-        }
-        // 2. Analyze Calories
-        else if (calories.current > calories.target) {
-            feedback.heading = "Slight detour, but we're good! 🛑";
-            feedback.body = "You're slightly over calories today. Don't stress—just focus on hydration for the rest of the day.";
-            feedback.suggestion = {
-                title: "Movement",
-                desc: "A 10-minute walk after dinner helps digestion.",
-                action: "workout"
-            };
-            feedback.mood = "calm";
-        }
-        // 3. Winning State
-        else {
-            feedback.heading = `Crushing it, ${name}! 🔥`;
-            feedback.body = "Your macros are balanced and you're under your calorie limit. Perfect execution.";
-            feedback.suggestion = {
-                title: "Keep Streak",
-                desc: "Log your dinner to finish the day strong.",
-                action: "log_food"
-            };
-            feedback.mood = "success";
-        }
-
-        return feedback;
+    static getModel() {
+        if (!process.env.GEMINI_API_KEY) throw new Error("Missing API Key");
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
     }
 
-    /**
-     * Generate context-aware chat response
-     * @param {string} userMessage 
-     * @param {object} userContext (optional)
-     */
-    static async chatWithCoach(userMessage, userContext = {}) {
-        const msg = userMessage.toLowerCase();
+    static getVisionModel() {
+        if (!process.env.GEMINI_API_KEY) throw new Error("Missing API Key");
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    }
+
+    // --- FALLBACK LOGIC (Original Mock) ---
+    static getMockChatResponse(msg) {
+        msg = msg.toLowerCase();
         let response = {
-            text: "I'm not sure specifically, but staying consistent is key! How else can I help?",
+            text: "I'm currently in Offline Mode. I can help with 'Workouts', 'Diet Tips', or 'Motivation'. What do you need?",
             sender: "ai",
-            suggestions: []
+            suggestions: ["Give me a workout", "Diet tip"]
         };
 
-        // Keyword Matching Logic
-        if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
+        if (msg.includes("hello") || msg.includes("hi")) {
             response.text = "Hello! I'm your AI Coach. Ready to crush your goals today?";
-            response.suggestions = ["I need a workout", "Give me a diet tip"];
-        }
-        else if (msg.includes("diet") || msg.includes("meal") || msg.includes("food") || msg.includes("eat")) {
-            response.text = "Nutrition is 80% of the battle! Here's a quick tip:\n\n• Prioritize protein at every meal.\n• Eat colorful vegetables.\n• Stay hydrated (3L+ daily).\n\nWould you like a specific meal plan?";
+            response.suggestions = ["Workout", "Diet tip"];
+        } else if (msg.includes("diet") || msg.includes("food") || msg.includes("meal")) {
+            response.text = "Nutrition is key! Focus on whole foods, protein at every meal, and staying hydrated.";
             response.suggestions = ["Breakfast ideas", "High protein snacks"];
-        }
-        else if (msg.includes("workout") || msg.includes("exercise") || msg.includes("train") || msg.includes("gym")) {
-            response.text = "Let's get moving! For a balanced routine:\n\n1. Warm up (5 mins)\n2. Strength Training (30-45 mins)\n3. Cardio/Cool down (15 mins)\n\nDo you want a home or gym workout?";
+        } else if (msg.includes("workout") || msg.includes("gym") || msg.includes("exercise")) {
+            response.text = "Movement is medicine! A mix of cardio and strength training is best.";
             response.suggestions = ["Home workout", "Gym routine"];
+        } else if (msg.includes("motivation") || msg.includes("tired")) {
+            response.text = "Consistency beats intensity. Just show up for 10 minutes today!";
+        } else if (msg.includes("yes") || msg.includes("sure") || msg.includes("ok")) {
+            response.text = "Great! Let's get started. Do you want to focus on nutrition or fitness?";
+            response.suggestions = ["Nutrition", "Fitness"];
+        } else if (msg.includes("thanks") || msg.includes("thank")) {
+            response.text = "You're welcome! Keep up the hard work.";
         }
-        else if (msg.includes("sleep") || msg.includes("tired") || msg.includes("rest")) {
-            response.text = "Recovery is where the growth happens. Aim for 7-9 hours of quality sleep.\n\nTip: Avoid screens 1 hour before bed and keep your room cool.";
-        }
-        else if (msg.includes("motivation") || msg.includes("hard") || msg.includes("quit")) {
-            response.text = "Remember why you started! progress is non-linear. You're doing better than everyone who is still on the couch. Keep going! 💪";
-        }
-        else if (msg.includes("injury") || msg.includes("hurt") || msg.includes("pain")) {
-            response.text = "If you're in pain, please stop immediately and rest. If it persists, consult a medical professional. Don't push through bad pain.";
-            response.mood = "caution";
-        }
-
         return response;
     }
 
-    /**
-     * Mock analysis of a meal image
-
-     * @param {Buffer} imageBuffer 
-     */
-    static async analyzeMeal(imageBuffer) {
-        // TODO: Integrate OpenAI Vision API here
+    static getMockAnalysis() {
+        const protein = Math.round(Math.random() * 40 + 10);
+        const carbs = Math.round(Math.random() * 80 + 10);
+        const fats = Math.round(Math.random() * 30 + 5);
+        const calories = protein * 4 + carbs * 4 + fats * 9;
         return {
-            foodName: "Grilled Chicken Salad",
-            estimatedCalories: 450,
-            macros: {
-                protein: 40,
-                carbs: 10,
-                fats: 20
-            },
-            confidence: 0.95
+            foodName: "Detected Food (Offline)",
+            estimatedCalories: calories,
+            macros: { protein, carbs, fats },
+            confidence: 0.8
         };
     }
 
+    // --- MAIN METHODS ---
+
     /**
-     * Generate a workout plan based on user goals
+     * Generate context-aware chat response
      */
-    static async generateWorkoutPlan(userProfile) {
+    static async chatWithCoach(userMessage, userContext = {}) {
+        try {
+            const model = this.getModel();
+            const chat = model.startChat({
+                history: [
+                    { role: "user", parts: [{ text: "You are an AI Fitness Coach. Be motivating." }] },
+                    { role: "model", parts: [{ text: "Ready to help!" }] },
+                ],
+            });
+
+            const result = await chat.sendMessage(userMessage);
+            const response = await result.response;
+            return {
+                text: response.text(),
+                sender: "ai",
+                suggestions: ["Diet tip", "Workout plan"]
+            };
+
+        } catch (error) {
+            console.error("AI Chat Failed (Using Fallback):", error.message);
+            // Fallback to mock
+            return this.getMockChatResponse(userMessage);
+        }
+    }
+
+    /**
+     * Analyze a meal image
+     */
+    static async analyzeMeal(imageBase64) {
+        try {
+            const model = this.getVisionModel();
+            const updateBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+            const prompt = `Analyze food. JSON: { "foodName": "...", "estimatedCalories": 0, "macros": { "protein": 0, "carbs": 0, "fats": 0 }, "confidence": 0.9 }`;
+            const imagePart = { inlineData: { data: updateBase64, mimeType: "image/jpeg" } };
+
+            const result = await model.generateContent([prompt, imagePart]);
+            const response = await result.response;
+            let text = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+            return JSON.parse(text);
+
+        } catch (error) {
+            console.error("AI Vision Failed (Using Fallback):", error.message);
+            return this.getMockAnalysis();
+        }
+    }
+
+    /**
+     * Analyze a body physique image
+     */
+    static async analyzeBody(imageBase64) {
+        try {
+            const model = this.getVisionModel();
+            const updateBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+            const prompt = `
+            Act as a fitness coach. Analyze this physique image for:
+            1. Body Type (e.g., Ectomorph, Mesomorph, Endomorph, or hybrid)
+            2. Estimated Body Fat Percentage Range (visual estimate only)
+            3. Posture analysis (any observations like forward head, rounded shoulders)
+            
+            Return ONLY JSON:
+            {
+                "bodyType": "...",
+                "bodyFat": "...",
+                "posture": "...",
+                "suggestion": "..."
+            }
+            Include a disclaimer that this is not medical advice.
+            `;
+            const imagePart = { inlineData: { data: updateBase64, mimeType: "image/jpeg" } };
+
+            const result = await model.generateContent([prompt, imagePart]);
+            const response = await result.response;
+            let text = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+            return JSON.parse(text);
+
+        } catch (error) {
+            console.error("Body Analysis Failed (Using Fallback):", error.message);
+            return this.getMockBodyAnalysis();
+        }
+    }
+
+    static getMockBodyAnalysis() {
         return {
-            planName: "Strength & Mobility",
-            daysPerWeek: 4,
-            focus: "Full Body"
+            bodyType: "Mesomorph (Estimated)",
+            bodyFat: "15-20% Range",
+            posture: "Good alignment observed. Shoulders look level.",
+            suggestion: "Great baseline! Focus on hypertrophy to build more definition.",
+            disclaimer: "Offline Mode: This is a simulated estimate."
+        };
+    }
+
+    static async generateCoachFeedback(userProfile, dailyStats) {
+        // Simplified fallback for feedback too if needed, or just return basic object
+        return {
+            heading: "Keep Pushing!",
+            body: "You are doing great. Keep logging your meals.",
+            suggestion: { title: "Log", desc: "Track your next meal", action: "log_food" },
+            mood: "neutral"
         };
     }
 }

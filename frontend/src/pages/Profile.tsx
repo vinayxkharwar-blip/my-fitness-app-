@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface UserProfile {
     full_name: string;
@@ -15,6 +16,7 @@ interface UserProfile {
 
 export default function Profile() {
     const navigate = useNavigate();
+    const { logout } = useAuth();
     const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/300?img=5");
     const [profileData, setProfileData] = useState<UserProfile | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,11 +50,7 @@ export default function Profile() {
     }, []);
 
     const handleLogout = () => {
-        // Clear auth items
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        // Navigate to login
+        logout();
         navigate("/login");
     };
 

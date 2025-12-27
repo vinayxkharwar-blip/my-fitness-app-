@@ -9,15 +9,37 @@ export default function BodyAnalysis() {
     const navigate = useNavigate();
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [result, setResult] = useState<any>(null);
 
     const handleCapture = (image: string) => {
         setCapturedImage(image);
         setIsCameraOpen(false);
+        setResult(null); // Reset previous results
     };
 
     const handleRetake = () => {
         setCapturedImage(null);
+        setResult(null);
         setIsCameraOpen(true);
+    };
+
+    const analyzeBody = async () => {
+        if (!capturedImage) return;
+        setIsAnalyzing(true);
+        try {
+            const response = await fetch("http://10.26.96.172:5000/api/body-analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: capturedImage }),
+            });
+            const data = await response.json();
+            setResult(data);
+        } catch (error) {
+            alert("Analysis failed. Try again.");
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     return (
@@ -75,15 +97,43 @@ export default function BodyAnalysis() {
                     </p>
                 </div>
 
+                {/* Results Display */}
+                {result && (
+                    <div className="w-full bg-card rounded-2xl p-6 shadow-premium space-y-4 animate-fade-in border border-border">
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Body Type</h3>
+                            <p className="text-2xl font-bold text-indigo-600">{result.bodyType}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <h3 className="text-xs font-semibold text-muted-foreground uppercase">Est. Body Fat</h3>
+                                <p className="text-lg font-bold text-slate-800">{result.bodyFat}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className="text-xs font-semibold text-muted-foreground uppercase">Posture</h3>
+                                <p className="text-lg font-bold text-slate-800">{result.posture}</p>
+                            </div>
+                        </div>
+                        {result.suggestion && (
+                            <div className="bg-indigo-50 p-4 rounded-xl">
+                                <p className="text-sm text-indigo-800 font-medium">💡 {result.suggestion}</p>
+                            </div>
+                        )}
+                        <p className="text-[10px] text-muted-foreground italic text-center pt-2">
+                            * AI visual estimate. Not medical advice.
+                        </p>
+                    </div>
+                )}
+
                 <div className="w-full space-y-4 pt-4">
                     {capturedImage ? (
                         <div className="space-y-3 w-full">
                             <Button className="w-full h-14 rounded-2xl text-lg font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                onClick={() => {
-                                    alert("Analyzing body scan...");
-                                }}
+                                onClick={analyzeBody}
+                                disabled={isAnalyzing}
                             >
-                                <Check className="mr-2 w-5 h-5" /> Analyze Scan
+                                <Check className="mr-2 w-5 h-5" />
+                                {isAnalyzing ? "Analyzing..." : "Analyze Scan"}
                             </Button>
                             <Button
                                 variant="outline"
