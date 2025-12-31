@@ -18,7 +18,7 @@ export const BottomNav = () => {
 
     return (
         <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none">
-            <nav className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-black/5 shadow-2xl shadow-black/10 rounded-full px-6 py-3 flex items-center justify-between gap-6 w-[90%] max-w-sm">
+            <nav className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl shadow-blue-900/10 rounded-full px-6 py-3 flex items-center justify-between gap-6 w-[90%] max-w-sm">
                 {navItems.map(({ to, icon: Icon, label }) => {
                     const isActive = location.pathname === to;
                     const isScan = label === "Scan";
@@ -28,12 +28,12 @@ export const BottomNav = () => {
                             key={to}
                             to={to}
                             className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative group
-                                ${isActive ? "text-primary scale-105" : "text-muted-foreground hover:text-primary/70"}
+                                ${isActive ? "text-[#1F2937] scale-105" : "text-gray-400 hover:text-gray-600"}
                             `}
                         >
                             <div className={`
                                 flex items-center justify-center rounded-full transition-all duration-300
-                                ${isScan ? (isActive ? "bg-primary text-white p-3 shadow-glow-purple" : "bg-primary text-white p-3 shadow-md") : "p-1"}
+                                ${isScan ? (isActive ? "bg-[#9ED9E6] text-[#1F2937] p-3.5 shadow-xl shadow-[#9ED9E6]/40" : "bg-[#9ED9E6] text-[#1F2937] p-3.5 shadow-lg") : "p-1"}
                             `}>
                                 <Icon
                                     size={isScan ? 24 : 22}
@@ -44,7 +44,7 @@ export const BottomNav = () => {
 
                             {/* Label - minimal */}
                             {!isScan && (
-                                <span className={`text-[9px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                                <span className={`text-[9px] font-bold transition-colors ${isActive ? "text-[#1F2937]" : "text-gray-400 group-hover:text-gray-500"}`}>
                                     {label}
                                 </span>
                             )}

@@ -1,7 +1,8 @@
-import { useEffect, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { useAuth } from "./context/AuthContext";
+import Splash from "./pages/Splash";
 
 import Index from "./pages/Index";
 import Signup from "./pages/Signup";
@@ -20,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import GoalSelection from "./pages/GoalSelection";
 import BodyMeasurements from "./pages/BodyMeasurements";
 import SleepTracker from "./pages/SleepTracker";
+import LogMeal from "./pages/LogMeal";
 
 import { BottomNav } from "./pages/BottomNav";
 
@@ -29,12 +31,25 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-background text-indigo-600">Loading App...</div>;
+    return <Splash />;
   }
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  // FORCE ONBOARDING: If profile is not complete, and not already on an onboarding page, redirect to goal selection
+  const isOnboardingPage = location.pathname.startsWith("/onboarding");
+
+  // Robust check: treat undefined/null as false
+  // @ts-ignore
+  const isProfileComplete = !!user.is_profile_complete;
+
+  if (!isProfileComplete && !isOnboardingPage) {
+    return <Navigate to="/onboarding/goal" replace />;
+  }
+
+  // Allow users to access onboarding pages even if profile is complete (to update their info)
 
   return <>{children}</>;
 };
@@ -44,11 +59,11 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-background text-indigo-600">Loading...</div>;
+    return <Splash />;
   }
 
   if (user) {
-    // Redirect to home if already logged in
+    // Redirect to home (ProtectedRoute will handle diversion to onboarding if needed)
     return <Navigate to="/home" replace />;
   }
 
@@ -57,18 +72,24 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
 
 function AppContent() {
   const location = useLocation();
-  const { user } = useAuth();
-
-  const isAuthOrLanding = ["/", "/login", "/signup", "/onboarding/goal", "/onboarding/measurements"].includes(location.pathname);
+  const { user, isLoading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+  const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname) || location.pathname.startsWith("/onboarding");
 
   useEffect(() => {
-    console.log("AppContent mounted/updated", location.pathname);
-    if (isAuthOrLanding) {
-      document.body.classList.remove("dashboard-theme");
-    } else {
-      document.body.classList.add("dashboard-theme");
-    }
-  }, [location.pathname, isAuthOrLanding]);
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Global theme is now enforced by index.css
+  }, [location.pathname]);
+
+  if (showSplash || isLoading) {
+    return <Splash />;
+  }
 
   return (
     <>
@@ -79,14 +100,16 @@ function AppContent() {
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
 
-        <Route path="/onboarding/goal" element={<GoalSelection />} />
-        <Route path="/onboarding/measurements" element={<BodyMeasurements />} />
+        <Route path="/onboarding/goal" element={<ProtectedRoute><GoalSelection /></ProtectedRoute>} />
+        <Route path="/onboarding/measurements" element={<ProtectedRoute><BodyMeasurements /></ProtectedRoute>} />
+        <Route path="/onboarding/body-measurements" element={<ProtectedRoute><BodyMeasurements /></ProtectedRoute>} />
 
         {/* Protected Dashboard Routes */}
         <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
         <Route path="/sleep" element={<ProtectedRoute><SleepTracker /></ProtectedRoute>} />
         <Route path="/scan" element={<ProtectedRoute><ScanMeal /></ProtectedRoute>} />
+        <Route path="/log-meal" element={<ProtectedRoute><LogMeal /></ProtectedRoute>} />
         <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
         <Route path="/habits" element={<ProtectedRoute><Habits /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

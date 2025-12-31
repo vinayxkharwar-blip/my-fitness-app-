@@ -96,7 +96,7 @@ export default function Profile() {
         : "--";
 
     return (
-        <div className="min-h-screen w-full bg-background pb-32 animate-fade-in relative font-sans">
+        <div className="min-h-screen w-full bg-[#E9EEF3] pb-32 animate-fade-in relative font-sans selection:bg-[#9ED9E6]/30">
             <input
                 type="file"
                 ref={fileInputRef}
@@ -105,20 +105,20 @@ export default function Profile() {
                 onChange={handleImageChange}
             />
 
-            {/* HEADER - Clean White Minimal */}
-            <div className="bg-card m-6 mb-0 rounded-[2.5rem] p-8 shadow-premium text-center relative overflow-hidden border border-border/20">
-                {/* Soft background gradient */}
-                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-purple-500/5 to-transparent -z-10"></div>
+            {/* HEADER - Light Card */}
+            <div className="bg-white m-6 mb-0 rounded-[2.5rem] p-8 shadow-xl shadow-blue-900/5 text-center relative overflow-hidden border border-white">
+                {/* Soft background glow */}
+                <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-[#9ED9E6]/20 rounded-full blur-[60px] pointer-events-none"></div>
 
                 <div className="relative z-10">
-                    <div className="flex justify-between items-center px-2 mb-4 absolute top-0 w-full left-0">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full hover:bg-secondary">
-                            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                    <div className="flex justify-between items-center px-2 mb-2 absolute top-0 w-full left-0">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full hover:bg-gray-100 text-gray-500">
+                            <ArrowLeft className="w-5 h-5" />
                         </Button>
                     </div>
 
-                    <div className="relative inline-block mb-4 mt-8">
-                        <div className="h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-1 shadow-lg shadow-purple-500/20">
+                    <div className="relative inline-block mb-4 mt-6">
+                        <div className="h-28 w-28 rounded-full p-1 bg-white shadow-lg relative">
                             <img
                                 src={profileImage}
                                 alt="Profile"
@@ -126,87 +126,87 @@ export default function Profile() {
                             />
                         </div>
                         <button
-                            className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md text-primary hover:scale-110 transition-transform"
+                            className="absolute bottom-1 right-1 bg-[#FFA07A] p-2 rounded-full shadow-md text-white hover:scale-110 transition-transform hover:bg-[#FF8C60] border-2 border-white"
                             onClick={handleEditClick}
                         >
                             <Edit2 size={14} />
                         </button>
                     </div>
-                    <h1 className="text-2xl font-bold font-heading text-foreground mb-1">
+                    <h1 className="text-2xl font-bold font-heading text-[#1F2937] mb-1 tracking-tight">
                         {profileData?.full_name || "Loading..."}
                     </h1>
-                    <p className="text-muted-foreground font-medium text-sm bg-secondary/50 px-3 py-1 rounded-full inline-block">
-                        {profileData?.goal || "Goal not set"}
+                    <p className="text-[#5FB3B3] font-bold text-xs bg-[#E0F2FE] px-4 py-1.5 rounded-full inline-block">
+                        {profileData?.goal ? profileData.goal.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) : "Goal not set"}
                     </p>
                 </div>
             </div>
 
-            {/* STATS ROW - Clean White Cards */}
-            <div className="grid grid-cols-3 gap-3 px-6 -mt-6 relative z-10 mb-8">
-                <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "100ms" }}>
-                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">Weight</span>
-                    <span className="text-lg font-bold text-foreground">
+            {/* STATS ROW - Light Cards */}
+            <div className="grid grid-cols-3 gap-3 px-6 -mt-8 relative z-10 mb-8">
+                <div className="bg-white rounded-2xl p-3 pt-6 shadow-xl shadow-blue-900/5 border border-white text-center animate-slide-up" style={{ animationDelay: "100ms" }}>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Weight</span>
+                    <span className="text-lg font-bold text-[#1F2937]">
                         {profileData?.weight_kg || "--"}
-                        <span className="text-xs font-normal text-muted-foreground ml-0.5">kg</span>
+                        <span className="text-xs font-normal text-gray-400 ml-0.5">kg</span>
                     </span>
                 </div>
-                <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "200ms" }}>
-                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">Height</span>
-                    <span className="text-lg font-bold text-foreground">
+                <div className="bg-white rounded-2xl p-3 pt-6 shadow-xl shadow-blue-900/5 border border-white text-center animate-slide-up" style={{ animationDelay: "200ms" }}>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Height</span>
+                    <span className="text-lg font-bold text-[#1F2937]">
                         {profileData?.height_cm || "--"}
-                        <span className="text-xs font-normal text-muted-foreground ml-0.5">cm</span>
+                        <span className="text-xs font-normal text-gray-400 ml-0.5">cm</span>
                     </span>
                 </div>
-                <div className="bg-card rounded-2xl p-3 pt-8 shadow-sm border border-border/40 text-center animate-slide-up" style={{ animationDelay: "300ms" }}>
-                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block mb-1">BMI</span>
-                    <span className="text-lg font-bold text-primary">{bmi}</span>
+                <div className="bg-white rounded-2xl p-3 pt-6 shadow-xl shadow-blue-900/5 border border-white text-center animate-slide-up" style={{ animationDelay: "300ms" }}>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">BMI</span>
+                    <span className="text-lg font-bold text-[#FFA07A]">{bmi}</span>
                 </div>
             </div>
 
-            {/* SETTINGS LIST - Minimal */}
+            {/* SETTINGS LIST - Minimal Light */}
             <div className="px-6 space-y-6">
                 <div className="space-y-3">
-                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">Preferences</h3>
-                    <div className="bg-card rounded-[2rem] shadow-sm border border-border/40 overflow-hidden">
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">Preferences</h3>
+                    <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-900/5 border border-white overflow-hidden">
                         {[
                             { icon: User, label: "Personal Information" },
                             { icon: Bell, label: "Notifications" },
                             { icon: Settings, label: "App Settings" }
                         ].map((item, i) => (
-                            <div key={i} className="group flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors cursor-pointer border-b border-border/40 last:border-0 border-dashed">
+                            <div key={i} className="group flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-0 border-dashed">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-2 rounded-xl bg-secondary text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                    <div className="p-2.5 rounded-xl bg-[#F0F9FF] text-[#9ED9E6] group-hover:bg-[#9ED9E6] group-hover:text-white transition-colors">
                                         <item.icon size={18} />
                                     </div>
-                                    <span className="font-medium text-foreground text-sm">{item.label}</span>
+                                    <span className="font-bold text-[#1F2937] text-sm">{item.label}</span>
                                 </div>
-                                <ChevronRight size={16} className="text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                                <ChevronRight size={16} className="text-gray-300 group-hover:text-[#9ED9E6] transition-colors" />
                             </div>
                         ))}
                     </div>
                 </div>
 
                 <div className="space-y-3">
-                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2">Privacy</h3>
-                    <div className="bg-card rounded-[2rem] shadow-sm border border-border/40 overflow-hidden">
-                        <div className="group flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors cursor-pointer border-b border-border/40 last:border-0 border-dashed">
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">Privacy</h3>
+                    <div className="bg-white rounded-[2rem] shadow-xl shadow-blue-900/5 border border-white overflow-hidden">
+                        <div className="group flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-0 border-dashed">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 rounded-xl bg-secondary text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                <div className="p-2.5 rounded-xl bg-[#F0F9FF] text-[#9ED9E6] group-hover:bg-[#9ED9E6] group-hover:text-white transition-colors">
                                     <Shield size={18} />
                                 </div>
-                                <span className="font-medium text-foreground text-sm">Privacy Policy</span>
+                                <span className="font-bold text-[#1F2937] text-sm">Privacy Policy</span>
                             </div>
-                            <ChevronRight size={16} className="text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#9ED9E6] transition-colors" />
                         </div>
                         <div
                             onClick={handleLogout}
                             className="group flex items-center justify-between p-4 hover:bg-red-50 transition-colors cursor-pointer"
                         >
                             <div className="flex items-center gap-4">
-                                <div className="p-2 rounded-xl bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                <div className="p-2.5 rounded-xl bg-red-50 text-red-400 group-hover:bg-red-100 transition-colors">
                                     <LogOut size={18} />
                                 </div>
-                                <span className="font-medium text-red-600 text-sm">Log Out</span>
+                                <span className="font-bold text-red-500 text-sm">Log Out</span>
                             </div>
                         </div>
                     </div>

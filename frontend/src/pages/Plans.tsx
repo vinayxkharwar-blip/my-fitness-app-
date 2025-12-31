@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Utensils, RefreshCw, Check, Dumbbell } from "lucide-react";
+import { ArrowLeft, Utensils, RefreshCw, Check, Dumbbell, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-import { useToast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet-async";
 
 const meals = [
@@ -22,20 +20,14 @@ const exercises = [
 
 const Plans = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleSwapMeal = (id: string) => {
-    toast({
-      title: "Finding alternatives...",
-      description: "We'll suggest a similar meal for you!",
-    });
+    // Toast functionality can be added later
+    alert("Finding alternatives for you!");
   };
 
   const handleCompleteWorkout = () => {
-    toast({
-      title: "Workout complete! 💪",
-      description: "Amazing work! You're getting stronger every day.",
-    });
+    alert("Workout complete! 💪 Amazing work!");
   };
 
   const totalCalories = meals.reduce((sum, m) => sum + m.calories, 0);
@@ -43,121 +35,121 @@ const Plans = () => {
   return (
     <>
       <Helmet>
-        <title>My Plans - FitSnapAI</title>
+        <title>My Plans - FitSnap Coach</title>
         <meta name="description" content="Your personalized diet and workout plans. Follow meal suggestions and exercise routines tailored to your goals." />
       </Helmet>
 
-      <div className="min-h-screen bg-background pb-40">
+      <div className="min-h-screen w-full bg-[#E9EEF3] pb-32 text-[#1F2937] font-sans selection:bg-[#9ED9E6]/30">
+
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
-          <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-subtitle text-foreground font-display">My Plans</h1>
-              <p className="text-small text-muted-foreground">Today's nutrition & workout</p>
-            </div>
+        <header className="px-6 pt-8 pb-6 flex items-center gap-4 sticky top-0 z-20 bg-[#E9EEF3]/90 backdrop-blur-md">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-full hover:bg-black/5 text-[#1F2937] transition-all"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-extrabold font-heading text-[#1F2937] tracking-tight">My Plans</h1>
+            <p className="text-sm text-gray-500 font-medium">Today's nutrition & workout</p>
           </div>
         </header>
 
-        <main className="max-w-lg mx-auto px-4 pt-6 space-y-6">
-          {/* Daily Summary */}
-          <div className="bg-card rounded-2xl p-6 shadow-premium border border-border/20 text-card-foreground">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-accent/20">
-                  <Utensils className="w-5 h-5 text-accent" aria-hidden="true" />
+        <main className="px-6 space-y-6">
+
+          {/* Daily Summary Card */}
+          <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-blue-900/5 border border-white">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-[#FFF7ED]">
+                  <Flame className="w-6 h-6 text-[#FFA07A]" fill="#FFA07A" />
                 </div>
-                <span className="text-body-medium text-foreground">Daily Target</span>
+                <span className="text-lg font-bold text-[#1F2937]">Daily Target</span>
               </div>
               <div className="text-right">
-                <p className="text-title text-primary font-display">{totalCalories}</p>
-                <p className="text-tiny text-muted-foreground">calories planned</p>
+                <p className="text-3xl font-extrabold text-[#FFA07A] font-heading">{totalCalories}</p>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Calories Planned</p>
               </div>
             </div>
-            <div className="flex gap-4 text-center">
-              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
-                <p className="text-subtitle text-foreground">120g</p>
-                <p className="text-tiny text-muted-foreground">Protein</p>
+
+            {/* Macro Summary */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-2xl bg-[#FFF7ED] text-center">
+                <p className="text-xl font-bold text-[#1F2937]">120g</p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wide">Protein</p>
               </div>
-              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
-                <p className="text-subtitle text-foreground">200g</p>
-                <p className="text-tiny text-muted-foreground">Carbs</p>
+              <div className="p-3 rounded-2xl bg-[#E0F2FE] text-center">
+                <p className="text-xl font-bold text-[#1F2937]">200g</p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wide">Carbs</p>
               </div>
-              <div className="flex-1 p-2 rounded-lg bg-secondary/30">
-                <p className="text-subtitle text-foreground">65g</p>
-                <p className="text-tiny text-muted-foreground">Fats</p>
+              <div className="p-3 rounded-2xl bg-[#F0FDF4] text-center">
+                <p className="text-xl font-bold text-[#1F2937]">65g</p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-wide">Fats</p>
               </div>
             </div>
           </div>
 
-          {/* Meal Cards */}
-          <div className="space-y-3">
-            <h2 className="text-subtitle text-foreground font-display flex items-center gap-2">
-              <Utensils className="w-5 h-5 text-primary" />
+          {/* Meal Plan Section */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-[#1F2937] flex items-center gap-2 px-2">
+              <Utensils className="w-5 h-5 text-[#FFA07A]" />
               Meal Plan
             </h2>
 
-            {meals.map((meal, index) => (
-              <div
-                key={meal.id}
-                className="bg-card rounded-xl p-4 border border-border/20 animate-slide-up text-card-foreground shadow-sm"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-body-medium text-foreground font-semibold">{meal.name}</span>
-                      <span className="text-tiny text-muted-foreground">• {meal.time}</span>
+            <div className="space-y-3">
+              {meals.map((meal, index) => (
+                <div
+                  key={meal.id}
+                  className="bg-white rounded-[2rem] p-5 shadow-xl shadow-blue-900/5 border border-white animate-fade-in-up hover:scale-[1.01] transition-transform"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-base font-bold text-[#1F2937]">{meal.name}</span>
+                        <span className="text-xs text-gray-400 font-medium">• {meal.time}</span>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-2 leading-relaxed">{meal.suggestion}</p>
+                      <p className="text-xs text-[#FFA07A] font-bold">{meal.calories} kcal</p>
                     </div>
-                    <p className="text-small text-muted-foreground/80">{meal.suggestion}</p>
-                    <p className="text-tiny text-primary mt-1 font-medium">{meal.calories} kcal</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSwapMeal(meal.id)}
+                      className="rounded-full hover:bg-gray-100 text-gray-400 hover:text-[#9ED9E6] transition-colors flex-shrink-0"
+                      aria-label={`Swap ${meal.name}`}
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleSwapMeal(meal.id)}
-                    aria-label={`Swap ${meal.name}`}
-                    className="hover:bg-secondary"
-                  >
-                    <RefreshCw className="w-4 h-4 text-muted-foreground" />
-                  </Button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* Workout Card */}
-          <div className="space-y-3">
-            <h2 className="text-subtitle text-foreground font-display flex items-center gap-2">
-              <Dumbbell className="w-5 h-5 text-secondary-foreground" />
+          {/* Workout Section */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-[#1F2937] flex items-center gap-2 px-2">
+              <Dumbbell className="w-5 h-5 text-[#9ED9E6]" />
               Today's Workout
             </h2>
 
-            <div className="bg-card rounded-2xl p-6 shadow-premium border border-border/20 space-y-3 text-card-foreground">
+            <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-blue-900/5 border border-white space-y-4">
               {exercises.map((exercise) => (
                 <div
                   key={exercise.id}
-                  className="flex items-center justify-between py-2 border-b border-border/10 last:border-0"
+                  className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
                 >
-                  <span className="text-body text-foreground">{exercise.name}</span>
-                  <span className="text-small text-muted-foreground">
+                  <span className="text-sm font-medium text-[#1F2937]">{exercise.name}</span>
+                  <span className="text-sm font-bold text-gray-400">
                     {exercise.sets || exercise.duration}
                   </span>
                 </div>
               ))}
 
               <Button
-                variant="default"
-                size="lg"
                 onClick={handleCompleteWorkout}
-                className="w-full mt-4 bg-primary text-white hover:bg-primary/90 rounded-full"
+                className="w-full h-14 rounded-[2rem] text-base font-bold bg-[#9ED9E6] hover:bg-[#8CD0E0] text-[#1F2937] shadow-xl shadow-[#9ED9E6]/20 transition-all hover:scale-[1.02] border-none mt-6"
                 aria-label="Mark workout as completed"
               >
                 <Check className="w-5 h-5 mr-2" />
@@ -165,6 +157,7 @@ const Plans = () => {
               </Button>
             </div>
           </div>
+
         </main>
       </div>
     </>

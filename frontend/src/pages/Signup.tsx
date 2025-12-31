@@ -37,7 +37,7 @@ export default function Signup() {
     const onSubmit = async (data: SignupFormValues) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://localhost:5000/auth/register", {
+            const response = await fetch("/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -50,7 +50,14 @@ export default function Signup() {
                 }),
             });
 
-            const result = await response.json();
+            let result;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                result = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error(text || `Server error: ${response.status} ${response.statusText}`);
+            }
 
             if (!response.ok) {
                 throw new Error(result.msg || result.message || "Registration failed");
@@ -61,8 +68,10 @@ export default function Signup() {
         } catch (error) {
             console.error("Signup error:", error);
             const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+            const displayMessage = errorMessage.startsWith("<!DOCTYPE") ? "Server configuration error (Check console)" : errorMessage;
+
             form.setError("root", {
-                message: errorMessage,
+                message: displayMessage,
             });
         } finally {
             setIsLoading(false);
@@ -70,15 +79,15 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-white font-sans">
-            <div className="w-full max-w-sm space-y-8 animate-fade-in">
+        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#E9EEF3] font-sans selection:bg-[#9ED9E6] selection:text-gray-800">
 
+            <div className="w-full max-w-md bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-blue-900/5 animate-fade-in relative z-10 mx-auto">
                 {/* Header Section */}
-                <div>
-                    <h1 className="text-3xl font-extrabold text-black mb-2">Sign up</h1>
-                    <p className="text-sm font-medium text-gray-900">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Create Account</h1>
+                    <p className="text-sm font-medium text-gray-500">
                         Already have an account?{" "}
-                        <Link to="/login" className="font-bold text-gray-900 hover:underline">
+                        <Link to="/login" className="font-bold text-[#FFA07A] hover:text-[#FF8C60] hover:underline transition-colors">
                             Sign in
                         </Link>
                     </p>
@@ -87,94 +96,94 @@ export default function Signup() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     {/* Error Display */}
                     {form.formState.errors.root && (
-                        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+                        <div className="p-3 rounded-2xl bg-red-50 text-red-600 text-sm text-center border border-red-100">
                             {form.formState.errors.root.message}
                         </div>
                     )}
 
-                    {/* Role Selection (Styled to match theme) */}
-                    <div className="bg-[#EFF4FF] p-1 rounded-full flex w-full relative">
+                    {/* Role Selection (Light Theme) */}
+                    <div className="bg-gray-100 p-1.5 rounded-full flex w-full relative">
                         <button
                             type="button"
-                            className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${role === 'user' ? 'bg-black text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                            className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${role === 'user' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                             onClick={() => setRole('user')}
                         >
                             Member
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${role === 'trainer' ? 'bg-black text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+                            className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${role === 'trainer' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
                             onClick={() => setRole('trainer')}
                         >
                             Coach
                         </button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                         {/* Name Field */}
                         <div className="space-y-1">
                             <Label htmlFor="fullName" className="sr-only">Full Name</Label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-500" />
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <User className="h-5 w-5 text-gray-400 group-focus-within:text-[#9ED9E6] transition-colors" />
                                 </div>
                                 <Input
                                     id="fullName"
                                     type="text"
                                     placeholder="Full Name"
-                                    className="h-12 pl-10 rounded-xl bg-[#EFF4FF] border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-transparent transition-all placeholder:text-gray-500 text-gray-900"
+                                    className="h-14 pl-12 rounded-2xl bg-gray-50 border-transparent text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#9ED9E6] focus:ring-4 focus:ring-[#9ED9E6]/20 transition-all font-medium"
                                     {...form.register("fullName")}
                                 />
                             </div>
                             {form.formState.errors.fullName && (
-                                <p className="text-xs text-red-500 pl-1">{form.formState.errors.fullName.message}</p>
+                                <p className="text-xs text-red-500 pl-1 font-medium">{form.formState.errors.fullName.message}</p>
                             )}
                         </div>
 
                         {/* Email Field */}
                         <div className="space-y-1">
                             <Label htmlFor="email" className="sr-only">Email</Label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-500" />
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-[#9ED9E6] transition-colors" />
                                 </div>
                                 <Input
                                     id="email"
                                     type="email"
                                     placeholder="Email Address"
-                                    className="h-12 pl-10 rounded-xl bg-[#EFF4FF] border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-transparent transition-all placeholder:text-gray-500 text-gray-900"
+                                    className="h-14 pl-12 rounded-2xl bg-gray-50 border-transparent text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#9ED9E6] focus:ring-4 focus:ring-[#9ED9E6]/20 transition-all font-medium"
                                     {...form.register("email")}
                                 />
                             </div>
                             {form.formState.errors.email && (
-                                <p className="text-xs text-red-500 pl-1">{form.formState.errors.email.message}</p>
+                                <p className="text-xs text-red-500 pl-1 font-medium">{form.formState.errors.email.message}</p>
                             )}
                         </div>
 
                         {/* Password Field */}
                         <div className="space-y-1">
                             <Label htmlFor="password" className="sr-only">Password</Label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-500" />
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-[#9ED9E6] transition-colors" />
                                 </div>
                                 <Input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Password"
-                                    className="h-12 pl-10 pr-10 rounded-xl bg-[#EFF4FF] border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-transparent transition-all placeholder:text-gray-500 text-gray-900"
+                                    className="h-14 pl-12 pr-12 rounded-2xl bg-gray-50 border-transparent text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-[#9ED9E6] focus:ring-4 focus:ring-[#9ED9E6]/20 transition-all font-medium"
                                     {...form.register("password")}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                             {form.formState.errors.password && (
-                                <p className="text-xs text-red-500 pl-1">{form.formState.errors.password.message}</p>
+                                <p className="text-xs text-red-500 pl-1 font-medium">{form.formState.errors.password.message}</p>
                             )}
                         </div>
                     </div>
@@ -182,11 +191,11 @@ export default function Signup() {
                     <Button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full h-12 rounded-full bg-black text-white hover:bg-gray-800 font-bold text-base transition-all mt-4"
+                        className="w-full h-14 rounded-full bg-[#9ED9E6] hover:bg-[#8CD0E0] text-gray-800 font-bold text-lg transition-all shadow-lg shadow-[#9ED9E6]/40 border-none transform hover:scale-[1.02]"
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                                 Creating Account...
                             </>
                         ) : (
@@ -195,8 +204,8 @@ export default function Signup() {
                     </Button>
 
                     <div className="text-center pt-4">
-                        <p className="text-[10px] text-gray-500 leading-tight">
-                            By Sign up you agree to our <Link to="/privacy" className="underline font-bold text-gray-900">Privacy Policy</Link> and <Link to="/terms" className="underline font-bold text-gray-900">Terms and Condition</Link>
+                        <p className="text-[10px] text-gray-400 leading-tight">
+                            By signing up you agree to our <Link to="/privacy" className="underline font-bold text-gray-500 hover:text-[#FFA07A] transition-colors">Privacy Policy</Link> and <Link to="/terms" className="underline font-bold text-gray-500 hover:text-[#FFA07A] transition-colors">Terms and Conditions</Link>
                         </p>
                     </div>
 

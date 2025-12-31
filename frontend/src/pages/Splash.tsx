@@ -1,57 +1,44 @@
-
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
+import logo from "@/assets/logo.png";
+import { cn } from "@/lib/utils";
 
-export default function Splash({ onFinish }: { onFinish: () => void }) {
-    const [opacity, setOpacity] = useState(1);
+export default function Splash() {
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
-        // Start fade out after 2.5s
-        const timer = setTimeout(() => {
-            setOpacity(0);
-        }, 2500);
-
-        // Trigger onFinish after fade out completes (3s total)
-        const finishTimer = setTimeout(() => {
-            onFinish();
-        }, 3000);
-
-        return () => {
-            clearTimeout(timer);
-            clearTimeout(finishTimer);
-        };
-    }, [onFinish]);
+        setShow(true);
+    }, []);
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0F1020] transition-opacity duration-1000 ease-in-out"
-            style={{ opacity }}
-        >
-            <div className="flex flex-col items-center animate-pulse-gentle">
-                <div className="relative mb-6">
-                    <img
-                        src="/logo.png"
-                        alt="FitSnapAI Logo"
-                        className="w-32 h-32 object-cover rounded-3xl shadow-[0_0_40px_rgba(79,70,229,0.3)]"
-                    />
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 via-slate-900 to-black animate-fade-in text-white">
 
-                    {/* Optional small decoration */}
-                    <div className="absolute -top-2 -right-2 bg-[#1A1B3A] rounded-full p-2 shadow-lg border border-indigo-500/30">
-                        <Sparkles className="w-5 h-5 text-indigo-400" />
-                    </div>
+            {/* Background Effects */}
+            <div className="absolute top-0 left-0 w-full h-96 bg-blue-500/10 rounded-b-[100%] blur-[100px] pointer-events-none"></div>
+            <div className="absolute bottom-0 right-0 w-full h-96 bg-orange-500/5 rounded-t-[100%] blur-[100px] pointer-events-none"></div>
+
+            <div className={cn("transition-all duration-1000 transform relative z-10 flex flex-col items-center", show ? "opacity-100 scale-100" : "opacity-0 scale-95")}>
+
+                {/* Logo Container with Breathing Effect */}
+                <div className="relative mb-12 animate-[pulse_3s_ease-in-out_infinite]">
+                    {/* Glow behind logo */}
+                    <div className="absolute inset-0 bg-white/5 blur-[50px] rounded-full scale-150"></div>
+
+                    <img
+                        src={logo}
+                        alt="FitSnap AI"
+                        className="w-48 md:w-56 object-contain relative z-10 drop-shadow-2xl"
+                    />
                 </div>
 
-                <h1 className="text-4xl font-bold font-heading text-white tracking-tight mb-2">
-                    FitSnapAI
-                </h1>
-                <p className="text-indigo-300 text-sm font-medium tracking-[0.2em] uppercase">
-                    Your Personal Coach
-                </p>
-            </div>
+                {/* Tagline */}
+                <h2 className="text-gray-400 font-medium text-sm tracking-[0.2em] uppercase mb-16 opacity-80">
+                    Transform your life with AI
+                </h2>
 
-            {/* Loading spinner at bottom */}
-            <div className="absolute bottom-12">
-                <div className="w-8 h-8 border-4 border-indigo-900 border-t-indigo-500 rounded-full animate-spin"></div>
+                {/* Sleek Loading Bar */}
+                <div className="w-48 h-1 bg-gray-800 rounded-full overflow-hidden relative">
+                    <div className="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-orange-400 to-transparent animate-[shimmer_1.5s_infinite_linear] opacity-80"></div>
+                </div>
             </div>
         </div>
     );

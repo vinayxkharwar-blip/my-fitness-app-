@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Clock, Sparkles, BedDouble } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Moon, Sun, Sparkles, BedDouble, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function SleepTracker() {
+    const navigate = useNavigate();
     const [bedTime, setBedTime] = useState("23:00");
     const [wakeTime, setWakeTime] = useState("07:00");
     const [duration, setDuration] = useState("8h 0m");
@@ -46,34 +47,47 @@ export default function SleepTracker() {
     }, [bedTime, wakeTime]);
 
     return (
-        <div className="min-h-screen w-full bg-[#09090b] text-white p-6 pb-40 font-sans selection:bg-purple-500/30">
-            <header className="mb-8 pt-4">
-                <h1 className="text-3xl font-bold font-heading bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient-x">
+        <div className="min-h-screen w-full bg-[#E9EEF3] text-[#1F2937] p-6 pb-40 font-sans selection:bg-[#FFA07A]/30 relative">
+
+            {/* Header / Back Button */}
+            <div className="absolute top-6 left-6 z-20">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 rounded-full hover:bg-black/5 text-[#1F2937] transition-all"
+                >
+                    <ArrowLeft className="w-6 h-6" />
+                </button>
+            </div>
+
+            {/* Background Effects */}
+            <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#9ED9E6]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+            <header className="mb-8 pt-12 text-center relative z-10">
+                <h1 className="text-3xl font-extrabold font-heading text-[#1F2937] tracking-tight">
                     Sleep Cycle
                 </h1>
-                <p className="text-zinc-400 text-sm mt-1">Master your rest & recovery.</p>
+                <p className="text-gray-500 text-sm mt-1 font-medium">Master your rest & recovery.</p>
             </header>
 
-            <div className="space-y-8 max-w-md mx-auto">
+            <div className="space-y-8 max-w-md mx-auto relative z-10">
                 {/* Main Score Card */}
                 <div className="flex justify-center py-4 relative">
                     {/* Background Ambient Glow */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-600/20 rounded-full blur-[80px] -z-10"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#FFA07A]/10 rounded-full blur-[80px] -z-10"></div>
 
                     <div className="relative w-64 h-64 flex items-center justify-center">
                         {/* Ring Container */}
                         <div className="relative w-full h-full flex items-center justify-center">
                             <div className="text-center z-10 flex flex-col items-center">
-                                <span className="text-7xl font-bold font-heading bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400 tracking-tighter drop-shadow-lg">{score}</span>
-                                <span className="text-xs font-bold text-purple-300 uppercase tracking-[0.3em] mt-2">Sleep Score</span>
+                                <span className="text-7xl font-extrabold font-heading text-[#1F2937] tracking-tighter drop-shadow-sm">{score}</span>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em] mt-2">Sleep Score</span>
                             </div>
 
-                            <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                            <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none">
                                 <defs>
                                     <linearGradient id="coolGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#22d3ee" /> {/* Cyan */}
-                                        <stop offset="50%" stopColor="#8b5cf6" /> {/* Violet */}
-                                        <stop offset="100%" stopColor="#d946ef" /> {/* Fuchsia */}
+                                        <stop offset="0%" stopColor="#ffcba4" /> {/* Peach */}
+                                        <stop offset="100%" stopColor="#FFA07A" /> {/* Coral */}
                                     </linearGradient>
                                 </defs>
                                 {/* Track */}
@@ -82,9 +96,9 @@ export default function SleepTracker() {
                                     cy="128"
                                     r="110"
                                     fill="none"
-                                    stroke="#18181b"
-                                    strokeWidth="8"
-                                    className="opacity-50"
+                                    stroke="#F3F4F6"
+                                    strokeWidth="10"
+                                    className="opacity-100"
                                 />
                                 {/* Progress */}
                                 <circle
@@ -93,103 +107,100 @@ export default function SleepTracker() {
                                     r="110"
                                     fill="none"
                                     stroke="url(#coolGradient)"
-                                    strokeWidth="8"
+                                    strokeWidth="10"
                                     strokeDasharray="691"
                                     strokeDashoffset={691 - (691 * score) / 100}
                                     strokeLinecap="round"
-                                    className="transition-all duration-1000 ease-out"
+                                    className="transition-all duration-1000 ease-out drop-shadow-sm"
                                 />
                             </svg>
-
-                            {/* Inner decorative glows */}
-                            <div className="absolute inset-4 rounded-full border border-purple-500/10 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)]"></div>
                         </div>
                     </div>
                 </div>
 
                 {/* Duration Display */}
                 <div className="text-center mb-8 relative z-10">
-                    <div className="inline-flex items-center gap-3 bg-zinc-900/80 px-8 py-4 rounded-full border border-zinc-800 shadow-xl backdrop-blur-md relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <BedDouble className="w-5 h-5 text-blue-400" />
-                        <span className="text-lg font-medium text-zinc-300">
-                            Total Sleep: <span className="text-white font-bold ml-1 tracking-wide">{duration}</span>
+                    <div className="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-[2rem] border border-white shadow-xl shadow-blue-900/5 backdrop-blur-md relative overflow-hidden group">
+                        <BedDouble className="w-5 h-5 text-[#9ED9E6]" />
+                        <span className="text-lg font-medium text-gray-500">
+                            Total Sleep: <span className="text-[#1F2937] font-bold ml-1 tracking-wide">{duration}</span>
                         </span>
                     </div>
                 </div>
 
                 {/* Input Controls */}
                 <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-zinc-900/50 border-zinc-800 shadow-lg hover:border-indigo-500/30 transition-all group cursor-pointer relative overflow-hidden">
-                        <CardContent className="p-6 flex flex-col items-center gap-4 relative z-10">
-                            <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition-colors"></div>
-
-                            <div className="p-3 bg-indigo-500/10 rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-                                <Moon className="w-6 h-6 text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                    <Card className="bg-white border-white shadow-sm hover:shadow-md transition-all rounded-[2rem] group cursor-pointer">
+                        <CardContent className="p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Moon className="w-12 h-12 text-indigo-500" />
                             </div>
 
-                            <div className="text-center w-full relative">
-                                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest block mb-1">Bedtime</span>
-                                <div className="flex items-center justify-center gap-2">
-                                    <span className="text-2xl font-bold text-white font-heading tracking-widest">{bedTime}</span>
-                                    <Clock className="w-4 h-4 text-indigo-500/50 group-hover:text-indigo-400 transition-colors" />
+                            <div className="p-4 bg-indigo-50 rounded-2xl group-hover:bg-indigo-100 transition-colors">
+                                <Moon className="w-6 h-6 text-indigo-500" />
+                            </div>
+
+                            <div className="text-center w-full z-10">
+                                <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Bedtime</span>
+                                <div className="relative inline-block">
+                                    <input
+                                        type="time"
+                                        value={bedTime}
+                                        onChange={(e) => setBedTime(e.target.value)}
+                                        className="text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:ring-0 w-36 font-heading tracking-tight"
+                                    />
+                                    {/* Custom underline decoration */}
+                                    <div className="h-1 w-12 bg-indigo-100 mx-auto rounded-full mt-1 group-hover:bg-indigo-300 transition-colors"></div>
                                 </div>
-                                {/* Invisible Input Overlay */}
-                                <input
-                                    type="time"
-                                    value={bedTime}
-                                    onChange={(e) => setBedTime(e.target.value)}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                />
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-zinc-900/50 border-zinc-800 shadow-lg hover:border-amber-500/30 transition-all group cursor-pointer relative overflow-hidden">
-                        <CardContent className="p-6 flex flex-col items-center gap-4 relative z-10">
-                            <div className="absolute inset-0 bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors"></div>
-
-                            <div className="p-3 bg-amber-500/10 rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-                                <Sun className="w-6 h-6 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                    <Card className="bg-white border-white shadow-sm hover:shadow-md transition-all rounded-[2rem] group cursor-pointer">
+                        <CardContent className="p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Sun className="w-12 h-12 text-amber-500" />
                             </div>
 
-                            <div className="text-center w-full relative">
-                                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest block mb-1">Wake Up</span>
-                                <div className="flex items-center justify-center gap-2">
-                                    <span className="text-2xl font-bold text-white font-heading tracking-widest">{wakeTime}</span>
-                                    <Clock className="w-4 h-4 text-amber-500/50 group-hover:text-amber-400 transition-colors" />
+                            <div className="p-4 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
+                                <Sun className="w-6 h-6 text-amber-500" />
+                            </div>
+
+                            <div className="text-center w-full z-10">
+                                <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Wake Up</span>
+                                <div className="relative inline-block">
+                                    <input
+                                        type="time"
+                                        value={wakeTime}
+                                        onChange={(e) => setWakeTime(e.target.value)}
+                                        className="text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:ring-0 w-36 font-heading tracking-tight"
+                                    />
+                                    {/* Custom underline decoration */}
+                                    <div className="h-1 w-12 bg-amber-100 mx-auto rounded-full mt-1 group-hover:bg-amber-300 transition-colors"></div>
                                 </div>
-                                {/* Invisible Input Overlay */}
-                                <input
-                                    type="time"
-                                    value={wakeTime}
-                                    onChange={(e) => setWakeTime(e.target.value)}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* AI Tip Card */}
-                <Card className="bg-gradient-to-br from-zinc-900 to-zinc-950 border-zinc-800/50 shadow-xl overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                <Card className="bg-[#F0F9FF] border-[#E0F2FE] shadow-sm overflow-hidden relative rounded-[2rem]">
                     <CardContent className="p-5 flex gap-4 items-start relative z-10">
-                        <div className="p-2 bg-purple-500/10 rounded-lg shrink-0 border border-purple-500/20">
-                            <Sparkles className="w-5 h-5 text-purple-400" />
+                        <div className="p-2 bg-white rounded-lg shrink-0 border border-[#E0F2FE] shadow-sm">
+                            <Sparkles className="w-5 h-5 text-[#9ED9E6]" />
                         </div>
                         <div>
-                            <h3 className="text-zinc-200 font-semibold text-sm mb-1.5 flex items-center gap-2">
-                                AI Insight <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/20">NEW</span>
+                            <h3 className="text-[#1F2937] font-bold text-sm mb-1.5 flex items-center gap-2">
+                                Coach Insight <span className="text-[10px] bg-[#E0F2FE] text-[#9ED9E6] px-1.5 py-0.5 rounded font-bold">NEW</span>
                             </h3>
-                            <p className="text-zinc-400 text-xs leading-relaxed">
+                            <p className="text-[#5FB3B3] text-xs leading-relaxed font-medium">
                                 "Consistent wake-up times help regulate your circadian rhythm. Try to stick to your 7:00 AM wake-up for better energy today."
                             </p>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Button className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl h-14 font-bold text-lg shadow-lg shadow-white/5 transition-all active:scale-[0.98]">
+                <Button className="w-full bg-[#FFA07A] hover:bg-[#FF8C60] text-white rounded-[2rem] h-14 font-bold text-lg shadow-xl shadow-[#FFA07A]/20 transition-all active:scale-[0.98] border-none">
                     Save Sleep Log
                 </Button>
             </div>
