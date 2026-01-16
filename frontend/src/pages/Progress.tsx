@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/common/card";
 import { Flame, Trophy, TrendingUp, Calendar, Zap, CheckCircle2, Dumbbell, Footprints } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 export default function Progress() {
     return (

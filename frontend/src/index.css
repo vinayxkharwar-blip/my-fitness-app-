@@ -8,70 +8,83 @@
   :root {
     /* Soft Wellness Theme Palette */
     --background: 210 20% 93%;
-    /* #E9EEF3 - Soft Bluish Gray */
+    /* #E9EEF3 */
     --foreground: 215 28% 17%;
-    /* #1F2937 - Charcoal Gray */
-
+    /* #1F2937 */
     --card: 210 20% 98%;
-    /* #F7FAFC - Clean Off-White */
+    /* #F7FAFC */
     --card-foreground: 215 28% 17%;
-
     --popover: 210 20% 98%;
     --popover-foreground: 215 28% 17%;
-
     --primary: 188 60% 76%;
-    /* #9ED9E6 - Powder Sky Blue */
+    /* #9ED9E6 */
     --primary-foreground: 215 28% 17%;
-    /* Dark text on light primary */
-
     --secondary: 132 45% 83%;
-    /* #BFE8C7 - Mint Green */
+    /* #BFE8C7 */
     --secondary-foreground: 215 28% 17%;
-
     --muted: 220 14% 96%;
+    /* #6B7280 */
     --muted-foreground: 215 16% 47%;
-    /* #6B7280 - Cool Gray */
-
     --accent: 14 100% 74%;
-    /* #FFA07A - Soft Coral */
+    /* #FFA07A */
     --accent-foreground: 215 28% 17%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 188 60% 76%;
-
     --radius: 1.5rem;
-    /* 24px - Rounded Cards */
-
-    /* Custom App Colors */
     --card-focus: 210 20% 98%;
     --card-focus-foreground: 215 28% 17%;
   }
 
-  /* Force Light Theme even if .dark class is present */
   .dark {
-    --background: 210 20% 93%;
-    --foreground: 215 28% 17%;
-    --card: 210 20% 98%;
-    --card-foreground: 215 28% 17%;
-    --popover: 210 20% 98%;
-    --popover-foreground: 215 28% 17%;
+    --background: 222 47% 11%;
+    /* #0F172A */
+    --foreground: 210 40% 98%;
+    /* #F8FAFC */
+    --card: 217 33% 17%;
+    /* #1E293B */
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
     --primary: 188 60% 76%;
-    --primary-foreground: 215 28% 17%;
+    --primary-foreground: 222 47% 11%;
     --secondary: 132 45% 83%;
-    --secondary-foreground: 215 28% 17%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20% 65%;
     --accent: 14 100% 74%;
-    --accent-foreground: 215 28% 17%;
-    --destructive: 0 84.2% 60.2%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
     --ring: 188 60% 76%;
+
+    /* Sidebar Variables - Dark */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 188 60% 76%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 27%;
+    --sidebar-ring: 188 60% 76%;
+
+    /* Fitness Custom Variables - Dark Adjustment usually same or slightly brighter */
+    --fitness-purple: 260 100% 75%;
+    --fitness-indigo: 240 100% 75%;
+    --fitness-blue: 217 91% 65%;
+    --fitness-protein: 340 82% 60%;
+    --fitness-carbs: 38 92% 55%;
+    --fitness-fats: 48 96% 58%;
+    --fitness-water: 199 89% 55%;
+    --fitness-fire-from: 14 100% 64%;
+    --fitness-fire-to: 24 100% 59%;
+
+    --fit-card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --fit-card-shadow-lg: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -97,7 +110,6 @@
 @layer utilities {
   .text-gradient {
     @apply text-foreground;
-    /* Removed gradient for cleaner look */
   }
 
   .bg-gradient-primary {
@@ -120,7 +132,6 @@
     @apply bg-white/60 backdrop-blur-md border border-white/20;
   }
 
-  /* Utilities for the scrollbar to look premium */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;

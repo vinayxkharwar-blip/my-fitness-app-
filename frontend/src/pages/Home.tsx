@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { Flame, Droplets, Trophy, ArrowRight, Plus, Sparkles, Dumbbell } from "lucide-react";
 
 // Mock Data (Stats for now)

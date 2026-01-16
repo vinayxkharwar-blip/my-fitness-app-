@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/common/card";
+import { Button } from "@/components/common/button";
 import { Moon, Sun, Sparkles, BedDouble, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -141,16 +141,16 @@ export default function SleepTracker() {
                             </div>
 
                             <div className="text-center w-full z-10">
-                                <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Bedtime</span>
-                                <div className="relative inline-block">
+                                <span className="text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Bedtime</span>
+                                <div className="relative flex justify-center w-full">
                                     <input
                                         type="time"
                                         value={bedTime}
                                         onChange={(e) => setBedTime(e.target.value)}
-                                        className="text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:ring-0 w-36 font-heading tracking-tight"
+                                        className="text-xl sm:text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:outline-none focus:ring-0 w-full max-w-[120px] font-heading tracking-tight"
                                     />
                                     {/* Custom underline decoration */}
-                                    <div className="h-1 w-12 bg-indigo-100 mx-auto rounded-full mt-1 group-hover:bg-indigo-300 transition-colors"></div>
+                                    <div className="absolute bottom-0 h-1 w-12 bg-indigo-100 rounded-full group-hover:bg-indigo-300 transition-colors pointer-events-none"></div>
                                 </div>
                             </div>
                         </CardContent>
@@ -167,16 +167,16 @@ export default function SleepTracker() {
                             </div>
 
                             <div className="text-center w-full z-10">
-                                <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Wake Up</span>
-                                <div className="relative inline-block">
+                                <span className="text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase tracking-widest block mb-1">Wake Up</span>
+                                <div className="relative flex justify-center w-full">
                                     <input
                                         type="time"
                                         value={wakeTime}
                                         onChange={(e) => setWakeTime(e.target.value)}
-                                        className="text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:ring-0 w-36 font-heading tracking-tight"
+                                        className="text-xl sm:text-3xl font-black text-gray-900 bg-transparent border-none p-0 text-center focus:outline-none focus:ring-0 w-full max-w-[120px] font-heading tracking-tight"
                                     />
                                     {/* Custom underline decoration */}
-                                    <div className="h-1 w-12 bg-amber-100 mx-auto rounded-full mt-1 group-hover:bg-amber-300 transition-colors"></div>
+                                    <div className="absolute bottom-0 h-1 w-12 bg-amber-100 rounded-full group-hover:bg-amber-300 transition-colors pointer-events-none"></div>
                                 </div>
                             </div>
                         </CardContent>

@@ -1,11 +1,11 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/common/button";
+import { cn } from "@/utils/utils";
 import { useAuth } from "@/context/AuthContext";
 import { Ruler, Weight, User as UserIcon, Calendar, ArrowRight, ArrowLeft } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "@/components/common/slider";
 
 export default function BodyMeasurements() {
     const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/logo.png";
-import { cn } from "@/lib/utils";
+import logo from "@/assets/images/logo.png";
+import { cn } from "@/utils/utils";
 
 export default function Splash() {
     const [show, setShow] = useState(false);

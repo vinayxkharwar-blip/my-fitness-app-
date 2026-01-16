@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { Scan, ClipboardList, Check, RotateCcw, Camera, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { useState } from "react";
-import CameraCapture from "@/components/CameraCapture";
+import CameraCapture from "@/components/features/camera/CameraCapture";
 
 export default function BodyAnalysis() {
     const navigate = useNavigate();

@@ -19,11 +19,7 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: false,
       },
-      "/profile": {
-        target: "http://127.0.0.1:5000",
-        changeOrigin: true,
-        secure: false,
-      },
+      // REMOVED /profile proxy to avoid conflict with frontend routes like /profile/settings
       "/meals": { target: "http://127.0.0.1:5000", changeOrigin: true, secure: false },
       "/water": { target: "http://127.0.0.1:5000", changeOrigin: true, secure: false },
       "/habits": { target: "http://127.0.0.1:5000", changeOrigin: true, secure: false },

@@ -22,8 +22,11 @@ import GoalSelection from "./pages/GoalSelection";
 import BodyMeasurements from "./pages/BodyMeasurements";
 import SleepTracker from "./pages/SleepTracker";
 import LogMeal from "./pages/LogMeal";
+import PersonalInfo from "./pages/PersonalInfo";
+import Notifications from "./pages/Notifications";
+import AppSettings from "./pages/AppSettings";
 
-import { BottomNav } from "./pages/BottomNav";
+import { BottomNav } from "./components/layout/BottomNav";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
@@ -80,6 +83,15 @@ function AppContent() {
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 2500);
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -116,6 +128,11 @@ function AppContent() {
         <Route path="/body" element={<ProtectedRoute><BodyAnalysis /></ProtectedRoute>} />
         <Route path="/plans" element={<ProtectedRoute><Plans /></ProtectedRoute>} />
         <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+
+        {/* Profile Settings Routes */}
+        <Route path="/profile/personal-info" element={<ProtectedRoute><PersonalInfo /></ProtectedRoute>} />
+        <Route path="/profile/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        <Route path="/profile/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

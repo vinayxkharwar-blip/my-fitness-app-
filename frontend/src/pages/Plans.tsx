@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Utensils, RefreshCw, Check, Dumbbell, Flame } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/common/button";
 import { Helmet } from "react-helmet-async";
 
 const meals = [

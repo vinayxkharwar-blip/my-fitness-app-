@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Droplets, Apple, Moon, Footprints, Dumbbell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { HabitTile } from "@/components/fit/HabitTile";
+import { Button } from "@/components/common/button";
+import { HabitTile } from "@/components/features/tracker/HabitTile";
 
 import { useToast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet-async";

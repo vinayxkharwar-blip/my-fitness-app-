@@ -66,8 +66,44 @@ class AIService {
             const model = this.getModel();
             const chat = model.startChat({
                 history: [
-                    { role: "user", parts: [{ text: "You are an AI Fitness Coach. Be motivating." }] },
-                    { role: "model", parts: [{ text: "Ready to help!" }] },
+                    {
+                        role: "user", parts: [{
+                            text: `
+You are an AI fitness coach.
+
+IMPORTANT BEHAVIOR RULES:
+- Respond ONLY based on the user’s current message.
+- Do NOT repeat the same response multiple times.
+- Never spam error or rate-limit messages.
+
+RATE LIMIT HANDLING:
+- If the AI service is busy or rate-limited:
+  - Send ONE clear message asking the user to wait.
+  - Do NOT repeat the same warning again until the cooldown ends.
+  - Offer a short helpful fallback reply instead.
+
+INTENT HANDLING:
+- If user asks for diet → give a clear diet plan.
+- If user asks for workout → give a workout routine.
+- If user asks for motivation → give motivation.
+- If request is unclear → ask ONE short question.
+
+FALLBACK (when API is unavailable):
+- Provide a simple offline response relevant to the user’s request.
+- Example: basic diet or workout tips.
+
+BANNED:
+- Repeating the same sentence
+- Generic replies like “Nutrition is key” on every message
+- Multiple identical error messages
+
+Tone:
+- Friendly
+- Calm
+- Professional fitness coach
+` }]
+                    },
+                    { role: "model", parts: [{ text: "Understood. I'm ready to coach based on these specific rules." }] },
                 ],
             });
 
@@ -80,9 +116,19 @@ class AIService {
             };
 
         } catch (error) {
-            console.error("AI Chat Failed (Using Fallback):", error.message);
-            // Fallback to mock
-            return this.getMockChatResponse(userMessage);
+            console.error("AI Chat Failed:", error.message);
+
+            const fallbackResponse = this.getMockChatResponse(userMessage);
+
+            // Handle Quota Errors Dynamically
+            if (error.message.includes("429") || error.message.includes("quota") || error.message.includes("resource exhausted")) {
+                fallbackResponse.text = "(High Traffic Mode) " + fallbackResponse.text;
+                return fallbackResponse;
+            }
+
+            // Handle other errors (Network, etc.)
+            fallbackResponse.text = "(Offline Mode) " + fallbackResponse.text;
+            return fallbackResponse;
         }
     }
 
@@ -93,7 +139,7 @@ class AIService {
         try {
             const model = this.getVisionModel();
             const updateBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-            const prompt = `Analyze food. JSON: { "foodName": "...", "estimatedCalories": 0, "macros": { "protein": 0, "carbs": 0, "fats": 0 }, "confidence": 0.9 }`;
+            const prompt = `Analyze food.JSON: { "foodName": "...", "estimatedCalories": 0, "macros": { "protein": 0, "carbs": 0, "fats": 0 }, "confidence": 0.9 }`;
             const imagePart = { inlineData: { data: updateBase64, mimeType: "image/jpeg" } };
 
             const result = await model.generateContent([prompt, imagePart]);
