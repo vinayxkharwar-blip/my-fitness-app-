@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root, .dark {
+    /* Premium Dark Wellness Theme Palette */
+    --background: 0 0% 4%; /* #0A0A0A */
+    --foreground: 0 0% 100%; /* White */
+    
+    --card: 0 0% 9%; /* #161616 */
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 100%;
+    
+    --primary: 142 71% 45%; /* #22C55E Neon Green */
+    --primary-foreground: 0 0% 4%; /* #0A0A0A */
+    
+    --secondary: 0 0% 11%; /* #1C1C1C */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 240 3.7% 15.9%; /* zinc-800 */
+    --muted-foreground: 240 5% 64.9%; /* zinc-400 */
+    
+    --accent: 142 71% 45%; /* #22C55E */
+    --accent-foreground: 0 0% 4%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 240 3.7% 15.9%; /* zinc-800 */
+    --input: 240 3.7% 15.9%;
+    --ring: 142 71% 45%; /* Neon Green */
+    
+    --radius: 1.5rem;
+    --card-focus: 0 0% 11%;
+    --card-focus-foreground: 0 0% 100%;
+
+    /* Sidebar Variables - Dark */
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 11%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 142 71% 45%;
+
+    /* Fitness Custom Variables */
+    --fitness-purple: 142 71% 45%; /* Overridden to match primary accent */
+    --fitness-indigo: 142 71% 55%; 
+    --fitness-blue: 217 91% 65%; /* Keeping for protein */
+    --fitness-protein: 217 91% 65%; /* Blue */
+    --fitness-carbs: 38 92% 55%; /* Amber */
+    --fitness-fats: 340 82% 60%; /* Rose */
+    --fitness-water: 199 89% 55%;
+    
+    --fitness-fire-from: 142 71% 45%;
+    --fitness-fire-to: 142 71% 25%;
+
+    --fit-card-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --fit-card-shadow-lg: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Outfit', sans-serif;
+  }
+  
+  .font-sans {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .text-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary via-green-400 to-primary;
+  }
+
+  .bg-gradient-primary {
+    @apply bg-gradient-to-br from-[#0A0A0A] via-[#0f1f0f] to-[#0A0A0A];
+  }
+
+  .shadow-premium {
+    @apply shadow-[0_0_30px_rgba(34,197,94,0.15)];
+  }
+
+  .bg-gradient-purple {
+    @apply bg-gradient-to-br from-[#0A0A0A] via-[#0f1f0f] to-[#0A0A0A];
+  }
+
+  .shadow-glow-purple {
+    @apply shadow-[0_0_30px_rgba(34,197,94,0.15)];
+  }
+
+  .glass-panel {
+    @apply bg-white/[0.04] backdrop-blur-xl border-t border-white/10 border-x-0 border-b-0 shadow-premium;
+  }
+
+  .glass-card {
+    @apply bg-[#161616] border border-zinc-800 backdrop-blur-sm shadow-xl rounded-[var(--radius)] hover:scale-[1.02] transition-transform duration-300;
+  }
+
+  .macro-pill-protein {
+    @apply bg-blue-500/10 text-blue-500 border border-blue-500/20;
+  }
+  
+  .macro-pill-carbs {
+    @apply bg-amber-500/10 text-amber-500 border border-amber-500/20;
+  }
+  
+  .macro-pill-fats {
+    @apply bg-rose-500/10 text-rose-500 border border-rose-500/20;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

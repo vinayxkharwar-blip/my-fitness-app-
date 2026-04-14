@@ -1,0 +1,21 @@
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\components\features\body\LoadingAnalysis.tsx
+  7:7  warning  'messages' is assigned a value but never used. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\components\features\coach\TrainerCard.tsx
+  28:3  warning  'onViewProfile' is defined but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\components\layout\AuthLayout.tsx
+  15:57  warning  'noHeader' is assigned a value but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\context\AuthContext.tsx
+  51:24  warning  'err' is defined but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\hooks\use-toast.ts
+  15:7  warning  'actionTypes' is assigned a value but only used as a type. Allowed unused vars must match /^_/u  unused-imports/no-unused-vars
+
+C:\Users\MEENA\Downloads\fitsnap-coach-main-main (1)\fitsnap-coach-main-main\frontend\src\pages\Plans.tsx
+  24:27  warning  'id' is defined but never used. Allowed unused args must match /^_/u  unused-imports/no-unused-vars
+
+✖ 6 problems (0 errors, 6 warnings)
+
