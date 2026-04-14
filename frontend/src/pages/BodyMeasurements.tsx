@@ -147,7 +147,7 @@ export default function BodyMeasurements() {
                             { id: 'other', label: 'Other', emoji: '⚧️' }
                         ].map(g => (
                             <button key={g.id}
-                                onClick={() => setGender(g.id as any)}
+                                onClick={() => setGender(g.id as "male" | "female" | "other")}
                                 className={cn(
                                     "rounded-[14px] p-[13px] flex flex-col items-center gap-1 transition-all duration-300 border",
                                     gender === g.id
@@ -182,7 +182,7 @@ export default function BodyMeasurements() {
                         <input
                             type="range" min="16" max="80" value={age} onChange={e => setAge(parseInt(e.target.value))}
                             className="custom-range emerald-range absolute w-full inset-0 m-auto cursor-pointer"
-                            style={{ "--val": `${((age - 16) / (80 - 16)) * 100}%` } as any}
+                            style={{ "--val": `${((age - 16) / (80 - 16)) * 100}%` } as React.CSSProperties}
                         />
                     </div>
                 </div>
@@ -227,13 +227,13 @@ export default function BodyMeasurements() {
                             <input
                                 type="range" min="140" max="220" value={heightCm} onChange={e => setHeightCm(parseInt(e.target.value))}
                                 className="custom-range emerald-range absolute w-full inset-0 m-auto cursor-pointer"
-                                style={{ "--val": `${((heightCm - 140) / (220 - 140)) * 100}%` } as any}
+                                style={{ "--val": `${((heightCm - 140) / (220 - 140)) * 100}%` } as React.CSSProperties}
                             />
                         ) : (
                             <input
                                 type="range" min="55" max="86" value={totalInches} onChange={e => handleInchesChange(parseInt(e.target.value))}
                                 className="custom-range emerald-range absolute w-full inset-0 m-auto cursor-pointer"
-                                style={{ "--val": `${((totalInches - 55) / (86 - 55)) * 100}%` } as any}
+                                style={{ "--val": `${((totalInches - 55) / (86 - 55)) * 100}%` } as React.CSSProperties}
                             />
                         )}
                     </div>
@@ -276,7 +276,7 @@ export default function BodyMeasurements() {
                         <input
                             type="range" min="40" max="150" value={weight} onChange={e => setWeight(parseInt(e.target.value))}
                             className="custom-range orange-range absolute w-full inset-0 m-auto cursor-pointer"
-                            style={{ "--val": `${((weight - 40) / (150 - 40)) * 100}%` } as any}
+                            style={{ "--val": `${((weight - 40) / (150 - 40)) * 100}%` } as React.CSSProperties}
                         />
                     </div>
                 </div>
