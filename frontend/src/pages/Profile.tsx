@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 
 interface UserProfile {
@@ -14,9 +13,11 @@ interface UserProfile {
     profile_image?: string;
 }
 
+// Static demo user - no auth dependency
+const user = { id: "demo-user", full_name: "FitSnap User" };
+
 export default function Profile() {
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
     const { profile: profileData, updateProfile, isUpdating } = useProfile();
 
     const [profileImage, setProfileImage] = useState("https://i.pravatar.cc/300?img=5");
@@ -38,8 +39,8 @@ export default function Profile() {
     }, [profileData]);
 
     const handleLogout = () => {
-        logout();
-        navigate("/login");
+        // No-op - no auth to logout from
+        navigate("/");
     };
 
     const handleEditImageClick = () => {

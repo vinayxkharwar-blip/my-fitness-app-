@@ -1,84 +1,52 @@
-import React, { useState } from 'react';
-import { ShoppingBag, ShoppingCart, Star, Filter } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ShoppingBag, ShoppingCart, Star, Filter, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/common/card';
 import { Button } from '@/components/common/button';
 import { Badge } from '@/components/common/badge';
+import { useQuery } from '@tanstack/react-query';
+import { shopService } from '@/services/shopService';
+import { useCart } from '@/hooks/useCart';
 
 type Category = 'All' | 'Supplements' | 'Equipment' | 'Apparel';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    rating: number;
-    category: Category;
-    image: string;
-}
+const CATEGORIES: Category[] = ['All', 'Supplements', 'Equipment', 'Apparel'];
 
-const MOCK_PRODUCTS: Product[] = [
-    {
-        id: '1',
-        name: 'Whey Protein Isolate',
-        price: 49.99,
-        rating: 4.8,
-        category: 'Supplements',
-        image: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&q=80&w=500',
-    },
-    {
-        id: '2',
-        name: 'Pre-Workout Energy',
-        price: 34.99,
-        rating: 4.6,
-        category: 'Supplements',
-        image: 'https://images.unsplash.com/photo-1579722820308-d74e571900a9?auto=format&fit=crop&q=80&w=500',
-    },
-    {
-        id: '3',
-        name: 'Adjustable Dumbbells',
-        price: 199.99,
-        rating: 4.9,
-        category: 'Equipment',
-        image: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&q=80&w=500',
-    },
-    {
-        id: '4',
-        name: 'Resistance Bands Set',
-        price: 24.99,
-        rating: 4.5,
-        category: 'Equipment',
-        image: 'https://images.unsplash.com/photo-1598266663439-2056e6900339?auto=format&fit=crop&q=80&w=500',
-    },
-    {
-        id: '5',
-        name: 'Performance T-Shirt',
-        price: 29.99,
-        rating: 4.7,
-        category: 'Apparel',
-        image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=500',
-    },
-    {
-        id: '6',
-        name: 'Gym Duffle Bag',
-        price: 45.00,
-        rating: 4.4,
-        category: 'Apparel',
-        image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=500',
-    },
-];
+// Fallback rating when DB doesn't store ratings
+const DEFAULT_RATING = 4.7;
 
 export default function Shop() {
     const [selectedCategory, setSelectedCategory] = useState<Category>('All');
-    const [cartCount, setCartCount] = useState(0);
 
-    const filteredProducts = selectedCategory === 'All'
-        ? MOCK_PRODUCTS
-        : MOCK_PRODUCTS.filter(p => p.category === selectedCategory);
+    // Fetch products from backend
+    const { data: products = [], isLoading } = useQuery({
+        queryKey: ['products'],
+        queryFn: () => shopService.getProducts(),
+    });
 
-    const categories: Category[] = ['All', 'Supplements', 'Equipment', 'Apparel'];
+    // Fetch cart from backend
+    const { cart, addToCart, isAdding } = useCart();
+    const cartCount = Array.isArray(cart) ? cart.length : 0;
 
-    const handleAddToCart = () => {
-        setCartCount(prev => prev + 1);
+    const filteredProducts = useMemo(() => {
+        if (selectedCategory === 'All') return products;
+        return products.filter((p: any) => p.category === selectedCategory);
+    }, [products, selectedCategory]);
+
+    const handleAddToCart = (productId: number) => {
+        addToCart({ product_id: productId, quantity: 1 });
     };
+
+    // ── Loading State ──
+    if (isLoading) {
+        return (
+            <div className="container mx-auto p-4 pb-24 max-w-7xl flex items-center justify-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                    <p className="text-muted-foreground text-sm font-medium">Loading products...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto p-4 pb-24 max-w-7xl animate-fade-in">
@@ -108,7 +76,7 @@ export default function Shop() {
             {/* Filters Section */}
             <div className="flex flex-wrap items-center gap-2 mb-8">
                 <Filter className="w-5 h-5 mr-2 text-muted-foreground" />
-                {categories.map((category) => (
+                {CATEGORIES.map((category) => (
                     <Button
                         key={category}
                         variant={selectedCategory === category ? 'default' : 'outline'}
@@ -123,11 +91,11 @@ export default function Shop() {
             {/* Products Grid */}
             {filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                        <Card key={product.id} className="overflow-hidden flex flex-col hover:border-primary/50 transition-colors">
+                    {filteredProducts.map((product: any) => (
+                        <Card key={product.product_id} className="overflow-hidden flex flex-col hover:border-primary/50 transition-colors">
                             <div className="relative aspect-square overflow-hidden bg-muted">
                                 <img
-                                    src={product.image}
+                                    src={product.image_url}
                                     alt={product.name}
                                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
                                 />
@@ -140,19 +108,26 @@ export default function Shop() {
                                     <CardTitle className="line-clamp-2 text-lg">{product.name}</CardTitle>
                                     <div className="flex items-center gap-1 bg-secondary/50 px-2 py-1 rounded text-sm font-medium">
                                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                        {product.rating}
+                                        {product.rating || DEFAULT_RATING}
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-4 pt-2 flex-grow">
                                 <div className="text-2xl font-bold text-primary">
-                                    ${product.price.toFixed(2)}
+                                    ${Number(product.price).toFixed(2)}
                                 </div>
+                                {product.description && (
+                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+                                )}
                             </CardContent>
                             <CardFooter className="p-4 pt-0">
-                                <Button className="w-full gap-2" onClick={handleAddToCart}>
+                                <Button
+                                    className="w-full gap-2"
+                                    onClick={() => handleAddToCart(product.product_id)}
+                                    disabled={isAdding || product.stock === 0}
+                                >
                                     <ShoppingCart className="w-4 h-4" />
-                                    Add to Cart
+                                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                                 </Button>
                             </CardFooter>
                         </Card>

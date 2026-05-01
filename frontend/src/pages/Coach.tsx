@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Bot, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/utils";
+import { chatWithCoach } from "@/services/api";
+import { chatService } from "@/services/chatService";
+import { toast } from "sonner";
 
 interface Message {
     id: string;
@@ -39,8 +42,8 @@ export default function Coach() {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSend = (text: string) => {
-        if (!text.trim()) return;
+    const handleSend = async (text: string) => {
+        if (!text.trim() || isTyping) return;
 
         const newUserMsg: Message = {
             id: Date.now().toString(),
@@ -53,23 +56,42 @@ export default function Coach() {
         setInputValue("");
         setIsTyping(true);
 
-        // Mock AI Response
-        setTimeout(() => {
+        // Persist user message to DB (fire-and-forget)
+        chatService.sendMessage({ role: "user", content: text }).catch(() => {});
+
+        try {
+            // Call the real Gemini AI backend
+            const aiResponse = await chatWithCoach(text);
+
             const newAiMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: "That's a great question! Based on your recent activity, I'd recommend focusing on protein intake post-workout and ensuring you get at least 7 hours of sleep.",
+                text: aiResponse.reply || "I'm having trouble responding right now. Please try again.",
                 sender: "ai",
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, newAiMsg]);
+
+            // Persist AI response to DB (fire-and-forget)
+            chatService.sendMessage({ role: "assistant", content: newAiMsg.text }).catch(() => {});
+
+        } catch (error) {
+            toast.error("Failed to get AI response. Please try again.");
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "Sorry, I'm having connection issues right now. Please try again in a moment.",
+                sender: "ai",
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-        }, 1500 + Math.random() * 1000); // 1.5 - 2.5s delay
+        }
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-80px)] md:h-screen w-full bg-[#0A0A0A] text-white font-sans relative">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0A0A0A] text-white font-sans shadow-[0_0_40px_rgba(0,0,0,0.8)] relative z-10">
             {/* Header */}
-            <header className="px-6 py-4 flex items-center justify-between sticky top-0 z-20 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-zinc-800 shrink-0">
+            <header className="px-6 py-4 flex items-center justify-between border-b border-zinc-800 shrink-0 bg-[#0A0A0A]">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
@@ -93,52 +115,53 @@ export default function Coach() {
             </header>
 
             {/* Chat Area */}
-            <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-6 w-full max-w-3xl mx-auto scrollbar-hide pb-32 md:pb-6">
-                {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        className={cn(
-                            "flex max-w-[85%] animate-fade-in-up",
-                            msg.sender === "user" ? "ml-auto justify-end" : "mr-auto justify-start"
-                        )}
-                    >
+            <main className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4 w-full">
+                <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
+                    {messages.map((msg) => (
                         <div
+                            key={msg.id}
                             className={cn(
-                                "p-4 rounded-[1.5rem] text-[15px] leading-relaxed relative",
-                                msg.sender === "user"
-                                    ? "bg-[#22C55E] text-[#0A0A0A] font-medium rounded-br-sm shadow-premium"
-                                    : "bg-[#1C1C1C] text-zinc-200 border border-zinc-800 rounded-bl-sm"
+                                "flex max-w-[85%] animate-fade-in-up",
+                                msg.sender === "user" ? "ml-auto justify-end" : "mr-auto justify-start"
                             )}
                         >
-                            <p className="mb-2">{msg.text}</p>
-                            <span
+                            <div
                                 className={cn(
-                                    "text-[10px] absolute bottom-1.5 opacity-60 font-medium",
-                                    msg.sender === "user" ? "right-4" : "right-4"
+                                    "px-5 py-4 rounded-3xl text-[15px] leading-relaxed relative shadow-lg transition-all duration-300",
+                                    msg.sender === "user"
+                                        ? "bg-[#22C55E] text-[#0A0A0A] font-medium rounded-br-sm"
+                                        : "bg-[#1C1C1C] text-zinc-200 border border-zinc-800 rounded-bl-sm"
                                 )}
                             >
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                                <p className="mb-2">{msg.text}</p>
+                                <span
+                                    className={cn(
+                                        "text-[10px] opacity-60 font-medium block mt-1",
+                                        msg.sender === "user" ? "text-right" : "text-right text-zinc-400"
+                                    )}
+                                >
+                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
 
-                {isTyping && (
-                    <div className="flex max-w-[85%] mr-auto justify-start animate-fade-in-up">
-                        <div className="bg-[#1C1C1C] border border-zinc-800 p-4 rounded-[1.5rem] rounded-bl-sm flex items-center gap-1.5 h-[52px]">
-                            <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                            <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                            <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    {isTyping && (
+                        <div className="flex max-w-[85%] mr-auto justify-start animate-fade-in-up">
+                        <div className="bg-[#1C1C1C] border border-zinc-800 px-5 py-4 rounded-3xl rounded-bl-sm flex items-center gap-1.5 h-[52px] shadow-lg">
+                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                            </div>
                         </div>
-                    </div>
-                )}
-                <div ref={messagesEndRef} className="h-4" />
+                    )}
+                    <div ref={messagesEndRef} className="h-4" />
+                </div>
             </main>
 
             {/* Input Area */}
-            <div className="fixed bottom-16 md:bottom-0 left-0 right-0 md:left-64 bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-zinc-800 shrink-0 pb-safe z-30">
-                <div className="max-w-3xl mx-auto px-4 py-4 flex flex-col gap-3">
-
+            <div className="border-t border-zinc-800 shrink-0 p-4 bg-[#0A0A0A] w-full">
+                <div className="max-w-3xl mx-auto flex flex-col gap-4 w-full">
                     {/* Suggestions */}
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                         {SUGGESTIONS.map((suggestion, i) => (
@@ -164,7 +187,7 @@ export default function Coach() {
                                 }
                             }}
                             placeholder="Ask your coach anything..."
-                            className="w-full bg-[#1C1C1C] border border-zinc-800 rounded-3xl py-3.5 pl-5 pr-14 text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#22C55E]/50 focus:ring-1 focus:ring-[#22C55E]/50 resize-none overflow-hidden min-h-[52px] max-h-[120px]"
+                            className="w-full bg-[#1C1C1C] border border-zinc-800 rounded-2xl py-3.5 pl-5 pr-14 text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#22C55E]/50 focus:ring-1 focus:ring-[#22C55E]/50 resize-none overflow-hidden min-h-[52px] max-h-[120px]"
                             rows={1}
                         />
                         <button
@@ -175,7 +198,6 @@ export default function Coach() {
                             <Send className="w-5 h-5 ml-0.5" />
                         </button>
                     </div>
-
                 </div>
             </div>
         </div>

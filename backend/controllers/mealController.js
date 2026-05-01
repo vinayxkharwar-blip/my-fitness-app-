@@ -2,7 +2,8 @@ const db = require("../database/db");
 
 // ADD MEAL
 exports.addMeal = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const { name, calories, protein, carbs, fats, meal_type } = req.body;
 
     const sql = `
@@ -20,7 +21,8 @@ exports.addMeal = (req, res) => {
 
 // GET MEALS
 exports.getMeals = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     const sql = `SELECT * FROM meals WHERE clerk_user_id = ? ORDER BY logged_at DESC`;
 

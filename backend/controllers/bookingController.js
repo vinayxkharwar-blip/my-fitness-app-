@@ -2,7 +2,8 @@ const db = require("../database/db");
 
 // CREATE BOOKING
 exports.createBooking = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const { trainer_id, session_date, status, notes } = req.body;
 
     const sql = `
@@ -22,7 +23,8 @@ exports.createBooking = (req, res) => {
 
 // GET USER BOOKINGS
 exports.getUserBookings = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     const sql = `
         SELECT b.*, 

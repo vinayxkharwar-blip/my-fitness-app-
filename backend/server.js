@@ -4,8 +4,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
-const { ClerkExpressRequireAuth } = require("@clerk/clerk-sdk-node");
-
 const app = express();
 
 // Secure HTTP headers
@@ -28,24 +26,19 @@ app.use(express.json({ limit: "50mb" }));
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 1000, // Increased limit for local development
     message: "Too many requests from this IP, please try again later."
 });
 app.use(limiter);
 
 // ------------------------------------------------------
-// MAIN ROUTES (Protected by Clerk)
+// MAIN ROUTES (Single User Mode)
 // ------------------------------------------------------
-const isDevAndMissingKey = process.env.CLERK_SECRET_KEY === 'your_clerk_secret_key' || !process.env.CLERK_SECRET_KEY;
+const USER_ID = "demo-user";
 
 const requireAuth = (req, res, next) => {
-    if (isDevAndMissingKey) {
-        // Bypass auth for local development if the real key is missing
-        req.auth = { userId: "dev_user_123" };
-        return next();
-    }
-    // Otherwise use actual Clerk middleware
-    return ClerkExpressRequireAuth({})(req, res, next);
+    req.auth = { userId: USER_ID };
+    return next();
 };
 
 app.use("/api/profile", requireAuth, require("./routes/profileRoutes"));

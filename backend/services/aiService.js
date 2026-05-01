@@ -14,35 +14,6 @@ class AIService {
         return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
     }
 
-    // --- FALLBACK LOGIC (Original Mock) ---
-    static getMockChatResponse(msg) {
-        msg = msg.toLowerCase();
-        let response = {
-            text: "I'm currently in Offline Mode. I can help with 'Workouts', 'Diet Tips', or 'Motivation'. What do you need?",
-            sender: "ai",
-            suggestions: ["Give me a workout", "Diet tip"]
-        };
-
-        if (msg.includes("hello") || msg.includes("hi")) {
-            response.text = "Hello! I'm your AI Coach. Ready to crush your goals today?";
-            response.suggestions = ["Workout", "Diet tip"];
-        } else if (msg.includes("diet") || msg.includes("food") || msg.includes("meal")) {
-            response.text = "Nutrition is key! Focus on whole foods, protein at every meal, and staying hydrated.";
-            response.suggestions = ["Breakfast ideas", "High protein snacks"];
-        } else if (msg.includes("workout") || msg.includes("gym") || msg.includes("exercise")) {
-            response.text = "Movement is medicine! A mix of cardio and strength training is best.";
-            response.suggestions = ["Home workout", "Gym routine"];
-        } else if (msg.includes("motivation") || msg.includes("tired")) {
-            response.text = "Consistency beats intensity. Just show up for 10 minutes today!";
-        } else if (msg.includes("yes") || msg.includes("sure") || msg.includes("ok")) {
-            response.text = "Great! Let's get started. Do you want to focus on nutrition or fitness?";
-            response.suggestions = ["Nutrition", "Fitness"];
-        } else if (msg.includes("thanks") || msg.includes("thank")) {
-            response.text = "You're welcome! Keep up the hard work.";
-        }
-        return response;
-    }
-
     static getMockAnalysis() {
         const protein = Math.round(Math.random() * 40 + 10);
         const carbs = Math.round(Math.random() * 80 + 10);
@@ -63,72 +34,28 @@ class AIService {
      */
     static async chatWithCoach(userMessage, userContext = {}) {
         try {
-            const model = this.getModel();
-            const chat = model.startChat({
-                history: [
-                    {
-                        role: "user", parts: [{
-                            text: `
-You are an AI fitness coach.
+            console.log("GEMINI_API_KEY loaded:", !!process.env.GEMINI_API_KEY);
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-IMPORTANT BEHAVIOR RULES:
-- Respond ONLY based on the user’s current message.
-- Do NOT repeat the same response multiple times.
-- Never spam error or rate-limit messages.
-
-RATE LIMIT HANDLING:
-- If the AI service is busy or rate-limited:
-  - Send ONE clear message asking the user to wait.
-  - Do NOT repeat the same warning again until the cooldown ends.
-  - Offer a short helpful fallback reply instead.
-
-INTENT HANDLING:
-- If user asks for diet → give a clear diet plan.
-- If user asks for workout → give a workout routine.
-- If user asks for motivation → give motivation.
-- If request is unclear → ask ONE short question.
-
-FALLBACK (when API is unavailable):
-- Provide a simple offline response relevant to the user’s request.
-- Example: basic diet or workout tips.
-
-BANNED:
-- Repeating the same sentence
-- Generic replies like “Nutrition is key” on every message
-- Multiple identical error messages
-
-Tone:
-- Friendly
-- Calm
-- Professional fitness coach
-` }]
-                    },
-                    { role: "model", parts: [{ text: "Understood. I'm ready to coach based on these specific rules." }] },
-                ],
-            });
-
-            const result = await chat.sendMessage(userMessage);
-            const response = await result.response;
-            return {
-                text: response.text(),
-                sender: "ai",
-                suggestions: ["Diet tip", "Workout plan"]
-            };
+            const result = await model.generateContent(userMessage);
+            const response = result.response.text();
+            
+            return response;
 
         } catch (error) {
-            console.error("AI Chat Failed:", error.message);
-
-            const fallbackResponse = this.getMockChatResponse(userMessage);
-
-            // Handle Quota Errors Dynamically
-            if (error.message.includes("429") || error.message.includes("quota") || error.message.includes("resource exhausted")) {
-                fallbackResponse.text = "(High Traffic Mode) " + fallbackResponse.text;
-                return fallbackResponse;
+            console.error("AI ERROR:", error);
+            
+            const msg = userMessage.toLowerCase();
+            if (msg.includes("sleep")) {
+                return "Aim for 7-9 hours of quality sleep. Try limiting screen time 1 hour before bed and keep your room cool and dark.";
+            } else if (msg.includes("food") || msg.includes("diet") || msg.includes("eat")) {
+                return "Focus on lean proteins, complex carbs, and healthy fats. Stay hydrated and avoid processed sugars.";
+            } else if (msg.includes("workout") || msg.includes("exercise") || msg.includes("gym")) {
+                return "Here's a quick 15-min HIIT workout: Jumping jacks, squats, push-ups, burpees, and high knees. 45 seconds on, 15 seconds off. Let's go!";
+            } else {
+                return "I'm having trouble connecting right now, but remember: consistency is the key to achieving your fitness goals!";
             }
-
-            // Handle other errors (Network, etc.)
-            fallbackResponse.text = "(Offline Mode) " + fallbackResponse.text;
-            return fallbackResponse;
         }
     }
 

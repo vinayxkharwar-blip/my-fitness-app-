@@ -5,7 +5,8 @@ const db = require("../database/db");
 // However, adding a generic habit first might be needed if not existing. 
 // For now, adapting the existing logic to the new `habits` and `habit_logs` tables
 exports.addHabitLog = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const { habit_id } = req.body;
 
     const sql = `
@@ -22,7 +23,8 @@ exports.addHabitLog = (req, res) => {
 
 // GET HABIT LOGS
 exports.getHabitLogs = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     // Join to ensure habits belong to the requesting user
     const sql = `

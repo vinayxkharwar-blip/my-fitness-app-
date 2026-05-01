@@ -1,3 +1,4 @@
+import { api } from '@/lib/api';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -27,11 +28,9 @@ export const apiRequest = async (endpoint: string, options: RequestInit = {}) =>
     }
 };
 
-export const chatWithCoach = async (message: string, userId?: string) => {
-    return apiRequest("/api/chat", {
-        method: "POST",
-        body: JSON.stringify({ message, user_id: userId }),
-    });
+export const chatWithCoach = async (message: string) => {
+    const response = await api.post("/api/chat", { message });
+    return response.data;
 };
 
 export const analyzeMeal = async (imageBase64: string) => {

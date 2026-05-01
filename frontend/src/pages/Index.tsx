@@ -1,20 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/button";
-import { useAuth } from "@/context/AuthContext";
 import { Activity, ScanFace, Utensils, Moon, Dumbbell, BookOpen } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 
 export default function Index() {
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const isSignedIn = !!user;
 
     const handleGetStarted = () => {
-        if (isSignedIn) {
-            navigate("/home");
-        } else {
-            navigate("/login");
-        }
+        navigate("/home");
     };
 
     return (
@@ -59,13 +52,7 @@ export default function Index() {
                     <a href="#" className="text-sm text-[#f5f0e8]/70 hover:text-[#34d399] transition-colors">Pricing</a>
                 </div>
 
-                <Button
-                    variant="outline"
-                    onClick={() => navigate("/login")}
-                    className="rounded-full border-[#f5f0e8]/20 text-[#f5f0e8] hover:bg-[#f5f0e8]/10 hover:text-white px-6 font-medium backdrop-blur-sm"
-                >
-                    Log In
-                </Button>
+
             </nav>
 
             {/* Hero Section */}
@@ -102,13 +89,7 @@ export default function Index() {
                             >
                                 Start Your Journey
                             </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate("/login")}
-                                className="h-14 px-8 rounded-full border-[#f5f0e8]/20 bg-transparent text-[#f5f0e8] font-bold hover:bg-[#f5f0e8]/10 text-base transition-all active:scale-95 backdrop-blur-sm"
-                            >
-                                Member Login
-                            </Button>
+
                         </div>
 
                         {/* Stats Row */}
