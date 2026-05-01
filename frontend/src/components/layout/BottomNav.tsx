@@ -6,7 +6,7 @@ export const BottomNav = () => {
     const location = useLocation();
 
     // Hide on Auth/Landing
-    const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
+    const isAuthOrLanding = ["/"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
     if (isAuthOrLanding) return null;
 
     const navItems = [

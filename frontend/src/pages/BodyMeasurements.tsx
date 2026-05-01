@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/utils";
-import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { Ruler, Weight, User as UserIcon, Calendar, ArrowRight, ChevronLeft, Activity } from "lucide-react";
 
+// Static demo user - no auth dependency
+const user = { id: "demo-user" };
+
 export default function BodyMeasurements() {
     const navigate = useNavigate();
-    const { user } = useAuth();
     const { updateProfile, isUpdating } = useProfile();
 
     // Height State
@@ -27,8 +28,6 @@ export default function BodyMeasurements() {
     const [activity, setActivity] = useState<string>("light");
 
     const handleContinue = () => {
-        if (!user) return;
-
         updateProfile({
             age: age,
             height_cm: heightUnit === 'cm' ? heightCm : Math.round((heightFt * 12 + heightIn) * 2.54),

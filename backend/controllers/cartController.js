@@ -2,7 +2,8 @@ const db = require("../database/db");
 
 // ADD TO CART
 exports.addToCart = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const { product_id, quantity } = req.body;
 
     const sql = `
@@ -20,7 +21,8 @@ exports.addToCart = (req, res) => {
 
 // GET CART ITEMS FOR USER
 exports.getCart = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     const sql = `
         SELECT c.cart_id, c.quantity,

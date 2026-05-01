@@ -1,13 +1,14 @@
 import { Bell } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
 import { Logo } from "@/components/common/Logo";
+
+// Static demo user - no auth dependency
+const user = { id: "demo-user", full_name: "FitSnap User", profile_image: undefined };
 
 export const MobileHeader = () => {
     const location = useLocation();
-    const { user } = useAuth();
 
-    const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
+    const isAuthOrLanding = ["/"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
     if (isAuthOrLanding) return null;
 
     return (
@@ -22,10 +23,10 @@ export const MobileHeader = () => {
                     <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-rose-500 border border-[#0A0A0A]"></span>
                 </button>
                 <Link to="/profile" className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-zinc-700 overflow-hidden flex items-center justify-center hover:scale-105 transition-transform">
-                    {user?.profile_image ? (
+                    {user.profile_image ? (
                         <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
-                        <span className="text-xs font-medium text-zinc-400 uppercase">{user?.full_name?.charAt(0) || 'U'}</span>
+                        <span className="text-xs font-medium text-zinc-400 uppercase">{user.full_name?.charAt(0) || 'U'}</span>
                     )}
                 </Link>
             </div>

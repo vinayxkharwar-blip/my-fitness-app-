@@ -2,7 +2,8 @@ const db = require("../database/db");
 
 // GET PROFILE
 exports.getUserProfile = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     const sql = `
         SELECT age, weight_kg, height_cm, goal, activity_level, profile_image, updated_at
@@ -14,7 +15,25 @@ exports.getUserProfile = (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         if (result.length === 0) {
-            return res.status(404).json({ msg: "User profile not found" });
+            // Auto-create default profile for demo-user
+            const insertSql = `
+                INSERT INTO user_profiles (clerk_user_id, age, height_cm, weight_kg, activity_level, goal)
+                VALUES (?, 30, 175, 70, 'moderate', 'maintain')
+            `;
+            db.query(insertSql, [clerk_user_id], (insertErr) => {
+                if (insertErr) return res.status(500).json({ error: insertErr.message });
+                
+                return res.status(200).json({
+                    age: 30,
+                    weight_kg: 70,
+                    height_cm: 175,
+                    goal: 'maintain',
+                    activity_level: 'moderate',
+                    profile_image: null,
+                    updated_at: new Date()
+                });
+            });
+            return;
         }
 
         res.status(200).json(result[0]);
@@ -23,7 +42,8 @@ exports.getUserProfile = (req, res) => {
 
 // UPDATE PROFILE
 exports.updateUserProfile = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const body = req.body;
 
     // Check if profile exists

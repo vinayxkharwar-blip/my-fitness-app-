@@ -1,13 +1,14 @@
 import { NavLink, useLocation, Link } from "react-router-dom";
 import { Home, Utensils, MessageSquare, Calendar, Moon, User } from "lucide-react";
 import { cn } from "@/utils/utils";
-import { useAuth } from "@/context/AuthContext";
+
+// Static demo user - no auth dependency
+const user = { id: "demo-user", full_name: "FitSnap User" };
 
 export const DesktopSidebar = () => {
     const location = useLocation();
-    const { user } = useAuth();
 
-    const isAuthOrLanding = ["/", "/login", "/signup"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
+    const isAuthOrLanding = ["/"].includes(location.pathname) || location.pathname.startsWith('/onboarding');
     if (isAuthOrLanding) return null;
 
     const navItems = [
@@ -20,7 +21,7 @@ export const DesktopSidebar = () => {
     ];
 
     return (
-        <aside className="hidden md:flex flex-col w-[240px] shrink-0 bg-[#0d1120] border-r border-[rgba(255,255,255,0.07)] relative z-40 font-sans">
+        <aside className="hidden md:flex flex-col justify-between w-[260px] h-screen shrink-0 bg-[#0d1120]/80 backdrop-blur-xl border-r border-[rgba(255,255,255,0.07)] relative z-40 font-sans shadow-2xl">
             <div className="p-6 flex items-center">
                 <Link to="/home" className="hover:opacity-90 transition-opacity flex items-center gap-3">
                     <div className="w-8 h-8 rounded-[8px] flex items-center justify-center relative shadow-[0_0_16px_rgba(52,211,153,0.35)]" style={{ background: 'linear-gradient(135deg, #34d399, #059669)' }}>
@@ -45,8 +46,8 @@ export const DesktopSidebar = () => {
                             className={cn(
                                 "flex items-center gap-3.5 px-[14px] py-[12px] rounded-[12px] transition-all duration-200 group relative",
                                 isActive
-                                    ? "bg-[rgba(52,211,153,0.1)] text-[#34d399]"
-                                    : "text-[#6b7a99] hover:bg-[#141927]"
+                                    ? "bg-[rgba(52,211,153,0.1)] text-[#34d399] shadow-inner"
+                                    : "text-[#6b7a99] hover:bg-[rgba(255,255,255,0.04)] hover:text-white transform hover:translate-x-1"
                             )}
                             style={isActive ? { fontWeight: 600 } : {}}
                         >
@@ -60,21 +61,19 @@ export const DesktopSidebar = () => {
                 })}
             </nav>
 
-            {user && (
-                <div className="p-4 border-t border-[rgba(255,255,255,0.07)] mt-auto bg-[#0d1120]">
-                    <div className="flex items-center gap-3 px-1">
-                        <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#34d399] to-[#059669] flex items-center justify-center shrink-0">
-                            <span className="text-[#064e3b] font-bold text-sm" style={{ fontFamily: '"Playfair Display", serif' }}>
-                                {(user.full_name || 'V').charAt(0).toUpperCase()}
-                            </span>
-                        </div>
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                            <p className="text-[14px] font-bold text-[#f5f0e8] truncate leading-tight">{user.full_name || 'Vinay Kharwar'}</p>
-                            <p className="text-[11px] text-[#34d399] truncate font-medium leading-tight mt-0.5">Premium Member</p>
-                        </div>
+            <div className="p-4 border-t border-[rgba(255,255,255,0.07)] mt-auto bg-transparent">
+                <div className="flex items-center gap-3 px-1">
+                    <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#34d399] to-[#059669] flex items-center justify-center shrink-0">
+                        <span className="text-[#064e3b] font-bold text-sm" style={{ fontFamily: '"Playfair Display", serif' }}>
+                            {(user.full_name || 'F').charAt(0).toUpperCase()}
+                        </span>
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <p className="text-[14px] font-bold text-[#f5f0e8] truncate leading-tight">{user.full_name || 'FitSnap User'}</p>
+                        <p className="text-[11px] text-[#34d399] truncate font-medium leading-tight mt-0.5">Premium Member</p>
                     </div>
                 </div>
-            )}
+            </div>
         </aside>
     );
 };

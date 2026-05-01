@@ -9,18 +9,13 @@ router.post("/analyze", async (req, res) => {
   try {
     const AIService = require("../services/aiService");
     const result = await AIService.analyzeMeal(image);
-    res.json(result.macros); // The frontend likely expects { protein, carbs, fats, calories } spread out or as is. 
-    // Checking frontend usage would be ideal, but matching previous random math output:
-    // res.json({ protein, carbs, fats, calories })
-    // The service returns { macros: { protein, ... }, estimatedCalories }
 
-    // Map service output to expected frontend format
     res.json({
       protein: result.macros.protein,
       carbs: result.macros.carbs,
       fats: result.macros.fats,
       calories: result.estimatedCalories,
-      foodName: result.foodName // Bonus info if frontend uses it
+      foodName: result.foodName
     });
 
   } catch (error) {
@@ -38,7 +33,7 @@ router.post("/chat", async (req, res) => {
     const AIService = require("../services/aiService");
     // In a real app, we would fetch userContext from DB here
     const aiResponse = await AIService.chatWithCoach(message);
-    res.json(aiResponse);
+    res.json({ reply: aiResponse });
   } catch (error) {
     console.error("Chat Error:", error);
     res.status(500).json({ error: "Failed to generate response" });

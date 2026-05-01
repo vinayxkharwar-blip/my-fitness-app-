@@ -1,16 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import { Button } from "@/components/common/button";
-import { useAuth } from "@/context/AuthContext";
+
+// Static demo user - no auth dependency
+const user = { id: "demo-user", full_name: "FitSnap User", email: "user@fitsnap.dev" };
 
 export default function PersonalInfo() {
     const navigate = useNavigate();
-    const { user } = useAuth();
 
     // Mock data - in real app would fetch detailed profile
     const userInfo = {
-        name: user?.full_name || "User Name",
-        email: user?.email || "user@example.com",
+        name: user.full_name || "User Name",
+        email: user.email || "user@example.com",
         phone: "+1 (555) 123-4567",
         dob: "Jan 1, 1995",
         location: "New York, USA"

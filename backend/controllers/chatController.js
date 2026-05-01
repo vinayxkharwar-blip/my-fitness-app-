@@ -2,7 +2,8 @@ const db = require("../database/db");
 
 // SEND MESSAGE
 exports.sendMessage = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
     const { role, content } = req.body;
 
     const sql = `
@@ -23,7 +24,8 @@ exports.sendMessage = (req, res) => {
 // GET CHAT MESSAGES
 // Simplified to just fetch messages for the user. We can adjust if trainer-specific chats are needed later
 exports.getConversation = (req, res) => {
-    const clerk_user_id = req.auth.userId;
+    const USER_ID = "demo-user";
+    const clerk_user_id = USER_ID;
 
     const sql = `
         SELECT * FROM chat_messages

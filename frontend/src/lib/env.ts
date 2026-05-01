@@ -7,7 +7,6 @@ class EnvError extends Error {
 
 export const validateEnv = () => {
     const requiredEnvs = [
-        'VITE_CLERK_PUBLISHABLE_KEY',
         'VITE_API_URL'
     ];
 

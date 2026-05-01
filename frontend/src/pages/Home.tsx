@@ -1,44 +1,156 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { Flame, Droplets, Utensils, Zap, Play, MessageSquare, CheckCircle2, Circle, Moon, Activity } from "lucide-react";
+import { useMeals } from "@/hooks/useMeals";
+import { useWater } from "@/hooks/useWater";
+import { useHabits } from "@/hooks/useHabits";
+import { useProfile } from "@/hooks/useProfile";
+import { Flame, Droplets, Utensils, Zap, Play, MessageSquare, CheckCircle2, Circle, Moon, Activity, Loader2 } from "lucide-react";
 import { cn } from "@/utils/utils";
 
-// Mock Data
-const DAILY_STATS = {
-    calories: { current: 1250, target: 2200 },
-    macros: {
-        protein: { current: 95, target: 160 },
-        carbs: { current: 140, target: 200 },
-        fat: { current: 45, target: 70 },
-    },
-    water: { current: 4, target: 8 }, // glasses
-    habits: [
-        { id: 1, name: "Morning Stretch", icon: Play, completed: true },
-        { id: 2, name: "Drink Water", icon: Droplets, completed: true },
-        { id: 3, name: "Log Lunch", icon: Utensils, completed: false },
-        { id: 4, name: "Read 10 mins", icon: Zap, completed: false },
-    ],
-    recentMeals: [
-        { id: 1, name: "Grilled Chicken Salad", time: "1:30 PM", cals: 450, macros: { p: 40, c: 15, f: 12 } },
-        { id: 2, name: "Oatmeal with Berries", time: "8:45 AM", cals: 320, macros: { p: 12, c: 45, f: 8 } },
-        { id: 3, name: "Protein Shake", time: "11:00 AM", cals: 180, macros: { p: 25, c: 5, f: 2 } },
-    ]
+// Default TDEE targets (used when profile data is insufficient for calculation)
+const DEFAULT_TARGETS = {
+    calories: 2200,
+    protein: 160,
+    carbs: 200,
+    fat: 70,
+    waterGlasses: 8,
 };
 
+// Fallback habit templates when DB has no habits yet
+const DEFAULT_HABITS = [
+    { id: 1, name: "Morning Stretch", icon: Play },
+    { id: 2, name: "Drink Water", icon: Droplets },
+    { id: 3, name: "Log Lunch", icon: Utensils },
+    { id: 4, name: "Read 10 mins", icon: Zap },
+];
+
+// Static demo user - no auth dependency
+const user = { id: "demo-user", full_name: "FitSnap User" };
+
 export default function Home() {
-    const { user } = useAuth();
-    const userName = user?.full_name?.split(" ")[0] || "Athlete";
+    const userName = user.full_name?.split(" ")[0] || "Athlete";
 
-    const [waterGlasses, setWaterGlasses] = useState(DAILY_STATS.water.current);
-    const [habits, setHabits] = useState(DAILY_STATS.habits);
+    // ── Fetch real data from backend ──
+    const { meals, isLoading: mealsLoading } = useMeals();
+    const { waterLogs, isLoading: waterLoading, addWater } = useWater();
+    const { habitLogs, isLoading: habitsLoading, addHabitLog } = useHabits();
+    const { profile } = useProfile();
 
-    const caloriesProgress = Math.min((DAILY_STATS.calories.current / DAILY_STATS.calories.target) * 100, 100);
+    const isLoading = mealsLoading || waterLoading || habitsLoading;
+
+    // ── Calculate TDEE targets from profile (Harris-Benedict) ──
+    const targets = useMemo(() => {
+        if (!profile?.weight_kg || !profile?.height_cm || !profile?.age) return DEFAULT_TARGETS;
+
+        const gender = profile.gender || "male";
+        const activity = profile.activity_level || "light";
+
+        let bmr: number;
+        if (gender === "male") {
+            bmr = 88.362 + (13.397 * profile.weight_kg) + (4.799 * profile.height_cm) - (5.677 * profile.age);
+        } else {
+            bmr = 447.593 + (9.247 * profile.weight_kg) + (3.098 * profile.height_cm) - (4.330 * profile.age);
+        }
+
+        const multipliers: Record<string, number> = {
+            sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9
+        };
+        const tdee = Math.round(bmr * (multipliers[activity] || 1.2));
+
+        return {
+            calories: tdee,
+            protein: Math.round((tdee * 0.30) / 4),
+            carbs: Math.round((tdee * 0.40) / 4),
+            fat: Math.round((tdee * 0.30) / 9),
+            waterGlasses: 8,
+        };
+    }, [profile]);
+
+    // ── Aggregate today's meals ──
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    const todayMeals = useMemo(() => {
+        if (!Array.isArray(meals)) return [];
+        return meals.filter((m: any) => {
+            const loggedDate = m.logged_at?.split("T")[0] || m.logged_at?.split(" ")[0];
+            return loggedDate === todayStr;
+        });
+    }, [meals, todayStr]);
+
+    const caloriesConsumed = useMemo(() =>
+        todayMeals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0),
+        [todayMeals]
+    );
+
+    const macrosConsumed = useMemo(() => ({
+        protein: todayMeals.reduce((s: number, m: any) => s + (m.protein || 0), 0),
+        carbs: todayMeals.reduce((s: number, m: any) => s + (m.carbs || 0), 0),
+        fat: todayMeals.reduce((s: number, m: any) => s + (m.fats || 0), 0),
+    }), [todayMeals]);
+
+    const recentMeals = useMemo(() => {
+        if (!Array.isArray(meals)) return [];
+        return [...meals]
+            .sort((a: any, b: any) => new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime())
+            .slice(0, 3);
+    }, [meals]);
+
+    // ── Aggregate today's water ──
+    const todayWaterMl = useMemo(() => {
+        if (!Array.isArray(waterLogs)) return 0;
+        return waterLogs
+            .filter((w: any) => {
+                const loggedDate = w.logged_at?.split("T")[0] || w.logged_at?.split(" ")[0];
+                return loggedDate === todayStr;
+            })
+            .reduce((sum: number, w: any) => sum + (w.amount_ml || 0), 0);
+    }, [waterLogs, todayStr]);
+
+    const waterGlasses = Math.floor(todayWaterMl / 250); // 250ml per glass
+
+    // ── Habits with completion state ──
+    const todayHabitIds = useMemo(() => {
+        if (!Array.isArray(habitLogs)) return new Set<number>();
+        return new Set(
+            habitLogs
+                .filter((h: any) => {
+                    const loggedDate = h.completed_at?.split("T")[0] || h.completed_at?.split(" ")[0];
+                    return loggedDate === todayStr;
+                })
+                .map((h: any) => h.habit_id)
+        );
+    }, [habitLogs, todayStr]);
+
+    const habits = DEFAULT_HABITS.map(h => ({
+        ...h,
+        completed: todayHabitIds.has(h.id),
+    }));
+
+    // ── Derived values ──
+    const caloriesProgress = Math.min((caloriesConsumed / targets.calories) * 100, 100);
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-    const toggleHabit = (id: number) => {
-        setHabits(habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h));
+    const handleAddWater = () => {
+        addWater(250); // 250ml = 1 glass
     };
+
+    const toggleHabit = (id: number) => {
+        if (!todayHabitIds.has(id)) {
+            addHabitLog(id);
+        }
+    };
+
+    // ── Loading State ──
+    if (isLoading) {
+        return (
+            <div className="min-h-screen w-full bg-[#0A0A0A] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-10 h-10 text-[#22C55E] animate-spin" />
+                    <p className="text-zinc-400 text-sm font-medium">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen w-full bg-[#0A0A0A] pb-32 text-white font-sans selection:bg-[#22C55E]/30">
@@ -73,30 +185,30 @@ export default function Home() {
                                 />
                             </svg>
                             <Flame className="w-5 h-5 text-[#22C55E] mb-0.5 shadow-glow-purple" fill="currentColor" />
-                            <span className="text-2xl font-extrabold font-heading">{DAILY_STATS.calories.current}</span>
-                            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">/ {DAILY_STATS.calories.target} kcal</span>
+                            <span className="text-2xl font-extrabold font-heading">{caloriesConsumed}</span>
+                            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">/ {targets.calories} kcal</span>
                         </div>
 
                         {/* Macro Summary Strip */}
                         <div className="flex-1 flex flex-col justify-center gap-3">
                             <MacroPill
                                 label="Protein"
-                                current={DAILY_STATS.macros.protein.current}
-                                target={DAILY_STATS.macros.protein.target}
+                                current={macrosConsumed.protein}
+                                target={targets.protein}
                                 colorClass="bg-blue-500"
                                 bgClass="bg-blue-500/10"
                             />
                             <MacroPill
                                 label="Carbs"
-                                current={DAILY_STATS.macros.carbs.current}
-                                target={DAILY_STATS.macros.carbs.target}
+                                current={macrosConsumed.carbs}
+                                target={targets.carbs}
                                 colorClass="bg-amber-500"
                                 bgClass="bg-amber-500/10"
                             />
                             <MacroPill
                                 label="Fat"
-                                current={DAILY_STATS.macros.fat.current}
-                                target={DAILY_STATS.macros.fat.target}
+                                current={macrosConsumed.fat}
+                                target={targets.fat}
                                 colorClass="bg-rose-500"
                                 bgClass="bg-rose-500/10"
                             />
@@ -117,7 +229,7 @@ export default function Home() {
                             </div>
                         </div>
                         <button
-                            onClick={() => setWaterGlasses(Math.min(8, waterGlasses + 1))}
+                            onClick={handleAddWater}
                             className="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-110 active:scale-95 transition-all"
                         >
                             +
@@ -224,19 +336,32 @@ export default function Home() {
                         <Link to="/log-meal" className="text-xs text-[#22C55E] font-semibold hover:underline">View All</Link>
                     </div>
                     <div className="flex flex-col gap-3">
-                        {DAILY_STATS.recentMeals.map((meal) => (
-                            <div key={meal.id} className="glass-card p-4 flex items-center justify-between">
-                                <div className="flex flex-col">
-                                    <span className="font-semibold text-sm text-white">{meal.name}</span>
-                                    <span className="text-xs text-zinc-500 font-medium">{meal.time} • {meal.cals} kcal</span>
+                        {recentMeals.length > 0 ? (
+                            recentMeals.map((meal: any) => (
+                                <div key={meal.meal_id || meal.id} className="glass-card p-4 flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold text-sm text-white">{meal.name}</span>
+                                        <span className="text-xs text-zinc-500 font-medium">
+                                            {meal.logged_at
+                                                ? new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                                : "—"
+                                            } • {meal.calories || 0} kcal
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">{meal.protein || 0}p</span>
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">{meal.carbs || 0}c</span>
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{meal.fats || 0}f</span>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">{meal.macros.p}p</span>
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">{meal.macros.c}c</span>
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{meal.macros.f}f</span>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-2">
+                                <Utensils className="w-8 h-8 text-zinc-600" />
+                                <p className="text-sm text-zinc-500 font-medium">No meals logged yet today.</p>
+                                <Link to="/log-meal" className="text-xs text-[#22C55E] font-semibold hover:underline mt-1">Log your first meal →</Link>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </section>
 
@@ -245,7 +370,7 @@ export default function Home() {
     );
 }
 
-// Helper component for Maco Pills
+// Helper component for Macro Pills
 function MacroPill({ label, current, target, colorClass, bgClass }: { label: string, current: number, target: number, colorClass: string, bgClass: string }) {
     const pct = Math.min((current / target) * 100, 100);
     return (

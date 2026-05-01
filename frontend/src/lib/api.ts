@@ -9,47 +9,28 @@ export const api = axios.create({
     },
 });
 
-// Setup Interceptors for Clerk Token Integration
-export const setupApiInterceptors = (getToken: () => Promise<string | null>) => {
+// Response Interceptor for error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response) {
+            const { status, data } = error.response;
 
-    // Request Interceptor
-    api.interceptors.request.use(
-        async (config) => {
-            const token = await getToken();
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-            return config;
-        },
-        (error) => {
-            return Promise.reject(error);
-        }
-    );
-
-    // Response Interceptor
-    api.interceptors.response.use(
-        (response) => response,
-        (error) => {
-            if (error.response) {
-                const { status, data } = error.response;
-
-                if (status === 401) {
-                    toast.error("Session expired or unauthorized. Please sign in again.");
-                    // Redirection could be handled via window.location if not using Next router/React Router redirect natively
-                } else if (status === 500) {
-                    toast.error(data?.error || "An unexpected server error occurred.");
-                } else {
-                    toast.error(data?.error || "An error occurred.");
-                }
-            } else if (error.request) {
-                console.error("Axios Request Error:", error);
-                toast.error(`Network error (${error.message || 'unknown'}). Could not connect to the server.`);
+            if (status === 401) {
+                toast.error("Unauthorized. Please check your connection.");
+            } else if (status === 500) {
+                toast.error(data?.error || "An unexpected server error occurred.");
             } else {
-                console.error("Axios General Error:", error);
-                toast.error(`Error: ${error.message || 'Failed to setup request'}`);
+                toast.error(data?.error || "An error occurred.");
             }
-
-            return Promise.reject(error);
+        } else if (error.request) {
+            console.error("Axios Request Error:", error);
+            toast.error(`Network error (${error.message || 'unknown'}). Could not connect to the server.`);
+        } else {
+            console.error("Axios General Error:", error);
+            toast.error(`Error: ${error.message || 'Failed to setup request'}`);
         }
-    );
-};
+
+        return Promise.reject(error);
+    }
+);
