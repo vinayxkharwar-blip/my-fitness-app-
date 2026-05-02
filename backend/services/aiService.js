@@ -1,139 +1,245 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const removeMarkdown = require("remove-markdown");
 require("dotenv").config();
 
 class AIService {
-    static getModel() {
-        if (!process.env.GEMINI_API_KEY) throw new Error("Missing API Key");
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+  static MODEL = "gemini-2.5-flash";
+
+  static getClient() {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY in .env");
     }
 
-    static getVisionModel() {
-        if (!process.env.GEMINI_API_KEY) throw new Error("Missing API Key");
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  }
+
+  static getModel() {
+    const genAI = this.getClient();
+
+    return genAI.getGenerativeModel({
+      model: this.MODEL,
+      generationConfig: {
+        temperature: 0.4,
+        topP: 0.9,
+        topK: 40,
+        maxOutputTokens: 2048,
+      },
+    });
+  }
+
+  static getVisionModel() {
+    const genAI = this.getClient();
+
+    return genAI.getGenerativeModel({
+      model: this.MODEL,
+      generationConfig: {
+        temperature: 0.2,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+    });
+  }
+
+  static cleanJSON(text) {
+    try {
+      return JSON.parse(
+        text.replace(/```json/gi, "").replace(/```/g, "").trim()
+      );
+    } catch {
+      return null;
     }
+  }
 
-    static getMockAnalysis() {
-        const protein = Math.round(Math.random() * 40 + 10);
-        const carbs = Math.round(Math.random() * 80 + 10);
-        const fats = Math.round(Math.random() * 30 + 5);
-        const calories = protein * 4 + carbs * 4 + fats * 9;
-        return {
-            foodName: "Detected Food (Offline)",
-            estimatedCalories: calories,
-            macros: { protein, carbs, fats },
-            confidence: 0.8
-        };
+  // CLEAN MARKDOWN RESPONSE
+  static cleanResponse(text) {
+    return removeMarkdown(text)
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  static getMockMealAnalysis() {
+    const protein = Math.round(Math.random() * 40 + 10);
+    const carbs = Math.round(Math.random() * 80 + 10);
+    const fats = Math.round(Math.random() * 30 + 5);
+    const calories = protein * 4 + carbs * 4 + fats * 9;
+
+    return {
+      foodName: "Detected Food (Offline Estimate)",
+      estimatedCalories: calories,
+      macros: { protein, carbs, fats },
+      confidence: 0.75,
+    };
+  }
+
+  static getMockBodyAnalysis() {
+    return {
+      bodyType: "Mesomorph (Estimated)",
+      bodyFat: "15-20%",
+      posture: "Generally balanced posture observed.",
+      suggestion:
+        "Maintain strength training + protein-rich diet for muscle definition.",
+      disclaimer:
+        "This is an AI visual estimate only and not medical advice.",
+    };
+  }
+
+  // CHAT COACH
+  static async chatWithCoach(userMessage, userContext = {}) {
+    try {
+      const model = this.getModel();
+
+      const prompt = `
+You are FitCoach AI — an elite fitness, nutrition and wellness coach.
+
+Rules:
+- Give accurate practical answers
+- Be concise but valuable
+- Give structured advice
+- Motivate user professionally
+- No markdown formatting
+- No # symbols
+- No ** bold formatting
+- Plain clean text only
+
+User Context:
+${JSON.stringify(userContext, null, 2)}
+
+User Question:
+${userMessage}
+`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+
+      // CLEAN OUTPUT
+      return this.cleanResponse(response.text());
+
+    } catch (error) {
+      console.error("CHAT ERROR:", error.message);
+
+      const msg = userMessage.toLowerCase();
+
+      if (msg.includes("sleep")) {
+        return "Aim for 7–9 hours sleep. Reduce screen time before bed, keep room cool, and sleep on a fixed schedule.";
+      }
+
+      if (
+        msg.includes("food") ||
+        msg.includes("diet") ||
+        msg.includes("eat")
+      ) {
+        return "Prioritize lean protein, fiber-rich carbs, healthy fats, and hydration. Limit ultra-processed foods.";
+      }
+
+      if (
+        msg.includes("workout") ||
+        msg.includes("exercise") ||
+        msg.includes("gym")
+      ) {
+        return "Try: Squats, Push-ups, Lunges, Burpees, Plank — 3 rounds, 45 sec work / 15 sec rest.";
+      }
+
+      return "I'm unable to connect to AI right now. Keep showing up daily—consistency wins.";
     }
+  }
 
-    // --- MAIN METHODS ---
+  static async analyzeMeal(imageBase64) {
+    try {
+      const model = this.getVisionModel();
 
-    /**
-     * Generate context-aware chat response
-     */
-    static async chatWithCoach(userMessage, userContext = {}) {
-        try {
-            console.log("GEMINI_API_KEY loaded:", !!process.env.GEMINI_API_KEY);
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const cleanedBase64 = imageBase64.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
 
-            const result = await model.generateContent(userMessage);
-            const response = result.response.text();
-            
-            return response;
+      const prompt = `
+Analyze this food image.
 
-        } catch (error) {
-            console.error("AI ERROR:", error);
-            
-            const msg = userMessage.toLowerCase();
-            if (msg.includes("sleep")) {
-                return "Aim for 7-9 hours of quality sleep. Try limiting screen time 1 hour before bed and keep your room cool and dark.";
-            } else if (msg.includes("food") || msg.includes("diet") || msg.includes("eat")) {
-                return "Focus on lean proteins, complex carbs, and healthy fats. Stay hydrated and avoid processed sugars.";
-            } else if (msg.includes("workout") || msg.includes("exercise") || msg.includes("gym")) {
-                return "Here's a quick 15-min HIIT workout: Jumping jacks, squats, push-ups, burpees, and high knees. 45 seconds on, 15 seconds off. Let's go!";
-            } else {
-                return "I'm having trouble connecting right now, but remember: consistency is the key to achieving your fitness goals!";
-            }
-        }
+Return ONLY valid JSON:
+{
+  "foodName": "",
+  "estimatedCalories": 0,
+  "macros": {
+    "protein": 0,
+    "carbs": 0,
+    "fats": 0
+  },
+  "confidence": 0.0
+}
+`;
+
+      const imagePart = {
+        inlineData: {
+          data: cleanedBase64,
+          mimeType: "image/jpeg",
+        },
+      };
+
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+
+      const parsed = this.cleanJSON(response.text());
+      return parsed || this.getMockMealAnalysis();
+
+    } catch (error) {
+      console.error("MEAL ANALYSIS ERROR:", error.message);
+      return this.getMockMealAnalysis();
     }
+  }
 
-    /**
-     * Analyze a meal image
-     */
-    static async analyzeMeal(imageBase64) {
-        try {
-            const model = this.getVisionModel();
-            const updateBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-            const prompt = `Analyze food.JSON: { "foodName": "...", "estimatedCalories": 0, "macros": { "protein": 0, "carbs": 0, "fats": 0 }, "confidence": 0.9 }`;
-            const imagePart = { inlineData: { data: updateBase64, mimeType: "image/jpeg" } };
+  static async analyzeBody(imageBase64) {
+    try {
+      const model = this.getVisionModel();
 
-            const result = await model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            let text = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
-            return JSON.parse(text);
+      const cleanedBase64 = imageBase64.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
 
-        } catch (error) {
-            console.error("AI Vision Failed (Using Fallback):", error.message);
-            return this.getMockAnalysis();
-        }
+      const prompt = `
+Act as an expert physique coach.
+
+Return ONLY valid JSON:
+{
+  "bodyType": "",
+  "bodyFat": "",
+  "posture": "",
+  "suggestion": "",
+  "disclaimer": "Visual estimate only. Not medical advice."
+}
+`;
+
+      const imagePart = {
+        inlineData: {
+          data: cleanedBase64,
+          mimeType: "image/jpeg",
+        },
+      };
+
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+
+      const parsed = this.cleanJSON(response.text());
+      return parsed || this.getMockBodyAnalysis();
+
+    } catch (error) {
+      console.error("BODY ANALYSIS ERROR:", error.message);
+      return this.getMockBodyAnalysis();
     }
+  }
 
-    /**
-     * Analyze a body physique image
-     */
-    static async analyzeBody(imageBase64) {
-        try {
-            const model = this.getVisionModel();
-            const updateBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-            const prompt = `
-            Act as a fitness coach. Analyze this physique image for:
-            1. Body Type (e.g., Ectomorph, Mesomorph, Endomorph, or hybrid)
-            2. Estimated Body Fat Percentage Range (visual estimate only)
-            3. Posture analysis (any observations like forward head, rounded shoulders)
-            
-            Return ONLY JSON:
-            {
-                "bodyType": "...",
-                "bodyFat": "...",
-                "posture": "...",
-                "suggestion": "..."
-            }
-            Include a disclaimer that this is not medical advice.
-            `;
-            const imagePart = { inlineData: { data: updateBase64, mimeType: "image/jpeg" } };
-
-            const result = await model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            let text = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
-            return JSON.parse(text);
-
-        } catch (error) {
-            console.error("Body Analysis Failed (Using Fallback):", error.message);
-            return this.getMockBodyAnalysis();
-        }
-    }
-
-    static getMockBodyAnalysis() {
-        return {
-            bodyType: "Mesomorph (Estimated)",
-            bodyFat: "15-20% Range",
-            posture: "Good alignment observed. Shoulders look level.",
-            suggestion: "Great baseline! Focus on hypertrophy to build more definition.",
-            disclaimer: "Offline Mode: This is a simulated estimate."
-        };
-    }
-
-    static async generateCoachFeedback(userProfile, dailyStats) {
-        // Simplified fallback for feedback too if needed, or just return basic object
-        return {
-            heading: "Keep Pushing!",
-            body: "You are doing great. Keep logging your meals.",
-            suggestion: { title: "Log", desc: "Track your next meal", action: "log_food" },
-            mood: "neutral"
-        };
-    }
+  static async generateCoachFeedback() {
+    return {
+      heading: "Keep Going",
+      body: "You're building momentum. Small consistent actions create big results.",
+      suggestion: {
+        title: "Next Step",
+        desc: "Log your next meal and complete 20 mins of movement.",
+        action: "log_food",
+      },
+      mood: "positive",
+    };
+  }
 }
 
 module.exports = AIService;
