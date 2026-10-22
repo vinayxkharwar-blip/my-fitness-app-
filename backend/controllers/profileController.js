@@ -1,108 +1,62 @@
-const db = require("../database/db");
+const User = require("../models/User");
 
 // GET PROFILE
-exports.getUserProfile = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
+exports.getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
 
-    const sql = `
-        SELECT age, weight_kg, height_cm, goal, activity_level, profile_image, updated_at
-        FROM user_profiles
-        WHERE clerk_user_id = ?
-    `;
-
-    db.query(sql, [clerk_user_id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        if (result.length === 0) {
-            // Auto-create default profile for demo-user
-            const insertSql = `
-                INSERT INTO user_profiles (clerk_user_id, age, height_cm, weight_kg, activity_level, goal)
-                VALUES (?, 30, 175, 70, 'moderate', 'maintain')
-            `;
-            db.query(insertSql, [clerk_user_id], (insertErr) => {
-                if (insertErr) return res.status(500).json({ error: insertErr.message });
-                
-                return res.status(200).json({
-                    age: 30,
-                    weight_kg: 70,
-                    height_cm: 175,
-                    goal: 'maintain',
-                    activity_level: 'moderate',
-                    profile_image: null,
-                    updated_at: new Date()
-                });
-            });
-            return;
+        if (!user) {
+            return res.status(404).json({ error: "User profile not found" });
         }
 
-        res.status(200).json(result[0]);
-    });
+        // Return exact shape expected by frontend
+        res.status(200).json({
+            id: user._id,
+            full_name: user.full_name,
+            email: user.email,
+            age: user.age,
+            weight_kg: user.weight_kg,
+            height_cm: user.height_cm,
+            goal: user.goal,
+            activity_level: user.activity_level,
+            profile_image: user.profile_image,
+            updated_at: user.updatedAt || user.createdAt
+        });
+    } catch (err) {
+        console.error("Get Profile Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // UPDATE PROFILE
-exports.updateUserProfile = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
-    const body = req.body;
+exports.updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const body = req.body;
 
-    // Check if profile exists
-    db.query("SELECT * FROM user_profiles WHERE clerk_user_id = ?", [clerk_user_id], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        const updateData = {};
+        if (body.full_name !== undefined) updateData.full_name = body.full_name;
+        if (body.age !== undefined) updateData.age = Number(body.age);
+        if (body.height_cm !== undefined) updateData.height_cm = Number(body.height_cm);
+        if (body.weight_kg !== undefined) updateData.weight_kg = Number(body.weight_kg);
+        if (body.activity_level !== undefined) updateData.activity_level = body.activity_level;
+        if (body.goal !== undefined) updateData.goal = body.goal;
+        if (body.profile_image !== undefined) updateData.profile_image = body.profile_image;
 
-        if (results.length === 0) {
-            // INSERT
-            const sql = `
-                INSERT INTO user_profiles (clerk_user_id, age, height_cm, weight_kg, activity_level, goal, profile_image)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `;
-            const params = [
-                clerk_user_id,
-                body.age !== undefined ? body.age : null,
-                body.height_cm !== undefined ? body.height_cm : null,
-                body.weight_kg !== undefined ? body.weight_kg : null,
-                body.activity_level !== undefined ? body.activity_level : null,
-                body.goal !== undefined ? body.goal : null,
-                body.profile_image !== undefined ? body.profile_image : null
-            ];
-            db.query(sql, params, (err, insertResult) => {
-                if (err) {
-                    console.error("INSERT Error in profile:", err);
-                    return res.status(500).json({ error: err.message });
-                }
-                res.status(200).json({ msg: "Profile created successfully!" });
-            });
-        } else {
-            // Partial UPDATE
-            const updates = [];
-            const params = [];
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateData },
+            { returnDocument: "after", runValidators: true }
+        );
 
-            const updatableFields = ['age', 'height_cm', 'weight_kg', 'activity_level', 'goal', 'profile_image'];
-
-            for (const field of updatableFields) {
-                if (body[field] !== undefined) {
-                    updates.push(`${field} = ?`);
-                    params.push(body[field]);
-                }
-            }
-
-            if (updates.length === 0) {
-                return res.status(200).json({ msg: "No fields to update." });
-            }
-
-            updates.push('updated_at = CURRENT_TIMESTAMP');
-            params.push(clerk_user_id);
-
-            const sql = `UPDATE user_profiles SET ${updates.join(', ')} WHERE clerk_user_id = ?`;
-
-            db.query(sql, params, (err, updateResult) => {
-                if (err) {
-                    console.error("UPDATE Error in profile:", err);
-                    return res.status(500).json({ error: err.message });
-                }
-                res.status(200).json({ msg: "Profile updated successfully!" });
-            });
+        if (!updatedUser) {
+            return res.status(404).json({ error: "User not found to update profile" });
         }
-    });
-};
 
+        res.status(200).json({ msg: "Profile updated successfully!" });
+    } catch (err) {
+        console.error("Update Profile Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+};

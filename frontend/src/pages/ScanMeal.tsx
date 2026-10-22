@@ -94,7 +94,7 @@ export default function ScanMeal() {
     };
 
     return (
-        <div className="container mx-auto p-4 pb-24 max-w-3xl animate-fade-in">
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8 pb-24 max-w-5xl animate-fade-in">
             <div className="mb-8">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-3 bg-primary/10 rounded-xl">

@@ -1,42 +1,93 @@
-const db = require("../database/db");
+const Habit = require("../models/Habit");
+const HabitLog = require("../models/HabitLog");
+
+// GET ALL HABITS FOR USER
+exports.getHabits = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const habits = await Habit.find({ user: userId }).sort({ created_at: -1 });
+        res.status(200).json(habits.map(h => ({
+            habit_id: h._id,
+            id: h._id,
+            name: h.name,
+            frequency: h.frequency,
+            streak: h.streak,
+            created_at: h.created_at
+        })));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// CREATE A HABIT
+exports.createHabit = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { name, frequency } = req.body;
+        if (!name) return res.status(400).json({ error: "Habit name is required." });
+
+        const habit = await Habit.create({
+            user: userId,
+            name,
+            frequency: frequency || "daily",
+            streak: 0
+        });
+
+        res.status(201).json({ msg: "Habit created successfully!", habit_id: habit._id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 
 // ADD HABIT LOG
-// Note: Assumes `habit_id` is passed, as the new schema uses habit_logs (log_id, habit_id, completed_at)
-// However, adding a generic habit first might be needed if not existing. 
-// For now, adapting the existing logic to the new `habits` and `habit_logs` tables
-exports.addHabitLog = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
-    const { habit_id } = req.body;
+exports.addHabitLog = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { habit_id } = req.body;
 
-    const sql = `
-        INSERT INTO habit_logs (habit_id)
-        VALUES (?)
-    `;
+        if (!habit_id) {
+            return res.status(400).json({ error: "habit_id is required." });
+        }
 
-    db.query(sql, [habit_id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+        const habit = await Habit.findOne({ _id: habit_id, user: userId });
+        if (!habit) {
+            return res.status(404).json({ error: "Habit not found for this user." });
+        }
+
+        await HabitLog.create({
+            user: userId,
+            habit: habit_id
+        });
+
+        habit.streak += 1;
+        await habit.save();
 
         res.status(200).json({ msg: "Habit log added successfully!" });
-    });
+    } catch (err) {
+        console.error("Add Habit Log Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // GET HABIT LOGS
-exports.getHabitLogs = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
+exports.getHabitLogs = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const logs = await HabitLog.find({ user: userId })
+            .populate("habit", "name")
+            .sort({ completed_at: -1 });
 
-    // Join to ensure habits belong to the requesting user
-    const sql = `
-        SELECT hl.*, h.name as habit_name FROM habit_logs hl
-        JOIN habits h ON hl.habit_id = h.habit_id
-        WHERE h.clerk_user_id = ?
-        ORDER BY hl.completed_at DESC
-    `;
+        const formatted = logs.map(l => ({
+            log_id: l._id,
+            id: l._id,
+            habit_id: l.habit ? l.habit._id : null,
+            habit_name: l.habit ? l.habit.name : "Habit",
+            completed_at: l.completed_at
+        }));
 
-    db.query(sql, [clerk_user_id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        res.status(200).json(result);
-    });
+        res.status(200).json(formatted);
+    } catch (err) {
+        console.error("Get Habit Logs Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };

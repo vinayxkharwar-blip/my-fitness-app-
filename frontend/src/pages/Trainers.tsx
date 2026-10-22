@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Star, Video, MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 
 interface Trainer {
     id: number;
@@ -17,7 +18,7 @@ const MOCK_TRAINERS: Trainer[] = [
     {
         id: 1,
         name: "Mike Chen",
-        specialty: "Strength Training",
+        specialty: "Strength Training & Hypertrophy",
         category: "Strength",
         rating: 4.8,
         sessions: 189,
@@ -27,7 +28,7 @@ const MOCK_TRAINERS: Trainer[] = [
     {
         id: 2,
         name: "Emily Rodriguez",
-        specialty: "Yoga & Flexibility",
+        specialty: "Vinyasa Yoga & Mobility",
         category: "Yoga",
         rating: 5.0,
         sessions: 312,
@@ -37,7 +38,7 @@ const MOCK_TRAINERS: Trainer[] = [
     {
         id: 3,
         name: "David Kim",
-        specialty: "HIIT & CrossFit",
+        specialty: "HIIT Conditioning & Functional",
         category: "HIIT",
         rating: 4.7,
         sessions: 156,
@@ -47,7 +48,7 @@ const MOCK_TRAINERS: Trainer[] = [
     {
         id: 4,
         name: "Aisha Patel",
-        specialty: "Cardio & Endurance",
+        specialty: "Cardio & Endurance Coaching",
         category: "Cardio",
         rating: 4.9,
         sessions: 241,
@@ -67,140 +68,135 @@ const Trainers: React.FC = () => {
         : MOCK_TRAINERS.filter(t => t.category === activeCategory);
 
     return (
-        <div className="min-h-full w-full bg-[#0b0f1a] text-[#f5f0e8] relative font-sans selection:bg-[#34d399]/30 scrollbar-hide pb-20 md:pb-6">
-
-            {/* Inject Font and Animation */}
-            <style>
-                {`
-                    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Sora:wght@100..800&display=swap');
-                    @keyframes pulse-dot {
-                        0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.7); }
-                        70% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
-                        100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
-                    }
-                `}
-            </style>
-
+        <div className="min-h-screen w-full bg-[#F3F6F8] text-[#0F172A] font-sans pb-24 md:pb-12">
+            
             {/* Top Navigation */}
-            <div className="flex items-center px-6 pt-12 pb-4 gap-4 sticky top-0 z-20 bg-[#0b0f1a]/95 backdrop-blur-md">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="w-10 h-10 shrink-0 rounded-full bg-[#141927] flex items-center justify-center border border-white/5 shadow-md active:scale-95 transition-transform"
-                >
-                    <ChevronLeft className="w-5 h-5 text-[#f5f0e8]" />
-                </button>
-                <h1 className="text-[1.6rem] font-bold text-[#f5f0e8] tracking-tight" style={{ fontFamily: '"Playfair Display", serif' }}>
-                    Expert Trainers
-                </h1>
-            </div>
-
-            {/* Filter Chips (Horizontal Scroll) */}
-            <div className="px-6 py-2 overflow-x-auto scrollbar-hide flex gap-3 mb-4">
-                {CATEGORIES.map(category => {
-                    const isActive = activeCategory === category;
-                    return (
+            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0]">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
                         <button
-                            key={category}
-                            onClick={() => setActiveCategory(category)}
-                            className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold transition-all shrink-0 border ${isActive
-                                ? 'bg-[#34d399]/10 border-[#34d399]/30 text-[#34d399]'
-                                : 'bg-[#141927] border-white/5 text-zinc-400 hover:text-zinc-200'
-                                }`}
+                            onClick={() => navigate(-1)}
+                            className="w-10 h-10 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center hover:bg-[#F1F5F9] transition-all active:scale-95 text-[#0F172A]"
                         >
-                            {category}
+                            <ChevronLeft className="w-5 h-5 text-[#64748B]" />
                         </button>
-                    );
-                })}
+                        <div>
+                            <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight">
+                                Expert Coaches & Trainers
+                            </h1>
+                            <p className="text-xs text-[#64748B] hidden sm:block">
+                                Book 1-on-1 virtual sessions with certified elite wellness professionals
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Main Content List */}
-            <div className="px-6 space-y-4 relative z-10 pb-8">
-                {filteredTrainers.map((trainer) => (
-                    <div
-                        key={trainer.id}
-                        className="bg-[#141927] rounded-[20px] p-[18px] border border-[rgba(255,255,255,0.07)] shadow-lg"
-                    >
-                        {/* Top Row: Avatar & Info */}
-                        <div className="flex gap-4 mb-5">
-                            {/* Avatar */}
-                            <div className="relative shrink-0">
-                                <img
-                                    src={trainer.image}
-                                    alt={trainer.name}
-                                    className="w-[60px] h-[60px] rounded-[16px] object-cover bg-zinc-800"
-                                />
-                                {/* Online Status Dot */}
-                                {trainer.available && (
-                                    <div
-                                        className="absolute -top-1 -right-1 w-[12px] h-[12px] rounded-full bg-[#34d399] border-2 border-[#0b0f1a]"
-                                        style={{
-                                            boxShadow: '0 0 8px rgba(52,211,153,0.6)',
-                                            animation: 'pulse-dot 2s infinite'
-                                        }}
-                                    />
-                                )}
-                            </div>
+            {/* Main Content */}
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                {/* Filter Chips */}
+                <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-4 mb-2">
+                    {CATEGORIES.map(category => {
+                        const isActive = activeCategory === category;
+                        return (
+                            <button
+                                key={category}
+                                onClick={() => setActiveCategory(category)}
+                                className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition-all shrink-0 border ${
+                                    isActive
+                                        ? 'bg-[#16A34A] border-[#16A34A] text-white shadow-sm'
+                                        : 'bg-white border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                                }`}
+                            >
+                                {category}
+                            </button>
+                        );
+                    })}
+                </div>
 
-                            {/* Info */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                <h3 className="text-[1.05rem] font-bold text-[#f5f0e8] truncate pr-4">
-                                    {trainer.name}
-                                </h3>
-                                <p className="text-[0.8rem] text-zinc-400 mb-1.5 truncate">
-                                    {trainer.specialty}
-                                </p>
-
-                                {/* Meta Row */}
-                                <div className="flex items-center gap-3 text-[0.7rem] font-medium">
-                                    <div className="flex items-center gap-1">
-                                        <Star className="w-[12px] h-[12px] text-[#fbbf24] fill-[#fbbf24]" />
-                                        <span className="text-[#f5f0e8]">{trainer.rating}</span>
-                                    </div>
-                                    <div className="w-[3px] h-[3px] rounded-full bg-zinc-600" />
-                                    <span className="text-zinc-400">{trainer.sessions} sessions</span>
-
-                                    <div className="flex-1 flex justify-end">
-                                        {trainer.available ? (
-                                            <span className="px-2 py-[2px] rounded bg-[#34d399]/10 border border-[#34d399]/20 text-[#34d399]">Available</span>
-                                        ) : (
-                                            <span className="px-2 py-[2px] rounded bg-[#ef4444]/10 text-[#f87171]">Busy</span>
+                {/* Trainers Responsive Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredTrainers.map((trainer) => (
+                        <div
+                            key={trainer.id}
+                            className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                        >
+                            {/* Top Section: Avatar & Info */}
+                            <div>
+                                <div className="flex items-start gap-4 mb-4">
+                                    <div className="relative shrink-0">
+                                        <img
+                                            src={trainer.image}
+                                            alt={trainer.name}
+                                            className="w-16 h-16 rounded-2xl object-cover bg-slate-100 border border-[#E2E8F0]"
+                                        />
+                                        {trainer.available && (
+                                            <div
+                                                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#16A34A] border-2 border-white shadow-sm"
+                                            />
                                         )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <h3 className="text-base font-bold text-[#0F172A] truncate">
+                                                {trainer.name}
+                                            </h3>
+                                            {trainer.available ? (
+                                                <span className="px-2.5 py-0.5 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] text-[#16A34A] text-[10px] font-bold">Available</span>
+                                            ) : (
+                                                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[#64748B] text-[10px] font-medium">Booked</span>
+                                            )}
+                                        </div>
+
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">
+                                            {trainer.specialty}
+                                        </p>
+
+                                        {/* Rating & Sessions */}
+                                        <div className="flex items-center gap-3 mt-2 text-xs">
+                                            <div className="flex items-center gap-1">
+                                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                                <span className="font-bold text-[#0F172A]">{trainer.rating}</span>
+                                            </div>
+                                            <span className="text-[#94A3B8]">•</span>
+                                            <span className="text-[#64748B] font-medium">{trainer.sessions} sessions completed</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Bottom Row: Action Buttons */}
-                        <div className="flex gap-3">
-                            {/* Book Session Button */}
-                            <button
-                                onClick={() => trainer.available ? alert(`📹 Video session request sent to ${trainer.name}!\n\nYou'll receive a confirmation shortly.`) : null}
-                                disabled={!trainer.available}
-                                className={`flex-1 h-[42px] rounded-[14px] flex items-center justify-center gap-2 text-sm font-bold transition-all ${trainer.available
-                                    ? 'text-[#064e3b] active:scale-[0.98]'
-                                    : 'bg-[#1a2035] text-[#6b7a99] cursor-not-allowed opacity-80'
+                            {/* Bottom Actions */}
+                            <div className="flex gap-2.5 pt-4 border-t border-[#E2E8F0]">
+                                <button
+                                    onClick={() => {
+                                        if (trainer.available) {
+                                            toast.success(`Video session request sent to ${trainer.name}! Confirmation emailed.`);
+                                        }
+                                    }}
+                                    disabled={!trainer.available}
+                                    className={`flex-1 h-10 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                                        trainer.available
+                                            ? 'bg-[#16A34A] hover:bg-[#15803D] text-white shadow-sm active:scale-95'
+                                            : 'bg-[#F1F5F9] text-[#94A3B8] cursor-not-allowed'
                                     }`}
-                                style={trainer.available ? {
-                                    background: 'linear-gradient(135deg, #34d399, #059669)',
-                                    boxShadow: '0 0 20px rgba(52,211,153,0.25)'
-                                } : {}}
-                            >
-                                <Video size={16} className={trainer.available ? "text-[#064e3b]" : "text-[#505d76]"} />
-                                Book Session
-                            </button>
+                                >
+                                    <Video size={15} />
+                                    <span>{trainer.available ? 'Book Session' : 'Unavailable'}</span>
+                                </button>
 
-                            {/* Chat Button */}
-                            <button
-                                onClick={() => navigate("/coach")}
-                                className="w-[64px] shrink-0 h-[42px] rounded-[14px] flex items-center justify-center bg-[#1a2035] border border-white/[0.07] active:scale-[0.95] transition-transform hover:bg-[#1e253e]"
-                            >
-                                <MessageSquare size={18} className="text-[#f5f0e8]" />
-                            </button>
+                                <button
+                                    onClick={() => navigate("/coach")}
+                                    className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#F1F5F9] transition-colors text-[#0F172A]"
+                                    title="AI Chat"
+                                >
+                                    <MessageSquare size={16} className="text-[#64748B]" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
-
+                    ))}
+                </div>
+            </main>
         </div>
     );
 };

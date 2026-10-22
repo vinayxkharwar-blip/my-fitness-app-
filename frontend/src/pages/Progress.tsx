@@ -4,129 +4,119 @@ import { cn } from "@/utils/utils";
 
 export default function Progress() {
     return (
-        <div className="min-h-screen w-full bg-[#E9EEF3] pb-32 text-[#1F2937] p-6 animate-fade-in font-sans selection:bg-[#9ED9E6]/30">
-            <header className="mb-8">
-                <h1 className="text-3xl font-extrabold font-heading text-[#1F2937] tracking-tight">Your Progress</h1>
-                <p className="text-gray-500 text-sm font-medium">Track your journey and milestones.</p>
-            </header>
+        <div className="min-h-screen w-full bg-[#F3F6F8] pb-32 text-[#0F172A] p-4 sm:p-6 lg:p-8 animate-fade-in font-sans">
+            <div className="max-w-[1440px] mx-auto">
+                <header className="mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">Your Progress</h1>
+                    <p className="text-[#64748B] text-xs sm:text-sm mt-0.5">Track your workout consistency, weekly milestones, and body evolution.</p>
+                </header>
 
-            <div className="space-y-6">
-                {/* AI Coach Insight */}
-                <Card className="bg-[#F0F9FF] border-[#E0F2FE] shadow-xl shadow-blue-900/5 text-[#1F2937] rounded-[2.5rem] overflow-hidden">
-                    <CardContent className="p-6">
+                <div className="space-y-6">
+                    {/* AI Coach Insight */}
+                    <div className="bg-[#F0FDF4] border border-[#BBF7D0] shadow-sm rounded-3xl p-6 text-[#0F172A]">
                         <div className="flex items-start gap-4">
-                            <div className="bg-white p-3 rounded-2xl shadow-sm border border-[#E0F2FE]">
-                                <Zap className="w-6 h-6 text-[#9ED9E6]" />
+                            <div className="bg-white p-3 rounded-2xl shadow-sm border border-[#BBF7D0]">
+                                <Zap className="w-6 h-6 text-[#16A34A]" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-base mb-2 text-[#1F2937]">Coach Insight</h3>
-                                <p className="text-[#5FB3B3] leading-relaxed text-sm font-medium">
-                                    "You're crushing it! Your consistency on <span className="font-bold text-[#1F2937]">Leg Days</span> is improving your overall stability. Keep maintaining that 3-day streak!"
+                                <h3 className="font-bold text-base mb-1 text-[#0F172A]">Coach Insight</h3>
+                                <p className="text-[#15803D] leading-relaxed text-sm font-medium">
+                                    "You're crushing it! Your consistency on <span className="font-bold text-[#0F172A]">Leg Days</span> is improving your overall metabolic burn. Keep maintaining that 3-day streak!"
                                 </p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                {/* Summary Cards Grid */}
-                <div className="grid grid-cols-3 gap-3">
-                    <Card className="border-white shadow-xl shadow-blue-900/5 bg-white rounded-[2rem]">
-                        <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-                            <div className="bg-[#FFF7ED] p-2.5 rounded-2xl text-[#FFA07A]">
-                                <Flame className="w-5 h-5" fill="#FFA07A" />
+                    {/* Summary Cards Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="border border-[#E2E8F0] shadow-sm bg-white rounded-3xl p-5 flex flex-col items-center justify-center text-center gap-2">
+                            <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-2xl text-amber-600">
+                                <Flame className="w-5 h-5 fill-amber-600" />
                             </div>
                             <div>
-                                <span className="block text-2xl font-extrabold text-[#1F2937] font-heading">12</span>
-                                <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">Day Streak</span>
+                                <span className="block text-2xl font-extrabold text-[#0F172A]">12</span>
+                                <span className="text-[11px] text-[#64748B] font-bold uppercase tracking-wider">Day Streak</span>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <Card className="border-white shadow-xl shadow-blue-900/5 bg-white rounded-[2rem]">
-                        <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-                            <div className="bg-[#E0F2FE] p-2.5 rounded-2xl text-[#9ED9E6]">
+                        <div className="border border-[#E2E8F0] shadow-sm bg-white rounded-3xl p-5 flex flex-col items-center justify-center text-center gap-2">
+                            <div className="bg-blue-50 border border-blue-200 p-2.5 rounded-2xl text-blue-600">
                                 <Trophy className="w-5 h-5" />
                             </div>
                             <div>
-                                <span className="block text-2xl font-extrabold text-[#1F2937] font-heading">85%</span>
-                                <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">Goal Met</span>
+                                <span className="block text-2xl font-extrabold text-[#0F172A]">85%</span>
+                                <span className="text-[11px] text-[#64748B] font-bold uppercase tracking-wider">Goal Met</span>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <Card className="border-white shadow-xl shadow-blue-900/5 bg-white rounded-[2rem]">
-                        <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-                            <div className="bg-[#F0FDF4] p-2.5 rounded-2xl text-[#4ADE80]">
+                        <div className="border border-[#E2E8F0] shadow-sm bg-white rounded-3xl p-5 flex flex-col items-center justify-center text-center gap-2">
+                            <div className="bg-[#F0FDF4] border border-[#BBF7D0] p-2.5 rounded-2xl text-[#16A34A]">
                                 <TrendingUp className="w-5 h-5" />
                             </div>
                             <div>
-                                <span className="block text-2xl font-extrabold text-[#1F2937] font-heading">-2.4</span>
-                                <span className="text-xs text-gray-400 font-bold uppercase tracking-wide">kg Lost</span>
+                                <span className="block text-2xl font-extrabold text-[#0F172A]">-2.4 <span className="text-xs text-[#64748B] font-normal">kg</span></span>
+                                <span className="text-[11px] text-[#64748B] font-bold uppercase tracking-wider">Net Weight Change</span>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                        </div>
+                    </div>
 
-                {/* Progress Ring / Weekly Activity (Simplified Visual) */}
-                <Card className="border-white shadow-xl shadow-blue-900/5 rounded-[2.5rem] bg-white">
-                    <CardContent className="p-6">
+                    {/* Weekly Activity */}
+                    <div className="border border-[#E2E8F0] shadow-sm rounded-3xl bg-white p-6">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-bold text-lg text-[#1F2937]">Weekly Activity</h3>
-                            <span className="text-xs text-gray-400 font-medium">Dec 11 - 17</span>
+                            <h3 className="font-bold text-base text-[#0F172A]">Weekly Activity Distribution</h3>
+                            <span className="text-xs text-[#64748B] font-semibold bg-[#F8FAFC] px-3 py-1 rounded-full border border-[#E2E8F0]">Dec 11 - 17</span>
                         </div>
 
-                        <div className="flex justify-between items-end gap-2 h-32">
+                        <div className="flex justify-between items-end gap-3 h-36">
                             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
-                                const height = [40, 70, 30, 85, 50, 90, 20][i]; // Mock heights percentage
-                                const isToday = i === 3; // Mock today
+                                const height = [40, 70, 30, 85, 50, 90, 20][i];
+                                const isToday = i === 3;
                                 return (
                                     <div key={i} className="flex flex-col items-center gap-2 w-full group">
                                         <div className="w-full relative h-full flex items-end">
                                             <div
                                                 className={cn(
-                                                    "w-full rounded-t-lg transition-all duration-500",
-                                                    isToday ? "bg-[#FFA07A]" : "bg-gray-100 group-hover:bg-[#FFA07A]/50"
+                                                    "w-full rounded-t-xl transition-all duration-300",
+                                                    isToday ? "bg-[#16A34A]" : "bg-[#F1F5F9] group-hover:bg-[#16A34A]/40"
                                                 )}
                                                 style={{ height: `${height}%` }}
-                                            ></div>
+                                            />
                                         </div>
                                         <span className={cn(
                                             "text-xs font-bold",
-                                            isToday ? "text-[#FFA07A]" : "text-gray-400"
+                                            isToday ? "text-[#16A34A]" : "text-[#64748B]"
                                         )}>{day}</span>
                                     </div>
-                                )
+                                );
                             })}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                {/* Recent Activity Timeline */}
-                <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-[#1F2937] px-1">Recent Activity</h3>
-
+                    {/* Recent Activity Timeline */}
                     <div className="space-y-3">
-                        {[
-                            { title: "Upper Body Power", time: "Today, 9:00 AM", icon: Dumbbell, color: "bg-[#E0F2FE] text-[#9ED9E6]" },
-                            { title: "Hit Daily Step Goal", time: "Yesterday, 8:30 PM", icon: Footprints, color: "bg-[#F0FDF4] text-[#4ADE80]" },
-                            { title: "Logged Breakfast", time: "Yesterday, 9:15 AM", icon: Calendar, color: "bg-[#FFF7ED] text-[#FFA07A]" },
-                        ].map((item, i) => (
-                            <Card key={i} className="border-white shadow-xl shadow-blue-900/5 hover:scale-[1.01] transition-transform rounded-[2rem] bg-white">
-                                <CardContent className="p-4 flex items-center gap-4">
-                                    <div className={cn("p-2.5 rounded-2xl", item.color)}>
+                        <h3 className="font-bold text-base text-[#0F172A] px-1">Recent Activity Log</h3>
+
+                        <div className="space-y-3">
+                            {[
+                                { title: "Upper Body Hypertrophy Session", time: "Today, 9:00 AM", icon: Dumbbell, color: "bg-blue-50 text-blue-600 border-blue-200" },
+                                { title: "Hit Daily 10k Step Milestone", time: "Yesterday, 8:30 PM", icon: Footprints, color: "bg-[#F0FDF4] text-[#16A34A] border-[#BBF7D0]" },
+                                { title: "Logged High-Protein Breakfast", time: "Yesterday, 9:15 AM", icon: Calendar, color: "bg-amber-50 text-amber-600 border-amber-200" },
+                            ].map((item, i) => (
+                                <div key={i} className="border border-[#E2E8F0] shadow-sm rounded-2xl bg-white p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+                                    <div className={cn("p-2.5 rounded-xl border", item.color)}>
                                         <item.icon className="w-5 h-5" />
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-bold text-[#1F2937] text-sm">{item.title}</h4>
-                                        <p className="text-xs text-gray-400 font-medium">{item.time}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-[#0F172A] text-sm truncate">{item.title}</h4>
+                                        <p className="text-xs text-[#64748B] font-medium">{item.time}</p>
                                     </div>
-                                    <CheckCircle2 className="w-5 h-5 text-gray-200" />
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    <CheckCircle2 className="w-5 h-5 text-[#16A34A]" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
     );

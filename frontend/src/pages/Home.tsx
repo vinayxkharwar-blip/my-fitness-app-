@@ -4,58 +4,76 @@ import { useMeals } from "@/hooks/useMeals";
 import { useWater } from "@/hooks/useWater";
 import { useHabits } from "@/hooks/useHabits";
 import { useProfile } from "@/hooks/useProfile";
-import { Flame, Droplets, Utensils, Zap, Play, MessageSquare, CheckCircle2, Circle, Moon, Activity, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { 
+    Flame, 
+    Droplets, 
+    Utensils, 
+    Zap, 
+    Play, 
+    MessageSquare, 
+    CheckCircle2, 
+    Circle, 
+    Moon, 
+    Activity, 
+    Camera, 
+    Plus, 
+    ChevronRight, 
+    ArrowUpRight, 
+    Sparkles, 
+    Scale,
+    Target
+} from "lucide-react";
 import { cn } from "@/utils/utils";
 
-// Default TDEE targets (used when profile data is insufficient for calculation)
+// Default daily targets
 const DEFAULT_TARGETS = {
     calories: 2200,
-    protein: 160,
-    carbs: 200,
-    fat: 70,
+    protein: 150,
+    carbs: 220,
+    fat: 65,
     waterGlasses: 8,
 };
 
-// Fallback habit templates when DB has no habits yet
+// Fallback habit list
 const DEFAULT_HABITS = [
-    { id: 1, name: "Morning Stretch", icon: Play },
-    { id: 2, name: "Drink Water", icon: Droplets },
-    { id: 3, name: "Log Lunch", icon: Utensils },
-    { id: 4, name: "Read 10 mins", icon: Zap },
+    { id: 1, name: "Morning Stretch & Mobility", icon: Play, desc: "10 mins mobility routine" },
+    { id: 2, name: "Hydrate (500ml upon waking)", icon: Droplets, desc: "Kickstart daily metabolism" },
+    { id: 3, name: "Log Nutrition & Macros", icon: Utensils, desc: "Hit daily protein target" },
+    { id: 4, name: "Evening Recovery / Walk", icon: Zap, desc: "Active muscle recovery" },
 ];
 
-// Static demo user - no auth dependency
-const user = { id: "demo-user", full_name: "FitSnap User" };
-
 export default function Home() {
-    const userName = user.full_name?.split(" ")[0] || "Athlete";
+    const { user } = useAuth();
+    const userName = user?.full_name?.split(" ")[0] || "Athlete";
 
-    // ── Fetch real data from backend ──
+    // ── Fetch actual data from MongoDB ──
     const { meals, isLoading: mealsLoading } = useMeals();
     const { waterLogs, isLoading: waterLoading, addWater } = useWater();
     const { habitLogs, isLoading: habitsLoading, addHabitLog } = useHabits();
-    const { profile } = useProfile();
+    const { profile, isLoading: profileLoading } = useProfile();
 
-    const isLoading = mealsLoading || waterLoading || habitsLoading;
+    const isLoading = mealsLoading || waterLoading || habitsLoading || profileLoading;
 
-    // ── Calculate TDEE targets from profile (Harris-Benedict) ──
+    // ── Dynamic TDEE calculation ──
     const targets = useMemo(() => {
         if (!profile?.weight_kg || !profile?.height_cm || !profile?.age) return DEFAULT_TARGETS;
 
-        const gender = profile.gender || "male";
-        const activity = profile.activity_level || "light";
+        const weight = Number(profile.weight_kg);
+        const height = Number(profile.height_cm);
+        const age = Number(profile.age);
+        const activity = profile.activity_level || "moderate";
 
-        let bmr: number;
-        if (gender === "male") {
-            bmr = 88.362 + (13.397 * profile.weight_kg) + (4.799 * profile.height_cm) - (5.677 * profile.age);
-        } else {
-            bmr = 447.593 + (9.247 * profile.weight_kg) + (3.098 * profile.height_cm) - (4.330 * profile.age);
-        }
-
+        // Harris-Benedict formula
+        const bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
         const multipliers: Record<string, number> = {
-            sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9
+            sedentary: 1.2,
+            light: 1.375,
+            moderate: 1.55,
+            active: 1.725,
+            very_active: 1.9
         };
-        const tdee = Math.round(bmr * (multipliers[activity] || 1.2));
+        const tdee = Math.round(bmr * (multipliers[activity] || 1.35));
 
         return {
             calories: tdee,
@@ -66,58 +84,58 @@ export default function Home() {
         };
     }, [profile]);
 
-    // ── Aggregate today's meals ──
+    // ── Today's meals filtering ──
     const todayStr = new Date().toISOString().split("T")[0];
 
     const todayMeals = useMemo(() => {
         if (!Array.isArray(meals)) return [];
         return meals.filter((m: any) => {
-            const loggedDate = m.logged_at?.split("T")[0] || m.logged_at?.split(" ")[0];
+            const loggedDate = m.logged_at ? (m.logged_at.split("T")[0] || m.logged_at.split(" ")[0]) : "";
             return loggedDate === todayStr;
         });
     }, [meals, todayStr]);
 
     const caloriesConsumed = useMemo(() =>
-        todayMeals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0),
+        todayMeals.reduce((sum: number, m: any) => sum + (Number(m.calories) || 0), 0),
         [todayMeals]
     );
 
     const macrosConsumed = useMemo(() => ({
-        protein: todayMeals.reduce((s: number, m: any) => s + (m.protein || 0), 0),
-        carbs: todayMeals.reduce((s: number, m: any) => s + (m.carbs || 0), 0),
-        fat: todayMeals.reduce((s: number, m: any) => s + (m.fats || 0), 0),
+        protein: todayMeals.reduce((s: number, m: any) => s + (Number(m.protein) || 0), 0),
+        carbs: todayMeals.reduce((s: number, m: any) => s + (Number(m.carbs) || 0), 0),
+        fat: todayMeals.reduce((s: number, m: any) => s + (Number(m.fats) || 0), 0),
     }), [todayMeals]);
 
     const recentMeals = useMemo(() => {
         if (!Array.isArray(meals)) return [];
         return [...meals]
-            .sort((a: any, b: any) => new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime())
-            .slice(0, 3);
+            .sort((a: any, b: any) => new Date(b.logged_at || b.createdAt || 0).getTime() - new Date(a.logged_at || a.createdAt || 0).getTime())
+            .slice(0, 5);
     }, [meals]);
 
-    // ── Aggregate today's water ──
+    // ── Hydration calculation ──
     const todayWaterMl = useMemo(() => {
         if (!Array.isArray(waterLogs)) return 0;
         return waterLogs
             .filter((w: any) => {
-                const loggedDate = w.logged_at?.split("T")[0] || w.logged_at?.split(" ")[0];
+                const loggedDate = w.logged_at ? (w.logged_at.split("T")[0] || w.logged_at.split(" ")[0]) : "";
                 return loggedDate === todayStr;
             })
-            .reduce((sum: number, w: any) => sum + (w.amount_ml || 0), 0);
+            .reduce((sum: number, w: any) => sum + (Number(w.amount_ml) || 0), 0);
     }, [waterLogs, todayStr]);
 
-    const waterGlasses = Math.floor(todayWaterMl / 250); // 250ml per glass
+    const waterGlasses = Math.floor(todayWaterMl / 250);
 
-    // ── Habits with completion state ──
+    // ── Habits calculation ──
     const todayHabitIds = useMemo(() => {
         if (!Array.isArray(habitLogs)) return new Set<number>();
         return new Set(
             habitLogs
                 .filter((h: any) => {
-                    const loggedDate = h.completed_at?.split("T")[0] || h.completed_at?.split(" ")[0];
+                    const loggedDate = h.completed_at ? (h.completed_at.split("T")[0] || h.completed_at.split(" ")[0]) : "";
                     return loggedDate === todayStr;
                 })
-                .map((h: any) => h.habit_id)
+                .map((h: any) => Number(h.habit_id))
         );
     }, [habitLogs, todayStr]);
 
@@ -126,264 +144,568 @@ export default function Home() {
         completed: todayHabitIds.has(h.id),
     }));
 
-    // ── Derived values ──
-    const caloriesProgress = Math.min((caloriesConsumed / targets.calories) * 100, 100);
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    // Derived percentages
+    const caloriesProgress = Math.min(Math.round((caloriesConsumed / targets.calories) * 100), 100);
+    const proteinProgress = Math.min(Math.round((macrosConsumed.protein / targets.protein) * 100), 100);
+    const carbsProgress = Math.min(Math.round((macrosConsumed.carbs / targets.carbs) * 100), 100);
+    const fatProgress = Math.min(Math.round((macrosConsumed.fat / targets.fat) * 100), 100);
+    const waterProgress = Math.min(Math.round((waterGlasses / 8) * 100), 100);
 
-    const handleAddWater = () => {
-        addWater(250); // 250ml = 1 glass
-    };
+    const todayDateFormatted = new Date().toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'short', 
+        day: 'numeric' 
+    });
 
-    const toggleHabit = (id: number) => {
-        if (!todayHabitIds.has(id)) {
-            addHabitLog(id);
-        }
-    };
+    // BMI calculation
+    const currentWeight = profile?.weight_kg || user?.weight_kg || 70;
+    const currentHeight = profile?.height_cm || user?.height_cm || 175;
+    const bmi = (currentWeight / ((currentHeight / 100) ** 2)).toFixed(1);
 
-    // ── Loading State ──
     if (isLoading) {
         return (
-            <div className="min-h-screen w-full bg-[#0A0A0A] flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-[#22C55E] animate-spin" />
-                    <p className="text-zinc-400 text-sm font-medium">Loading your dashboard...</p>
-                </div>
+            <div className="min-h-screen w-full bg-[#F3F6F8] flex flex-col items-center justify-center">
+                <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4" />
+                <p className="text-slate-500 text-sm font-medium">Synchronizing your dashboard...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen w-full bg-[#0A0A0A] pb-32 text-white font-sans selection:bg-[#22C55E]/30">
-
-            <main className="max-w-lg mx-auto w-full px-6 flex flex-col gap-6 pt-6">
-
-                {/* HERO CARD: Daily Mission Briefing */}
-                <section className="glass-card p-6 flex flex-col relative overflow-hidden animate-fade-in-up">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#22C55E]/10 rounded-full blur-[50px] pointer-events-none" />
-
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <p className="text-xs font-semibold text-[#22C55E] tracking-widest uppercase mb-1">{today}</p>
-                            <h1 className="text-3xl font-heading font-extrabold tracking-tight">
-                                Good morning,<br /><span className="text-white">{userName}</span> 💪
-                            </h1>
+        <div className="min-h-screen w-full bg-[#F3F6F8] text-[#0F172A] font-sans pb-28 md:pb-12">
+            <main className="w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-7">
+                
+                {/* ────────────────────────────────────────────────────────
+                    1. TOP HEADER & GREETING BAR (CLEAN LIGHT)
+                ──────────────────────────────────────────────────────── */}
+                <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#E2E8F0]">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0FDF4] border border-[#BBF7D0] text-[#16A34A] text-xs font-semibold mb-2">
+                            <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+                            {todayDateFormatted.toUpperCase()} • OVERVIEW
                         </div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+                            Welcome back, <span className="text-[#16A34A]">{userName}</span>
+                        </h1>
+                        <p className="text-xs sm:text-sm text-[#64748B] mt-1">
+                            Your daily nutrition, hydration, and AI coaching metrics are synchronized.
+                        </p>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        {/* Circular Progress Ring */}
-                        <div className="relative w-32 h-32 shrink-0 flex flex-col items-center justify-center shadow-premium rounded-full bg-[#0A0A0A]/50">
-                            <svg className="absolute inset-0 w-full h-full rotate-[-90deg]">
-                                <circle cx="64" cy="64" r="54" fill="none" stroke="#1C1C1C" strokeWidth="8" />
-                                <circle
-                                    cx="64" cy="64" r="54"
-                                    fill="none" stroke="currentColor" strokeWidth="8"
-                                    strokeDasharray="339.292"
-                                    strokeDashoffset={339.292 - (339.292 * caloriesProgress) / 100}
-                                    strokeLinecap="round"
-                                    className="text-[#22C55E] transition-all duration-1000 ease-out"
-                                />
-                            </svg>
-                            <Flame className="w-5 h-5 text-[#22C55E] mb-0.5 shadow-glow-purple" fill="currentColor" />
-                            <span className="text-2xl font-extrabold font-heading">{caloriesConsumed}</span>
-                            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">/ {targets.calories} kcal</span>
-                        </div>
-
-                        {/* Macro Summary Strip */}
-                        <div className="flex-1 flex flex-col justify-center gap-3">
-                            <MacroPill
-                                label="Protein"
-                                current={macrosConsumed.protein}
-                                target={targets.protein}
-                                colorClass="bg-blue-500"
-                                bgClass="bg-blue-500/10"
-                            />
-                            <MacroPill
-                                label="Carbs"
-                                current={macrosConsumed.carbs}
-                                target={targets.carbs}
-                                colorClass="bg-amber-500"
-                                bgClass="bg-amber-500/10"
-                            />
-                            <MacroPill
-                                label="Fat"
-                                current={macrosConsumed.fat}
-                                target={targets.fat}
-                                colorClass="bg-rose-500"
-                                bgClass="bg-rose-500/10"
-                            />
-                        </div>
-                    </div>
-                </section>
-
-                {/* HYDRATION TRACKER */}
-                <section className="glass-card p-5 flex flex-col gap-4 animate-fade-in-up" style={{ animationDelay: "100ms" }}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                <Droplets size={16} fill="currentColor" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold">Hydration</h3>
-                                <p className="text-xs text-zinc-500">{waterGlasses} / 8 glasses (250ml)</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleAddWater}
-                            className="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-110 active:scale-95 transition-all"
+                    {/* Quick action buttons */}
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Link
+                            to="/scan"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs sm:text-sm shadow-sm transition-all active:scale-95"
                         >
-                            +
-                        </button>
+                            <Camera className="w-4 h-4" />
+                            <span>AI Snap Meal</span>
+                        </Link>
+                        <Link
+                            to="/log-meal"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#E2E8F0] text-[#0F172A] font-semibold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
+                        >
+                            <Plus className="w-4 h-4 text-[#16A34A]" />
+                            <span>Log Food</span>
+                        </Link>
+                        <Link
+                            to="/coach"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#EFF6FF] hover:bg-[#DBEAFE] border border-[#BFDBFE] text-[#2563EB] font-semibold text-xs sm:text-sm transition-all active:scale-95"
+                        >
+                            <Sparkles className="w-4 h-4 text-[#2563EB]" />
+                            <span>Ask Coach</span>
+                        </Link>
                     </div>
-                    {/* Water progress bar */}
-                    <div className="flex gap-1 h-3">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className={cn(
-                                "flex-1 rounded-sm transition-colors duration-300",
-                                i < waterGlasses ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" : "bg-zinc-800"
-                            )} />
-                        ))}
+                </header>
+
+                {/* ────────────────────────────────────────────────────────
+                    2. KEY METRIC SUMMARY STAT CARDS (CLEAN LIGHT 4-COL)
+                ──────────────────────────────────────────────────────── */}
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                    
+                    {/* CALORIES CARD */}
+                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-sm transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Calories</span>
+                            <div className="w-9 h-9 rounded-xl bg-[#F0FDF4] flex items-center justify-center text-[#16A34A]">
+                                <Flame className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-3xl font-extrabold text-[#0F172A] tracking-tight">{caloriesConsumed}</span>
+                            <span className="text-xs text-[#64748B] font-medium">/ {targets.calories} kcal</span>
+                        </div>
+                        <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-2 overflow-hidden">
+                            <div 
+                                className="bg-[#16A34A] h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${caloriesProgress}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-[#64748B] font-medium">
+                            <span>{Math.max(0, targets.calories - caloriesConsumed)} kcal remaining</span>
+                            <span className="text-[#16A34A] font-bold">{caloriesProgress}%</span>
+                        </div>
                     </div>
+
+                    {/* PROTEIN CARD */}
+                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-sm transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Protein</span>
+                            <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] flex items-center justify-center text-[#2563EB]">
+                                <Utensils className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-3xl font-extrabold text-[#0F172A] tracking-tight">{macrosConsumed.protein}g</span>
+                            <span className="text-xs text-[#64748B] font-medium">/ {targets.protein}g</span>
+                        </div>
+                        <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-2 overflow-hidden">
+                            <div 
+                                className="bg-[#2563EB] h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${proteinProgress}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-[#64748B] font-medium">
+                            <span>Muscle recovery target</span>
+                            <span className="text-[#2563EB] font-bold">{proteinProgress}%</span>
+                        </div>
+                    </div>
+
+                    {/* CARBS CARD */}
+                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-sm transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Carbs</span>
+                            <div className="w-9 h-9 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706]">
+                                <Zap className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-3xl font-extrabold text-[#0F172A] tracking-tight">{macrosConsumed.carbs}g</span>
+                            <span className="text-xs text-[#64748B] font-medium">/ {targets.carbs}g</span>
+                        </div>
+                        <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-2 overflow-hidden">
+                            <div 
+                                className="bg-[#D97706] h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${carbsProgress}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-[#64748B] font-medium">
+                            <span>Workout energy fuel</span>
+                            <span className="text-[#D97706] font-bold">{carbsProgress}%</span>
+                        </div>
+                    </div>
+
+                    {/* FATS CARD */}
+                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs hover:shadow-sm transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-[#64748B] uppercase tracking-wider">Healthy Fats</span>
+                            <div className="w-9 h-9 rounded-xl bg-[#FFF1F2] flex items-center justify-center text-[#E11D48]">
+                                <Activity className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-3xl font-extrabold text-[#0F172A] tracking-tight">{macrosConsumed.fat}g</span>
+                            <span className="text-xs text-[#64748B] font-medium">/ {targets.fat}g</span>
+                        </div>
+                        <div className="w-full bg-[#F1F5F9] rounded-full h-2 mb-2 overflow-hidden">
+                            <div 
+                                className="bg-[#E11D48] h-full rounded-full transition-all duration-500" 
+                                style={{ width: `${fatProgress}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-[#64748B] font-medium">
+                            <span>Cellular & hormonal support</span>
+                            <span className="text-[#E11D48] font-bold">{fatProgress}%</span>
+                        </div>
+                    </div>
+
                 </section>
 
-                {/* QUICK ACTIONS GRID */}
-                <section className="grid grid-cols-2 gap-4 animate-fade-in-up" style={{ animationDelay: "150ms" }}>
-                    <Link to="/log-meal" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-black transition-colors">
-                            <Utensils size={24} />
-                        </div>
-                        <span className="text-sm font-semibold">Log Meal</span>
-                    </Link>
-                    <Link to="/coach" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center group-hover:bg-[#22C55E] group-hover:text-black transition-colors shadow-glow-purple group-hover:shadow-[0_0_20px_rgba(34,197,94,0.6)]">
-                            <MessageSquare size={24} />
-                        </div>
-                        <span className="text-sm font-semibold text-[#22C55E]">Coach Chat</span>
-                    </Link>
-                    <Link to="/scan" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                            <Flame size={24} />
-                        </div>
-                        <span className="text-sm font-semibold">AI Snap</span>
-                    </Link>
-                    <Link to="/plans" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
-                            <Play size={24} />
-                        </div>
-                        <span className="text-sm font-semibold">Start Workout</span>
-                    </Link>
-                    <Link to="/sleep" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-[#a78bfa]/10 text-[#a78bfa] flex items-center justify-center group-hover:bg-[#a78bfa] group-hover:text-white transition-colors">
-                            <Moon size={24} />
-                        </div>
-                        <span className="text-sm font-semibold text-[#a78bfa]">Sleep Tracker</span>
-                    </Link>
-                    <Link to="/body" className="glass-card p-4 flex flex-col items-center justify-center gap-3 active:scale-95 group">
-                        <div className="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-500 flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                            <Activity size={24} />
-                        </div>
-                        <span className="text-sm font-semibold">Body Analysis</span>
-                    </Link>
-                </section>
+                {/* ────────────────────────────────────────────────────────
+                    3. MAIN DESKTOP 12-COLUMN DUAL PANEL (CLEAN LIGHT)
+                ──────────────────────────────────────────────────────── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+                    
+                    {/* ── LEFT COLUMN (8 OF 12 COLS) ── */}
+                    <div className="lg:col-span-8 flex flex-col gap-7">
+                        
+                        {/* FEATURE QUICK LAUNCH HUB (6 Cards on desktop) */}
+                        <section>
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h2 className="text-base font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-[#16A34A]" />
+                                    Core Workspaces & Tools
+                                </h2>
+                                <span className="text-xs text-[#64748B]">Instant AI & fitness access</span>
+                            </div>
 
-                {/* TODAY'S HABITS */}
-                <section className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-heading font-bold">Today's Habits</h2>
-                        <span className="text-xs text-[#22C55E] font-medium">{habits.filter(h => h.completed).length}/{habits.length} Done</span>
-                    </div>
-                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-6 px-6">
-                        {habits.map((habit) => {
-                            const Icon = habit.icon;
-                            return (
-                                <button
-                                    key={habit.id}
-                                    onClick={() => toggleHabit(habit.id)}
-                                    className={cn(
-                                        "shrink-0 w-36 glass-card p-4 flex flex-col items-start gap-4 transition-all duration-300 text-left",
-                                        habit.completed ? "border-[#22C55E]/50 bg-[#22C55E]/5" : ""
-                                    )}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                                
+                                {/* AI SNAP */}
+                                <Link
+                                    to="/scan"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-purple-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
                                 >
-                                    <div className="flex items-center justify-between w-full">
-                                        <div className={cn(
-                                            "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                                            habit.completed ? "bg-[#22C55E]/20 text-[#22C55E]" : "bg-zinc-800 text-zinc-400"
-                                        )}>
-                                            <Icon size={14} />
+                                    <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <Camera className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors">AI Meal Snap</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
                                         </div>
-                                        {habit.completed ? (
-                                            <CheckCircle2 size={20} className="text-[#22C55E]" />
-                                        ) : (
-                                            <Circle size={20} className="text-zinc-600" />
-                                        )}
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">Scan plate with vision AI</p>
                                     </div>
-                                    <span className={cn(
-                                        "text-sm font-medium leading-tight",
-                                        habit.completed ? "text-white" : "text-zinc-400"
-                                    )}>
-                                        {habit.name}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
+                                </Link>
 
-                {/* RECENT ACTIVITY */}
-                <section className="animate-fade-in-up mb-8" style={{ animationDelay: "250ms" }}>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-heading font-bold">Recent Meals</h2>
-                        <Link to="/log-meal" className="text-xs text-[#22C55E] font-semibold hover:underline">View All</Link>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        {recentMeals.length > 0 ? (
-                            recentMeals.map((meal: any) => (
-                                <div key={meal.meal_id || meal.id} className="glass-card p-4 flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="font-semibold text-sm text-white">{meal.name}</span>
-                                        <span className="text-xs text-zinc-500 font-medium">
-                                            {meal.logged_at
-                                                ? new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                                : "—"
-                                            } • {meal.calories || 0} kcal
-                                        </span>
+                                {/* COACH CHAT */}
+                                <Link
+                                    to="/coach"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-green-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-[#F0FDF4] text-[#16A34A] flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <MessageSquare className="w-5 h-5" />
                                     </div>
-                                    <div className="flex gap-2">
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">{meal.protein || 0}p</span>
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">{meal.carbs || 0}c</span>
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{meal.fats || 0}f</span>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#16A34A] transition-colors">AI Coach Chat</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#16A34A] transition-colors" />
+                                        </div>
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">24/7 fitness guidance</p>
+                                    </div>
+                                </Link>
+
+                                {/* LOG FOOD */}
+                                <Link
+                                    to="/log-meal"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-amber-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <Utensils className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-amber-600 transition-colors">Log Nutrition</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-colors" />
+                                        </div>
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">Track meals & macros</p>
+                                    </div>
+                                </Link>
+
+                                {/* WORKOUT PLANS */}
+                                <Link
+                                    to="/plans"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-rose-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <Play className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-rose-600 transition-colors">Workout Plans</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors" />
+                                        </div>
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">Personalized routines</p>
+                                    </div>
+                                </Link>
+
+                                {/* SLEEP TRACKER */}
+                                <Link
+                                    to="/sleep"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-indigo-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <Moon className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-indigo-600 transition-colors">Sleep Tracker</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                                        </div>
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">Circadian rhythm analysis</p>
+                                    </div>
+                                </Link>
+
+                                {/* BODY ANALYSIS */}
+                                <Link
+                                    to="/body"
+                                    className="p-5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-cyan-300 hover:shadow-sm transition-all duration-200 group flex flex-col justify-between min-h-[135px]"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <Activity className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-cyan-600 transition-colors">Body Analysis</h3>
+                                            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-600 transition-colors" />
+                                        </div>
+                                        <p className="text-xs text-[#64748B] mt-0.5 line-clamp-1">Composition & BMI metrics</p>
+                                    </div>
+                                </Link>
+
+                            </div>
+                        </section>
+
+                        {/* RECENT MEALS (CLEAN LIGHT CARD) */}
+                        <section className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-xs">
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#F1F5F9]">
+                                <div>
+                                    <h2 className="text-base font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
+                                        <Utensils className="w-4 h-4 text-[#16A34A]" />
+                                        Recent Meals Logged
+                                    </h2>
+                                    <p className="text-xs text-[#64748B] mt-0.5">Entries recorded in your database</p>
+                                </div>
+                                <Link 
+                                    to="/log-meal" 
+                                    className="text-xs font-semibold text-[#16A34A] hover:text-[#15803D] flex items-center gap-1 transition-colors"
+                                >
+                                    <span>View All</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+
+                            <div className="flex flex-col gap-2.5">
+                                {recentMeals.length > 0 ? (
+                                    recentMeals.map((meal: any) => (
+                                        <div 
+                                            key={meal.meal_id || meal._id || meal.id} 
+                                            className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-9 h-9 rounded-xl bg-[#F0FDF4] text-[#16A34A] flex items-center justify-center shrink-0 font-bold">
+                                                    <Utensils className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-sm text-[#0F172A]">{meal.name}</span>
+                                                        {meal.meal_type && (
+                                                            <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-slate-200/60 text-slate-700">
+                                                                {meal.meal_type}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs text-[#64748B] font-medium">
+                                                        {meal.logged_at ? new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Recently"}
+                                                        {" • "}
+                                                        <span className="text-[#16A34A] font-semibold">{meal.calories || 0} kcal</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Macro Badges */}
+                                            <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-semibold">
+                                                <span className="px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]">
+                                                    {meal.protein || 0}g P
+                                                </span>
+                                                <span className="px-2 py-0.5 rounded-md bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">
+                                                    {meal.carbs || 0}g C
+                                                </span>
+                                                <span className="px-2 py-0.5 rounded-md bg-[#FFF1F2] text-[#BE123C] border border-[#FECDD3]">
+                                                    {meal.fats || 0}g F
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-10 flex flex-col items-center justify-center text-center gap-2.5">
+                                        <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                            <Utensils className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-[#0F172A]">No meals logged yet today</p>
+                                            <p className="text-xs text-[#64748B] mt-0.5">Use AI Snap or manual log to start tracking.</p>
+                                        </div>
+                                        <Link 
+                                            to="/log-meal" 
+                                            className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#F0FDF4] hover:bg-[#DCFCE7] border border-[#BBF7D0] text-[#16A34A] text-xs font-bold transition-all"
+                                        >
+                                            + Log Your First Meal
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                    </div>
+
+                    {/* ── RIGHT COLUMN (4 OF 12 COLS) ── */}
+                    <div className="lg:col-span-4 flex flex-col gap-6">
+                        
+                        {/* HYDRATION STATION */}
+                        <section className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
+                                        <Droplets className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-[#0F172A]">Hydration Tracker</h3>
+                                        <p className="text-xs text-[#64748B]">{todayWaterMl} / 2000 ml ({waterGlasses} of 8 glasses)</p>
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-2">
-                                <Utensils className="w-8 h-8 text-zinc-600" />
-                                <p className="text-sm text-zinc-500 font-medium">No meals logged yet today.</p>
-                                <Link to="/log-meal" className="text-xs text-[#22C55E] font-semibold hover:underline mt-1">Log your first meal →</Link>
+                                <span className="text-xs font-bold text-[#2563EB]">{waterProgress}%</span>
                             </div>
-                        )}
+
+                            {/* 8-Segment Glass Indicator */}
+                            <div className="grid grid-cols-8 gap-1.5 mb-4">
+                                {[...Array(8)].map((_, i) => (
+                                    <div 
+                                        key={i} 
+                                        className={cn(
+                                            "h-7 rounded-lg transition-all duration-200 flex items-center justify-center text-[10px] font-bold",
+                                            i < waterGlasses 
+                                                ? "bg-[#2563EB] text-white shadow-xs" 
+                                                : "bg-[#F1F5F9] text-[#94A3B8]"
+                                        )}
+                                    >
+                                        {i + 1}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Quick Add Buttons */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={() => addWater(250)}
+                                    className="py-2 px-3 rounded-xl bg-[#F8FAFC] hover:bg-[#EFF6FF] border border-[#E2E8F0] hover:border-[#BFDBFE] text-xs font-semibold text-[#0F172A] hover:text-[#2563EB] transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <Plus className="w-3.5 h-3.5 text-[#2563EB]" />
+                                    <span>+ 250 ml (Glass)</span>
+                                </button>
+                                <button
+                                    onClick={() => addWater(500)}
+                                    className="py-2 px-3 rounded-xl bg-[#F8FAFC] hover:bg-[#EFF6FF] border border-[#E2E8F0] hover:border-[#BFDBFE] text-xs font-semibold text-[#0F172A] hover:text-[#2563EB] transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <Plus className="w-3.5 h-3.5 text-[#2563EB]" />
+                                    <span>+ 500 ml (Bottle)</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        {/* DAILY HABITS */}
+                        <section className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
+                                    Daily Habits
+                                </h3>
+                                <span className="text-xs font-bold text-[#16A34A] bg-[#F0FDF4] px-2 py-0.5 rounded-full border border-[#BBF7D0]">
+                                    {habits.filter(h => h.completed).length}/{habits.length} Done
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                {habits.map((habit) => {
+                                    const Icon = habit.icon;
+                                    return (
+                                        <button
+                                            key={habit.id}
+                                            onClick={() => {
+                                                if (!todayHabitIds.has(habit.id)) {
+                                                    addHabitLog(habit.id);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "w-full p-3 rounded-xl border flex items-center justify-between transition-all text-left",
+                                                habit.completed 
+                                                    ? "bg-[#F0FDF4] border-[#BBF7D0] text-[#0F172A]" 
+                                                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:bg-slate-100/70 text-[#0F172A]"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2.5">
+                                                <div className={cn(
+                                                    "w-7 h-7 rounded-lg flex items-center justify-center shrink-0",
+                                                    habit.completed ? "bg-[#16A34A] text-white" : "bg-slate-200 text-slate-500"
+                                                )}>
+                                                    <Icon className="w-3.5 h-3.5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-[#0F172A]">{habit.name}</p>
+                                                    <p className="text-[10px] text-[#64748B]">{habit.desc}</p>
+                                                </div>
+                                            </div>
+
+                                            {habit.completed ? (
+                                                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                                            ) : (
+                                                <Circle className="w-4 h-4 text-slate-300 hover:text-slate-500 shrink-0" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
+
+                        {/* AI COACH INSIGHT CARD (PALE GREEN SURFACE) */}
+                        <section className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-5 shadow-xs">
+                            <div className="flex items-center gap-2 text-xs font-bold text-[#16A34A] mb-1.5">
+                                <Sparkles className="w-4 h-4" />
+                                <span>AI COACH ADVISORY</span>
+                            </div>
+                            <h4 className="text-sm font-bold text-[#0F172A] mb-1.5">
+                                {caloriesConsumed < targets.calories * 0.5 
+                                    ? "Prioritize balanced nutrition today" 
+                                    : "Great progress on your daily target"}
+                            </h4>
+                            <p className="text-xs text-[#64748B] leading-relaxed mb-3.5">
+                                {caloriesConsumed < targets.calories * 0.5
+                                    ? `You have logged ${caloriesConsumed} kcal. Remember to hydrate well and fuel your recovery with lean protein.`
+                                    : `You have consumed ${caloriesConsumed} kcal today. Maintain steady hydration and prepare for rest.`
+                                }
+                            </p>
+                            <Link
+                                to="/coach"
+                                className="w-full py-2 rounded-xl bg-[#16A34A] hover:bg-[#15803D] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                            >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span>Consult AI Coach</span>
+                            </Link>
+                        </section>
+
+                        {/* PROFILE & HEALTH METRICS SNAPSHOT */}
+                        <section className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-xs">
+                            <div className="flex items-center justify-between mb-3.5">
+                                <h3 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
+                                    <Scale className="w-4 h-4 text-[#16A34A]" />
+                                    Profile Snapshot
+                                </h3>
+                                <Link to="/profile" className="text-xs text-[#16A34A] hover:underline font-semibold">
+                                    Edit
+                                </Link>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2 text-center mb-3.5">
+                                <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                                    <span className="block text-[10px] uppercase font-bold text-[#64748B]">Weight</span>
+                                    <span className="text-sm font-extrabold text-[#0F172A]">{currentWeight} <span className="text-[10px] text-[#64748B] font-normal">kg</span></span>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                                    <span className="block text-[10px] uppercase font-bold text-[#64748B]">Height</span>
+                                    <span className="text-sm font-extrabold text-[#0F172A]">{currentHeight} <span className="text-[10px] text-[#64748B] font-normal">cm</span></span>
+                                </div>
+                                <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                                    <span className="block text-[10px] uppercase font-bold text-[#64748B]">BMI</span>
+                                    <span className="text-sm font-extrabold text-[#16A34A]">{bmi}</span>
+                                </div>
+                            </div>
+
+                            <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Target className="w-3.5 h-3.5 text-[#16A34A]" />
+                                    <span className="text-xs font-semibold text-[#0F172A]">Active Goal</span>
+                                </div>
+                                <span className="text-[11px] font-bold text-[#16A34A] uppercase tracking-wider bg-[#F0FDF4] px-2 py-0.5 rounded-md border border-[#BBF7D0]">
+                                    {profile?.goal?.replace("_", " ") || user?.goal || "Maintain"}
+                                </span>
+                            </div>
+                        </section>
+
                     </div>
-                </section>
+
+                </div>
 
             </main>
-        </div>
-    );
-}
-
-// Helper component for Macro Pills
-function MacroPill({ label, current, target, colorClass, bgClass }: { label: string, current: number, target: number, colorClass: string, bgClass: string }) {
-    const pct = Math.min((current / target) * 100, 100);
-    return (
-        <div className="flex items-center gap-3 w-full pl-2">
-            <div className="w-10">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</span>
-            </div>
-            <div className={cn("flex-1 h-3 rounded-full overflow-hidden", bgClass)}>
-                <div className={cn("h-full rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]", colorClass)} style={{ width: `${pct}%` }} />
-            </div>
-            <div className="w-14 text-right">
-                <span className="text-xs font-bold text-white">{current}<span className="text-zinc-600 font-medium">/{target}</span></span>
-            </div>
         </div>
     );
 }

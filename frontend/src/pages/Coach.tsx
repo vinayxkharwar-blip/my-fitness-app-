@@ -60,7 +60,7 @@ export default function Coach() {
         chatService.sendMessage({ role: "user", content: text }).catch(() => {});
 
         try {
-            // Call the real Gemini AI backend
+            // Call the real OpenAI backend
             const aiResponse = await chatWithCoach(text);
 
             const newAiMsg: Message = {
@@ -74,7 +74,7 @@ export default function Coach() {
             // Persist AI response to DB (fire-and-forget)
             chatService.sendMessage({ role: "assistant", content: newAiMsg.text }).catch(() => {});
 
-        } catch (error) {
+        } catch {
             toast.error("Failed to get AI response. Please try again.");
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -89,34 +89,34 @@ export default function Coach() {
     };
 
     return (
-        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0A0A0A] text-white font-sans shadow-[0_0_40px_rgba(0,0,0,0.8)] relative z-10">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F3F6F8] text-[#0F172A] font-sans relative z-10">
             {/* Header */}
-            <header className="px-6 py-4 flex items-center justify-between border-b border-zinc-800 shrink-0 bg-[#0A0A0A]">
+            <header className="px-6 py-4 flex items-center justify-between border-b border-[#E2E8F0] shrink-0 bg-white shadow-sm">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
-                        className="p-2 rounded-full hover:bg-zinc-800 text-white transition-all md:hidden"
+                        className="p-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] hover:bg-[#F1F5F9] text-[#64748B] transition-all md:hidden"
                     >
-                        <ArrowLeft className="w-6 h-6" />
+                        <ArrowLeft className="w-5 h-5 text-[#0F172A]" />
                     </button>
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#22C55E]/10 flex items-center justify-center shadow-glow-purple border border-[#22C55E]/20 relative">
-                            <Bot className="w-5 h-5 text-[#22C55E]" />
-                            <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#22C55E] rounded-full border-2 border-[#0A0A0A]"></div>
+                        <div className="w-10 h-10 rounded-2xl bg-[#F0FDF4] border border-[#BBF7D0] flex items-center justify-center relative">
+                            <Bot className="w-5 h-5 text-[#16A34A]" />
+                            <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-[#16A34A] rounded-full border-2 border-white"></div>
                         </div>
                         <div>
-                            <h1 className="text-xl font-extrabold font-heading tracking-tight flex items-center gap-2">
-                                AI Coach <Sparkles className="w-4 h-4 text-[#22C55E]" />
+                            <h1 className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-[#0F172A]">
+                                AI Coach <Sparkles className="w-4 h-4 text-[#16A34A]" />
                             </h1>
-                            <p className="text-xs text-[#22C55E] font-medium">Online</p>
+                            <p className="text-xs text-[#16A34A] font-semibold">Active & Ready</p>
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* Chat Area */}
-            <main className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4 w-full">
-                <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
+            <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 flex flex-col gap-4 w-full bg-[#F3F6F8]">
+                <div className="max-w-4xl mx-auto w-full flex flex-col gap-4">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
@@ -127,17 +127,17 @@ export default function Coach() {
                         >
                             <div
                                 className={cn(
-                                    "px-5 py-4 rounded-3xl text-[15px] leading-relaxed relative shadow-lg transition-all duration-300",
+                                    "px-5 py-4 rounded-3xl text-[15px] leading-relaxed relative shadow-sm transition-all duration-300",
                                     msg.sender === "user"
-                                        ? "bg-[#22C55E] text-[#0A0A0A] font-medium rounded-br-sm"
-                                        : "bg-[#1C1C1C] text-zinc-200 border border-zinc-800 rounded-bl-sm"
+                                        ? "bg-[#16A34A] text-white font-medium rounded-br-sm shadow-[#16A34A]/20"
+                                        : "bg-white text-[#0F172A] border border-[#E2E8F0] rounded-bl-sm"
                                 )}
                             >
-                                <p className="mb-2">{msg.text}</p>
+                                <p className="mb-2 whitespace-pre-wrap">{msg.text}</p>
                                 <span
                                     className={cn(
-                                        "text-[10px] opacity-60 font-medium block mt-1",
-                                        msg.sender === "user" ? "text-right" : "text-right text-zinc-400"
+                                        "text-[10px] font-medium block mt-1",
+                                        msg.sender === "user" ? "text-right text-white/80" : "text-right text-[#94A3B8]"
                                     )}
                                 >
                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -148,10 +148,10 @@ export default function Coach() {
 
                     {isTyping && (
                         <div className="flex max-w-[85%] mr-auto justify-start animate-fade-in-up">
-                        <div className="bg-[#1C1C1C] border border-zinc-800 px-5 py-4 rounded-3xl rounded-bl-sm flex items-center gap-1.5 h-[52px] shadow-lg">
-                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                            <div className="bg-white border border-[#E2E8F0] px-5 py-4 rounded-3xl rounded-bl-sm flex items-center gap-1.5 h-[52px] shadow-sm">
+                                <div className="w-2 h-2 bg-[#16A34A] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                                <div className="w-2 h-2 bg-[#16A34A] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                <div className="w-2 h-2 bg-[#16A34A] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                             </div>
                         </div>
                     )}
@@ -160,15 +160,15 @@ export default function Coach() {
             </main>
 
             {/* Input Area */}
-            <div className="border-t border-zinc-800 shrink-0 p-4 bg-[#0A0A0A] w-full">
-                <div className="max-w-3xl mx-auto flex flex-col gap-4 w-full">
+            <div className="border-t border-[#E2E8F0] shrink-0 p-4 bg-white w-full shadow-sm">
+                <div className="max-w-4xl mx-auto flex flex-col gap-3 w-full">
                     {/* Suggestions */}
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                         {SUGGESTIONS.map((suggestion, i) => (
                             <button
                                 key={i}
                                 onClick={() => handleSend(suggestion)}
-                                className="whitespace-nowrap px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-zinc-700 transition-colors"
+                                className="whitespace-nowrap px-4 py-1.5 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] hover:border-[#CBD5E1] transition-all"
                             >
                                 {suggestion}
                             </button>
@@ -186,16 +186,16 @@ export default function Coach() {
                                     handleSend(inputValue);
                                 }
                             }}
-                            placeholder="Ask your coach anything..."
-                            className="w-full bg-[#1C1C1C] border border-zinc-800 rounded-2xl py-3.5 pl-5 pr-14 text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#22C55E]/50 focus:ring-1 focus:ring-[#22C55E]/50 resize-none overflow-hidden min-h-[52px] max-h-[120px]"
+                            placeholder="Ask your coach anything about nutrition, workouts, recovery..."
+                            className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl py-3.5 pl-5 pr-14 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 resize-none overflow-hidden min-h-[52px] max-h-[120px]"
                             rows={1}
                         />
                         <button
                             onClick={() => handleSend(inputValue)}
                             disabled={!inputValue.trim()}
-                            className="absolute right-2 bottom-1.5 w-10 h-10 rounded-full bg-[#22C55E] text-[#0A0A0A] flex items-center justify-center disabled:opacity-50 disabled:bg-zinc-800 disabled:text-zinc-500 transition-all hover:scale-105 active:scale-95 shadow-premium disabled:shadow-none"
+                            className="absolute right-2 bottom-1.5 w-10 h-10 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white flex items-center justify-center disabled:opacity-40 disabled:bg-[#E2E8F0] disabled:text-[#94A3B8] transition-all hover:scale-105 active:scale-95 shadow-sm"
                         >
-                            <Send className="w-5 h-5 ml-0.5" />
+                            <Send className="w-4 h-4 ml-0.5" />
                         </button>
                     </div>
                 </div>

@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { HelmetProvider } from "react-helmet-async";
 import Splash from "./pages/Splash";
 
-import Index from "./pages/Index";
 import Home from "./pages/Home";
 import Coach from "./pages/Coach";
 import ScanMeal from "./pages/ScanMeal";
@@ -13,6 +12,7 @@ import BodyAnalysis from "./pages/BodyAnalysis";
 import Plans from "./pages/Plans";
 import Profile from "./pages/Profile";
 import Trainers from "./pages/Trainers";
+import Progress from "./pages/Progress";
 import NotFound from "./pages/NotFound";
 import GoalSelection from "./pages/GoalSelection";
 import BodyMeasurements from "./pages/BodyMeasurements";
@@ -22,6 +22,12 @@ import PersonalInfo from "./pages/PersonalInfo";
 import Notifications from "./pages/Notifications";
 import AppSettings from "./pages/AppSettings";
 
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute, PublicAuthRoute } from "./components/auth/RouteGuards";
+
 import { BottomNav } from "./components/layout/BottomNav";
 import { DesktopSidebar } from "./components/layout/DesktopSidebar";
 import { MobileHeader } from "./components/layout/MobileHeader";
@@ -29,20 +35,19 @@ import { MobileHeader } from "./components/layout/MobileHeader";
 function AppContent() {
   const location = useLocation();
   const [showSplash, setShowSplash] = useState(true);
-  const isLanding = location.pathname === "/";
+
+  // Hide global navigation and header on auth and onboarding pages
+  const isAuthOrOnboarding = ["/", "/login", "/signup", "/register"].includes(location.pathname) || 
+                             location.pathname.startsWith("/onboarding");
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500);
+    }, 2000);
 
-    // Initialize Theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    // Enforce Clean Light Theme
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
 
     return () => clearTimeout(timer);
   }, []);
@@ -52,46 +57,51 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#0b0f1a] font-sans selection:bg-[#34d399]/30">
-        {!isLanding && <DesktopSidebar />}
+    <div className="flex h-screen w-full overflow-hidden bg-[#F3F6F8] text-[#0F172A] font-sans selection:bg-green-500/20 selection:text-green-900">
+        {!isAuthOrOnboarding && <DesktopSidebar />}
 
-        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0b0f1a] relative">
-          {!isLanding && <MobileHeader />}
+        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F3F6F8] relative">
+          {!isAuthOrOnboarding && <MobileHeader />}
 
-          <main className="flex-1 flex flex-col w-full overflow-y-auto scrollbar-hide bg-[#0b0f1a] relative">
+          <main className="flex-1 flex flex-col w-full overflow-y-auto scrollbar-hide bg-[#F3F6F8] relative">
             <Routes>
+              {/* Root redirect */}
               <Route path="/" element={<Navigate to="/home" replace />} />
 
-              {/* Removed old auth routes */}
+              {/* Public Auth Routes */}
+              <Route path="/login" element={<PublicAuthRoute><Login /></PublicAuthRoute>} />
+              <Route path="/signup" element={<PublicAuthRoute><Signup /></PublicAuthRoute>} />
+              <Route path="/register" element={<Navigate to="/signup" replace />} />
 
               {/* Onboarding */}
               <Route path="/onboarding/goal" element={<GoalSelection />} />
               <Route path="/onboarding/measurements" element={<BodyMeasurements />} />
               <Route path="/onboarding/body-measurements" element={<BodyMeasurements />} />
 
-              {/* Dashboard Routes — all public */}
-              <Route path="/home" element={<Home />} />
-              <Route path="/coach" element={<Coach />} />
-              <Route path="/sleep" element={<SleepTracker />} />
-              <Route path="/scan" element={<ScanMeal />} />
-              <Route path="/log-meal" element={<LogMeal />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/habits" element={<Habits />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/body" element={<BodyAnalysis />} />
-              <Route path="/plans" element={<Plans />} />
-              <Route path="/trainers" element={<Trainers />} />
+              {/* Protected Application Routes */}
+              <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
+              <Route path="/sleep" element={<ProtectedRoute><SleepTracker /></ProtectedRoute>} />
+              <Route path="/scan" element={<ProtectedRoute><ScanMeal /></ProtectedRoute>} />
+              <Route path="/log-meal" element={<ProtectedRoute><LogMeal /></ProtectedRoute>} />
+              <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
+              <Route path="/habits" element={<ProtectedRoute><Habits /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/body" element={<ProtectedRoute><BodyAnalysis /></ProtectedRoute>} />
+              <Route path="/plans" element={<ProtectedRoute><Plans /></ProtectedRoute>} />
+              <Route path="/trainers" element={<ProtectedRoute><Trainers /></ProtectedRoute>} />
+              <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
 
-              {/* Profile Settings */}
-              <Route path="/profile/personal-info" element={<PersonalInfo />} />
-              <Route path="/profile/notifications" element={<Notifications />} />
-              <Route path="/profile/settings" element={<AppSettings />} />
+              {/* Protected Profile Settings */}
+              <Route path="/profile/personal-info" element={<ProtectedRoute><PersonalInfo /></ProtectedRoute>} />
+              <Route path="/profile/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/profile/settings" element={<ProtectedRoute><AppSettings /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
 
-          {!isLanding && <BottomNav />}
+          {!isAuthOrOnboarding && <BottomNav />}
         </div>
     </div>
   );
@@ -100,9 +110,11 @@ function AppContent() {
 export default function App() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthProvider>
     </HelmetProvider>
   );
 }

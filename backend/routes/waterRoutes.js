@@ -4,6 +4,7 @@ const router = express.Router();
 const { addWaterLog, getWaterLogs } = require("../controllers/waterController");
 
 router.post("/add", addWaterLog);
+router.post("/", addWaterLog);
 router.get("/", getWaterLogs);
 
 module.exports = router;

@@ -1,54 +1,74 @@
-const db = require("../database/db");
+const CartItem = require("../models/CartItem");
+const Product = require("../models/Product");
 
 // ADD TO CART
-exports.addToCart = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
-    const { product_id, quantity } = req.body;
+exports.addToCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { product_id, quantity } = req.body;
+        const qty = Number(quantity) || 1;
 
-    const sql = `
-        INSERT INTO cart_items (clerk_user_id, product_id, quantity)
-        VALUES (?, ?, ?)
-        ON CONFLICT(clerk_user_id, product_id) DO UPDATE SET quantity = cart_items.quantity + excluded.quantity
-    `;
+        if (!product_id) {
+            return res.status(400).json({ error: "product_id is required." });
+        }
 
-    db.query(sql, [clerk_user_id, product_id, quantity], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+        let cartItem = await CartItem.findOne({ user: userId, product: product_id });
+        if (cartItem) {
+            cartItem.quantity += qty;
+            await cartItem.save();
+        } else {
+            cartItem = await CartItem.create({
+                user: userId,
+                product: product_id,
+                quantity: qty
+            });
+        }
 
-        res.status(200).json({ msg: "Item added to cart!" });
-    });
+        res.status(200).json({ msg: "Item added to cart!", cart_id: cartItem._id });
+    } catch (err) {
+        console.error("Add to Cart Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // GET CART ITEMS FOR USER
-exports.getCart = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
+exports.getCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const items = await CartItem.find({ user: userId }).populate("product");
 
-    const sql = `
-        SELECT c.cart_id, c.quantity,
-               p.product_id, p.name, p.price, p.image_url, p.description
-        FROM cart_items c
-        JOIN products p ON c.product_id = p.product_id
-        WHERE c.clerk_user_id = ?
-    `;
+        const formatted = items.filter(item => item.product).map(item => ({
+            cart_id: item._id,
+            id: item._id,
+            quantity: item.quantity,
+            product_id: item.product._id,
+            name: item.product.name,
+            price: item.product.price,
+            image_url: item.product.image_url,
+            description: item.product.description
+        }));
 
-    db.query(sql, [clerk_user_id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        res.status(200).json(result);
-    });
+        res.status(200).json(formatted);
+    } catch (err) {
+        console.error("Get Cart Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 // REMOVE ITEM FROM CART
-exports.removeFromCart = (req, res) => {
-    // Optionally we could also verify ownership of cart_id here before deleting
-    const cart_id = req.params.cart_id;
+exports.removeFromCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const cart_id = req.params.cart_id;
 
-    const sql = "DELETE FROM cart_items WHERE cart_id = ?";
-
-    db.query(sql, [cart_id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
+        const deleted = await CartItem.findOneAndDelete({ _id: cart_id, user: userId });
+        if (!deleted) {
+            return res.status(404).json({ error: "Cart item not found or unauthorized" });
+        }
 
         res.status(200).json({ msg: "Item removed from cart!" });
-    });
+    } catch (err) {
+        console.error("Remove from Cart Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };

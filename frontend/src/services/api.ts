@@ -4,8 +4,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     const url = `${API_URL}${endpoint}`;
-    const defaultHeaders = {
+    const token = localStorage.getItem("token");
+    const defaultHeaders: Record<string, string> = {
         "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
     };
 
     const config = {

@@ -1,41 +1,73 @@
-const db = require("../database/db");
+const ChatMessage = require("../models/ChatMessage");
+const AIService = require("../services/aiService");
 
-// SEND MESSAGE
-exports.sendMessage = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
-    const { role, content } = req.body;
+// SEND MESSAGE & CHAT WITH COACH
+exports.sendMessage = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const text = req.body.message || req.body.content;
 
-    const sql = `
-        INSERT INTO chat_messages (clerk_user_id, role, content)
-        VALUES (?, ?, ?)
-    `;
+        if (!text) {
+            return res.status(400).json({ error: "Message or content is required." });
+        }
 
-    db.query(sql, [clerk_user_id, role, content], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+        // If the request specifically came as a coach query (message property or /api/chat)
+        if (req.body.message || !req.body.role) {
+            // Save user query
+            await ChatMessage.create({
+                user: userId,
+                role: "user",
+                content: text
+            });
+
+            // Generate AI Coach response
+            const aiReply = await AIService.chatWithCoach(text);
+
+            // Save coach reply
+            await ChatMessage.create({
+                user: userId,
+                role: "assistant",
+                content: aiReply
+            });
+
+            return res.status(200).json({ reply: aiReply, message: aiReply });
+        }
+
+        // Standard manual message log
+        const msg = await ChatMessage.create({
+            user: userId,
+            role: req.body.role || "user",
+            content: text
+        });
 
         res.status(200).json({
             msg: "Message sent!",
-            message_id: result.insertId
+            message_id: msg._id,
+            id: msg._id
         });
-    });
+    } catch (err) {
+        console.error("Send Message Error:", err);
+        res.status(500).json({ error: err.message || "Failed to process chat" });
+    }
 };
 
 // GET CHAT MESSAGES
-// Simplified to just fetch messages for the user. We can adjust if trainer-specific chats are needed later
-exports.getConversation = (req, res) => {
-    const USER_ID = "demo-user";
-    const clerk_user_id = USER_ID;
+exports.getConversation = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const messages = await ChatMessage.find({ user: userId }).sort({ created_at: 1 });
 
-    const sql = `
-        SELECT * FROM chat_messages
-        WHERE clerk_user_id = ?
-        ORDER BY created_at ASC
-    `;
+        const formatted = messages.map(m => ({
+            message_id: m._id,
+            id: m._id,
+            role: m.role,
+            content: m.content,
+            created_at: m.created_at
+        }));
 
-    db.query(sql, [clerk_user_id], (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        res.status(200).json(result);
-    });
+        res.status(200).json(formatted);
+    } catch (err) {
+        console.error("Get Conversation Error:", err);
+        res.status(500).json({ error: err.message });
+    }
 };
