@@ -64,14 +64,17 @@ export default function Signup() {
         } catch (err: any) {
             const serverMsg = err.response?.data?.error || err.response?.data?.message;
             let fallbackMsg = "Registration failed. Please check your details and try again.";
-            if (!err.response) {
+            if (err.response?.status === 405) {
+                fallbackMsg = "Production API route not configured. Please add VITE_API_URL to your Vercel Project Settings pointing to your live backend.";
+            } else if (err.response?.status >= 502 && err.response?.status <= 504) {
+                fallbackMsg = "Backend server is currently starting up (Render free tier cold start). Please wait ~30 seconds and retry.";
+            } else if (!err.response) {
                 fallbackMsg = import.meta.env.DEV
                     ? "Cannot connect to server. Please ensure the backend is running on port 5000."
-                    : "Cannot connect to backend server. Please verify your internet connection and ensure the production backend is running.";
+                    : "Cannot connect to backend server. Please verify your internet connection and ensure your live backend is running.";
             }
             const msg = serverMsg || fallbackMsg;
             setErrorMessage(msg);
-            toast.error(msg);
         } finally {
             setLoading(false);
         }

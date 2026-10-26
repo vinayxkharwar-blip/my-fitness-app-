@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } else {
             setIsLoading(false);
         }
-    }, []);
+    }, [token]);
 
     const login = (newToken: string, newUser: AuthUser) => {
         localStorage.setItem("token", newToken);

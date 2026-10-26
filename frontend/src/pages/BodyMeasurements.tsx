@@ -4,9 +4,6 @@ import { cn } from "@/utils/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { Ruler, Weight, User as UserIcon, Calendar, ArrowRight, ChevronLeft, Activity } from "lucide-react";
 
-// Static demo user - no auth dependency
-const user = { id: "demo-user" };
-
 export default function BodyMeasurements() {
     const navigate = useNavigate();
     const { updateProfile, isUpdating } = useProfile();

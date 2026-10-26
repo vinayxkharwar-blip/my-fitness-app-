@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut, Target, Scale, Check } from "lucide-react";
+import { ChevronLeft, Edit2, ChevronRight, Settings, User, Bell, Shield, LogOut, Target, Scale } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/context/AuthContext";

@@ -3,7 +3,6 @@ import { Send, Sparkles, Bot, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/utils";
 import { chatWithCoach } from "@/services/api";
-import { chatService } from "@/services/chatService";
 import { toast } from "sonner";
 
 interface Message {
@@ -56,11 +55,8 @@ export default function Coach() {
         setInputValue("");
         setIsTyping(true);
 
-        // Persist user message to DB (fire-and-forget)
-        chatService.sendMessage({ role: "user", content: text }).catch(() => {});
-
         try {
-            // Call the real OpenAI backend
+            // Call the real OpenAI backend (automatically persists both user query and AI reply to DB)
             const aiResponse = await chatWithCoach(text);
 
             const newAiMsg: Message = {
@@ -70,10 +66,6 @@ export default function Coach() {
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, newAiMsg]);
-
-            // Persist AI response to DB (fire-and-forget)
-            chatService.sendMessage({ role: "assistant", content: newAiMsg.text }).catch(() => {});
-
         } catch {
             toast.error("Failed to get AI response. Please try again.");
             const errorMsg: Message = {

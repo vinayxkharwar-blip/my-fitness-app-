@@ -36,15 +36,12 @@ export const chatWithCoach = async (message: string) => {
 };
 
 export const analyzeMeal = async (imageBase64: string) => {
-    return apiRequest("/api/analyze", {
-        method: "POST",
-        body: JSON.stringify({ image: imageBase64 }),
-    });
+    const response = await api.post("/api/analyze", { image: imageBase64 });
+    return response.data;
 };
 
 export const analyzeBody = async (imageBase64: string) => {
-    return apiRequest("/api/body-analyze", {
-        method: "POST",
-        body: JSON.stringify({ image: imageBase64 }),
-    });
+    const response = await api.post("/api/body-analyze", { image: imageBase64 });
+    return response.data;
 };
+

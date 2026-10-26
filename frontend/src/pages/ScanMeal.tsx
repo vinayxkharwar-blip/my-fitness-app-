@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Search, Upload, Utensils, CheckCircle2, Loader2, AlertCircle, ImageIcon } from 'lucide-react';
+import { Camera, Search, Upload, Utensils, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/common/card';
 import { Button } from '@/components/common/button';
 import { Input } from '@/components/common/input';

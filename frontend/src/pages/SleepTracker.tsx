@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Settings, Moon, Sun, Activity, Clock, Check, Edit3, ChevronRight, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Moon, Sun, Activity, Clock, Check, Edit3, ChevronRight, CheckCircle2 } from "lucide-react";
 import { cn } from "@/utils/utils";
 
 // Helper for time math

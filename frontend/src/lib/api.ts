@@ -53,6 +53,14 @@ api.interceptors.response.use(
                     localStorage.removeItem("user");
                     window.location.href = "/login";
                 }
+            } else if (status === 405) {
+                const isProduction = !import.meta.env.DEV;
+                const msg = isProduction && !getApiBaseUrl()
+                    ? "Production API route not configured (405 Method Not Allowed). Set VITE_API_URL to your deployed backend URL in Vercel Project Settings."
+                    : (data?.error || "Request method not allowed.");
+                toast.error(msg);
+            } else if (status >= 502 && status <= 504) {
+                toast.error("Backend server is temporarily unreachable or spinning up (Render cold start). Please wait ~30 seconds and retry.");
             } else if (status === 500) {
                 toast.error(data?.error || "An unexpected server error occurred.");
             } else {
@@ -60,7 +68,11 @@ api.interceptors.response.use(
             }
         } else if (error.request) {
             console.error("Axios Request Error:", error);
-            toast.error(`Network error (${error.message || 'unknown'}). Could not connect to the server.`);
+            const baseUrl = getApiBaseUrl();
+            const msg = !baseUrl && !import.meta.env.DEV
+                ? "Could not reach backend. In production, configure VITE_API_URL in your Vercel Project Settings."
+                : `Network error (${error.message || 'unknown'}). Could not connect to the server.`;
+            toast.error(msg);
         } else {
             console.error("Axios General Error:", error);
             toast.error(`Error: ${error.message || 'Failed to setup request'}`);

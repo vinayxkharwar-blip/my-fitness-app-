@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/common/card";
 import { Flame, Trophy, TrendingUp, Calendar, Zap, CheckCircle2, Dumbbell, Footprints } from "lucide-react";
 import { cn } from "@/utils/utils";
 
