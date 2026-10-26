@@ -1,9 +1,9 @@
-import { api } from '@/lib/api';
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { api, getApiBaseUrl } from '@/lib/api';
 
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-    const url = `${API_URL}${endpoint}`;
+    const baseUrl = getApiBaseUrl();
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseUrl}${cleanEndpoint}`;
     const token = localStorage.getItem("token");
     const defaultHeaders: Record<string, string> = {
         "Content-Type": "application/json",

@@ -1,10 +1,27 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
+/**
+ * Safely resolves the API Base URL:
+ * - If VITE_API_URL is defined, use it (stripping any trailing slash).
+ * - In development mode, fallback to "http://localhost:5000".
+ * - In production mode without VITE_API_URL, default to "" (relative path) to avoid 
+ *   invalid localhost calls on mobile or remote client devices.
+ */
+export const getApiBaseUrl = (): string => {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (typeof envUrl === 'string' && envUrl.trim().length > 0) {
+        return envUrl.trim().replace(/\/+$/, '');
+    }
+    if (import.meta.env.DEV) {
+        return "http://localhost:5000";
+    }
+    return "";
+};
+
 // Create Axios Instance
-const configuredBaseUrl = import.meta.env.VITE_API_URL;
 export const api = axios.create({
-    baseURL: configuredBaseUrl !== undefined ? configuredBaseUrl : "http://localhost:5000",
+    baseURL: getApiBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },

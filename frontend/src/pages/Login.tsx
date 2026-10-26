@@ -50,9 +50,12 @@ export default function Login() {
             }
         } catch (err: any) {
             const serverMsg = err.response?.data?.error || err.response?.data?.message;
-            const fallbackMsg = !err.response 
-                ? "Cannot connect to server. Please ensure the backend is running on port 5000."
-                : "Login failed. Please check your credentials.";
+            let fallbackMsg = "Login failed. Please check your credentials.";
+            if (!err.response) {
+                fallbackMsg = import.meta.env.DEV
+                    ? "Cannot connect to server. Please ensure the backend is running on port 5000."
+                    : "Cannot connect to backend server. Please verify your internet connection and ensure the production backend is running.";
+            }
             const msg = serverMsg || fallbackMsg;
             setErrorMessage(msg);
             toast.error(msg);
