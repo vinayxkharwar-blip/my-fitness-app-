@@ -14,22 +14,32 @@ const app = express();
 connectDB();
 
 // 2. Security HTTP headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // 3. Request Logging
 app.use(morgan("dev"));
 
 // 4. CORS configuration
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:8080").split(",");
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8080",
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim()) : [])
+];
+
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost")) {
+        if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
             return callback(null, true);
         }
         callback(null, true); // Permissive for local development
     },
     credentials: true,
-    methods: "GET, POST, PUT, DELETE, OPTIONS"
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 
 // 5. JSON Body Parser with 10MB safety limit

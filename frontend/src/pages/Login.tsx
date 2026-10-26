@@ -49,7 +49,11 @@ export default function Login() {
                 setErrorMessage("Invalid response from server.");
             }
         } catch (err: any) {
-            const msg = err.response?.data?.error || "Login failed. Please check your credentials.";
+            const serverMsg = err.response?.data?.error || err.response?.data?.message;
+            const fallbackMsg = !err.response 
+                ? "Cannot connect to server. Please ensure the backend is running on port 5000."
+                : "Login failed. Please check your credentials.";
+            const msg = serverMsg || fallbackMsg;
             setErrorMessage(msg);
             toast.error(msg);
         } finally {

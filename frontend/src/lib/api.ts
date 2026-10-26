@@ -2,8 +2,9 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 // Create Axios Instance
+const configuredBaseUrl = import.meta.env.VITE_API_URL;
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+    baseURL: configuredBaseUrl !== undefined ? configuredBaseUrl : "http://localhost:5000",
     headers: {
         'Content-Type': 'application/json',
     },

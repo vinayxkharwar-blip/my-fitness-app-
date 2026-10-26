@@ -62,7 +62,11 @@ export default function Signup() {
                 navigate("/login");
             }
         } catch (err: any) {
-            const msg = err.response?.data?.error || "Registration failed. Please check your details and try again.";
+            const serverMsg = err.response?.data?.error || err.response?.data?.message;
+            const fallbackMsg = !err.response 
+                ? "Cannot connect to server. Please ensure the backend is running on port 5000."
+                : "Registration failed. Please check your details and try again.";
+            const msg = serverMsg || fallbackMsg;
             setErrorMessage(msg);
             toast.error(msg);
         } finally {
