@@ -27,12 +27,18 @@ const allowedOrigins = [
     "http://localhost:8080",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:8080",
+    "https://my-fitness-app-azure-nu.vercel.app",
     ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim()) : [])
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        if (
+            !origin || 
+            allowedOrigins.includes(origin) || 
+            /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+            origin.endsWith(".vercel.app")
+        ) {
             return callback(null, true);
         }
         callback(null, true); // Permissive for local development
@@ -101,6 +107,10 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ------------------------------------------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+module.exports = app;
