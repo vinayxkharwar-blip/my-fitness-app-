@@ -1,5 +1,7 @@
 export interface User {
-    clerk_user_id: string;
+    id?: string;
+    user_id?: string;
+    clerk_user_id?: string;
     email?: string;
     first_name?: string;
     last_name?: string;
@@ -7,19 +9,21 @@ export interface User {
 }
 
 export interface UserProfile {
-    profile_id: number;
-    clerk_user_id: string;
+    profile_id?: number | string;
+    user_id?: string;
+    clerk_user_id?: string;
     age?: number;
     weight_kg?: number;
     height_cm?: number;
     goal?: string;
     activity_level?: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
 export interface Meal {
-    meal_id: number;
-    clerk_user_id: string;
+    meal_id?: number | string;
+    user_id?: string;
+    clerk_user_id?: string;
     name: string;
     calories?: number;
     protein?: number;
@@ -30,15 +34,17 @@ export interface Meal {
 }
 
 export interface WaterLog {
-    log_id: number;
-    clerk_user_id: string;
+    log_id?: number | string;
+    user_id?: string;
+    clerk_user_id?: string;
     amount_ml: number;
     logged_at: string;
 }
 
 export interface Habit {
-    habit_id: number;
-    clerk_user_id: string;
+    habit_id?: number | string;
+    user_id?: string;
+    clerk_user_id?: string;
     name: string;
     frequency?: string;
     streak: number;

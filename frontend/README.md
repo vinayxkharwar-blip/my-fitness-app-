@@ -9,18 +9,19 @@ FitSnap Coach is a modern, full-stack AI-powered fitness and nutrition tracking 
 - **TypeScript** for strict type safety
 - **Tailwind CSS** & **shadcn/ui** for beautiful, responsive design
 - **TanStack Query (React Query)** for efficient server state management
-- **@clerk/clerk-react** for seamless authentication
+- **Custom JWT Authentication** with bcrypt password hashing and MongoDB persistence
+- **Security:** Protected route guards and session management
 
 ### Backend
 - **Node.js** & **Express**
-- **MySQL** relational database
-- **@clerk/clerk-sdk-node** for secure API route protection
-- **Google Gemini AI API** for intelligent food macro analysis and chat coaching
+- **MongoDB** with Mongoose ODM
+- **JWT (jsonwebtoken)** for secure API route protection
+- **OpenAI API** for intelligent food macro analysis and chat coaching
 - **Security:** Helmet, express-rate-limit, CORS, Morgan logging
 
 ## ✨ Features
 
-- **Secure Authentication:** Managed entirely by Clerk.
+- **Secure Authentication:** Native JWT with bcrypt password encryption.
 - **Meal & Macro Logging:** Track your daily calories, protein, carbs, and fats. 
 - **AI Food Analysis:** Upload a photo of your meal and let Gemini instantly estimate its nutritional value.
 - **Hydration & Habit Tracking:** Log water intake and build consistent streaks for custom habits.
